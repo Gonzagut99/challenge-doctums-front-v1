@@ -1,5 +1,8 @@
+@import url('/fonts/dogica/dogica.css');
+@import url('/fonts/easvhs/easvhs.css');
+
 body {
-    margin: 0;
+    margin: 0 !important;
     padding: 0;
     color: rgba(255, 255, 255, 0.87);
     background-color: #000000; 

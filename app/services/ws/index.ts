@@ -46,6 +46,7 @@ class WebSocketService {
         };
     }
 
+    // 'message' can be string or a JSON object
     sendMessage(message: string) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(message);

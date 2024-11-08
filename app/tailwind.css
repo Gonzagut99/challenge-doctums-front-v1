@@ -1,3 +1,6 @@
+@import url('/fonts/dogica/dogica.css');
+@import url('/fonts/easvhs/easvhs.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

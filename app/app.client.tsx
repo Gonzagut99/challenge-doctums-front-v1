@@ -80,7 +80,6 @@ function App()
         setCanMoveSprite(scene.scene.key !== 'MainMenu');
         
     }
-
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />

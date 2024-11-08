@@ -82,6 +82,7 @@ function loadCSV(filePath: string): Promise<string[][]> {
   async function loadEfficiencies(filePath: string): Promise<Record<string, Efficiency>> {
     const efficienciesDict: Record<string, Efficiency> = {};
     const rows = await loadCSV(filePath);
+    console.log(rows)
     for (const row of rows) {
       const [idx, name, ...modifiers] = row[0].split('%%%');
       const modifiersProducts = modifiers[0].split(';').filter((id) => id.length !== 0);
@@ -136,13 +137,17 @@ async function loadEvents(filePath: string, efficienciesDict: Record<string, Eff
     return rows;
   }
 
+const dirnameWithoutUtils = __dirname.split('utils')[0];
+
 export async function loadAllData(): Promise<{ projects: Record<string, Project>, resources: Record<string, Resource>, products: Record<string, Product>, efficiencies: Record<string, Efficiency>, events:Record<string, Event>, legacy: string[][] }> {
-    const efficiencies = await loadEfficiencies(path.join(__dirname, 'dat', 'efficiencies.csv'));
+    const efficiencies = await loadEfficiencies(path.join(dirnameWithoutUtils, 'data', 'efficiencies.csv'));
     const products = await loadProducts(dataPaths.products);
     const projects = await loadProjects(dataPaths.projects);
     const resources = await loadResources(dataPaths.resources);
     const events = await loadEvents(dataPaths.events, efficiencies);
     const legacy = await loadLegacy(dataPaths.legacy);
+
+    console.log(projects, resources, products, efficiencies, events, legacy)
     return { 
         projects, 
         resources, 

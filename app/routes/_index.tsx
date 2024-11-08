@@ -19,6 +19,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Index() {
+    // console.log(JSON.stringify(loadAllData()));
     return (
         <ClientOnly fallback={<h3>Loading Game...</h3>}>
             { () => <App /> }

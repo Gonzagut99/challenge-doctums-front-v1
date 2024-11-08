@@ -4,12 +4,12 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-} from '@remix-run/react';
+} from "@remix-run/react";
 import styles from "./tailwind.css?url";
-import { LinksFunction } from '@remix-run/node';
+import { LinksFunction } from "@remix-run/node";
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
+    { rel: "stylesheet", href: styles },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -17,11 +17,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <html lang="en">
             <head>
                 <meta charSet="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                />
                 <Meta />
                 <Links />
             </head>
-            <body>
+            <body className="!m-0">
                 {children}
                 <ScrollRestoration />
                 <Scripts />
