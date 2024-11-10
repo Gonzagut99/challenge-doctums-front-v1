@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { remixDevTools } from "remix-development-tools";
 import { flatRoutes } from 'remix-flat-routes'
-
+// import react from '@vitejs/plugin-react';
 
 installGlobals();
 
@@ -26,11 +26,15 @@ export default defineConfig({
                 return flatRoutes('routes', defineRoutes)
             },
         }),
-        tsconfigPaths()
+        tsconfigPaths(),
+        // react()
     ],
     server: {
         port: 8085
-    }
+    },
+    // build: {
+    //     manifest: true,
+    // },
 });
 
 // function remixDevTools(): import("vite").PluginOption {

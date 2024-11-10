@@ -1,49 +1,8 @@
 import { Form } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
-
-interface CharacterData {
-    id: number;
-    image: string;
-    profession: string;
-    description: string;
-    color: string;
-}
-
-const charactersData: CharacterData[] = [
-    {
-        id: 1,
-        image: "/assets/characters/characterMale1.png",
-        profession: "Lider Estratégico",
-        description:
-            "Tiene experiencia en gestión de proyectos y habilidades de liderazgo, como la toma de decisiones y la planificación a largo plazo. Entre sus habilidades se encuentran la resolución de problemas y la comunicación efectiva.",
-        color: "bg-[#059FFF]",
-    },
-    {
-        id: 2,
-        image: "/assets/characters/characterFemale1.png",
-        profession: "Analista de Datos",
-        description:
-            "Debe manejar grandes volúmenes de datos y extraer información valiosa de ellos. Entre sus habilidades blandas sdestacan la atención y la organización, asegurando que cada decisión este respaldada por datos.",
-        color: "bg-[#FB6356]",
-    },
-    {
-        id: 3,
-        image: "/assets/characters/characterMale2.png",
-        profession: "Ing. de Software",
-        description:
-            "Ideal para proyectos que requieren soluciones técnicas avanzadas. En cuanto a habilidades blandas, es creativoy resiliente, capaz de adaptarse rápidamentea los cambios y aportar nuevas ideas en cada fase del proyecto.",
-        color: "bg-[#29AA5B]",
-    },
-    {
-        id: 4,
-        image: "/assets/characters/characterFemale2.png",
-        profession: "Comunicadora",
-        description:
-            "Sus habilidades en gestión de stakeholders y comunicación son claves para mantener a todos informados. Su empatía y capacidad de escuchar hacen que los problemas se resuelvan rápidamente y su carisma genera un ambiente de trabajo positivo.",
-        color: "bg-[#FEE349]",
-    },
-];
+import { charactersData } from "~/data/characters";
+import { CharacterData } from '~/types/character';
 
 function chooseCharacter() {
     return (
