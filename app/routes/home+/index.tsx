@@ -1,7 +1,38 @@
-import { Link } from "@remix-run/react";
+import { json, Link, useActionData, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/custom/Button";
+import { gameSessionService } from "~/services/http/GameSessionServices";
+import { useGameStore } from "~/store/useGameStore";
 
-function index() {
+export const action = async () => {
+    const response = await gameSessionService.createGameSession();
+    // const gameSession = response?.data
+    return json(response)
+};
+
+function Index() {
+    const updateGameSessionState = useGameStore((state)=> state.startGameSession)    
+    const actionData = useActionData<typeof action>()
+    let error
+    let gameSession
+    if (actionData && 'error' in actionData){
+        error = actionData
+    }
+    if (actionData && !error) gameSession = actionData?.data
+    if (gameSession) updateGameSessionState(gameSession)
+
+        
+    const fetcher = useFetcher();
+    const handleSubmit = ()=>{
+        fetcher.submit(
+            {
+                action: "/home",
+                method: "post",
+                encType: "application/x-www-form-urlencoded",
+                preventScrollReset: false,
+                replace: true,
+            }
+        );
+    }
     return (
         <>
             <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
@@ -10,13 +41,11 @@ function index() {
                 </h1>
             </header>
             <div className="flex flex-col gap-4">
-                <Link to={"/newGameSession"}>
-                    <Button>
-                        <span className="z-10  text-white font-easvhs text-2xl">
-                            Crear partida
-                        </span>
-                    </Button>
-                </Link>
+                <Button onClick={handleSubmit}>
+                    <span className="z-10  text-white font-easvhs text-2xl">
+                        Crear partida
+                    </span>
+                </Button>
                 <Link to={"/home/joinGame"}>
                     <Button>
                         <span className="z-10 text-white font-easvhs text-2xl">
@@ -29,4 +58,4 @@ function index() {
     );
 }
 
-export default index;
+export default Index;

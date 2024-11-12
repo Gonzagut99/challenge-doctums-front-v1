@@ -1,9 +1,10 @@
 import { ResponseModel } from "../ResponseModel";
 import { apiClient } from ".";
+import { PlayerData } from "~/domain/entities/player";
 
 export interface GameSession {
   id: string;
-  players: string[];
+  players: PlayerData[];
   // Añade otros campos según tu modelo GameSessionModel
 }
 
