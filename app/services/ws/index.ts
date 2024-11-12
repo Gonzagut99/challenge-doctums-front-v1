@@ -53,9 +53,9 @@ class WebSocketService implements IWebSocketService {
     }
 
     // 'message' can be string or a JSON object
-    sendMessage(message: string) {
+    sendMessage(message: string | object) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(message);
+            this.socket.send(JSON.stringify(message));
         } else {
             console.error(
                 "WebSocket is not open. Ready state:",
