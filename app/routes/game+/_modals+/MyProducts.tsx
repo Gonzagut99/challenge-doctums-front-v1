@@ -34,12 +34,11 @@ function MyProducts() {
     {isModalOpen && (
         <Modal title="Tus productos" onDismiss={handleDismiss}>
             <div className="flex flex-col gap-2">
-                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">Misiones o tareas que, al pasar tres meses te otorgan productos</p>
+                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">Objetos o mejoras que, una vez adquiridos te ayudarán a ganar más puntos en futuras etapa</p>
                 <div className="grid grid-cols-2 gap-2">
                     {
                         myProducts.map((product) => (
                             <ModifierTabletTile key={product.title} tabletTileData={product}>
-
                             </ModifierTabletTile>
                         ))
 

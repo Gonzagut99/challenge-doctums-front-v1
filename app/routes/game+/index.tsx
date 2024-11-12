@@ -99,7 +99,6 @@ export default function Index() {
                     )}
                 </div>
             </section>
-            <div id="modal-container" />    
         </article>
     );
 }
@@ -138,14 +137,14 @@ const gameControlButtons: GameControlButton[] = [
         title: "Ver Productos",
         description:
             "Objetos o mejoras que, una vez adquiridos te ayudarán a ganar más puntos en futuras etapa.",
-        control: "MyProducts",
+        control: "myProducts",
     },
     {
         icon: "/assets/icons/projectsIcon.png",
         title: "Ver Proyectos",
         description:
             "Misiones o tareas que, al completarse, te otorgan productos.",
-        control: "projects",
+        control: "myProjects",
     },
 ];
 

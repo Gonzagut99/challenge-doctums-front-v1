@@ -105,7 +105,7 @@ export default function Modal(
                                 ref={modalRef}
                                 className="z-50 w-full overflow-hidden rounded text-zinc-900  max-w-screen-lg px-12 relative flex items-center"
                             >
-                                <img src="/public/assets/frames/GameTabletFrame.png" alt="Tablet" className="w-[900px] min-w-[900px] absolute"/>
+                                <img src="/assets/frames/GameTabletFrame.png" alt="Tablet" className="w-[900px] min-w-[900px] absolute"/>
                                 <section className="min-w-[900px] w-[900px] min-h-[660px] h-[660px] px-14 pt-8 pb-[3.6rem] shadow-md relative">
                                     <div className="py-4 px-2">
                                         <header className="flex justify-center ">

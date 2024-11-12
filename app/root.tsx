@@ -60,6 +60,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     pauseOnHover
                     theme="dark"
                 ></ToastContainer>
+                <div id="modal-container" />    
                 <ScrollRestoration />
                 <Scripts />
             </body>

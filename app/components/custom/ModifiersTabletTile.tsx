@@ -27,7 +27,7 @@ export function ModifierTabletTile({ children,className, tabletTileData, ...rest
                         ))
                     }
                     </div>
-                    <div className="flex items-end">
+                    <div className="flex items-end justify-end">
                         {children}
                     </div>
                 </div>
