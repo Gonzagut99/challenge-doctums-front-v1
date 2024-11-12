@@ -1,38 +1,43 @@
-import { json, Link, useActionData, useFetcher, useNavigate } from "@remix-run/react";
+import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
+import { useEffect } from "react";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
 import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
-    console.log(response)
-    console.log(response?.data)
-    console.log(json(JSON.stringify(response)))
+    console.log(response);
+    console.log(response?.data);
+    console.log(json(JSON.stringify(response)));
     // const gameSession = response?.data
-    return json(response)
+    return json(response);
 };
 
 function Index() {
-    const updateGameSessionState = useGameStore((state)=> state.startGameSession)    
-    const actionData = useActionData<typeof action>()
-    const navigate = useNavigate()
-    let error
-    let gameSession
-    if (actionData && 'error' in actionData){
-        error = actionData
-    }
-    if (actionData && !error) gameSession = actionData?.data
-    if (gameSession) {
-        console.log(gameSession)
-        updateGameSessionState(gameSession)
-        navigate(`/home/chooseCharacter`,{
-            replace: true
-        })
-    }
+    const updateGameSessionState = useGameStore(
+        (state) => state.startGameSession
+    );
+    const navigate = useNavigate();
+    const fetcher = useFetcher<typeof action>();
 
-        
-    const fetcher = useFetcher();
-    const handleSubmit = ()=>{
+    // Escuchar cambios en fetcher.data
+    useEffect(() => {
+        if (fetcher.data) {
+            const error = fetcher.data?.error;
+            const gameSession = fetcher.data?.data;
+
+            if (error) {
+                console.error("Error:", error);
+                // Manejar errores aquí (mostrar mensaje al usuario, etc.)
+            } else if (gameSession) {
+                console.log("Sesión de juego:", gameSession);
+                updateGameSessionState(gameSession);
+                navigate("/home/chooseCharacter", { replace: true });
+            }
+        }
+    }, [fetcher.data, navigate, updateGameSessionState]);
+
+    const handleSubmit = () => {
         fetcher.submit(
             {},
             {
@@ -41,7 +46,7 @@ function Index() {
                 preventScrollReset: false,
             }
         );
-    }
+    };
     return (
         <>
             <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
