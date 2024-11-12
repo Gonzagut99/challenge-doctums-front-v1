@@ -1,20 +1,15 @@
 import "dotenv/config";
-import * as joi from "joi";
+import Joi from 'joi';
 
 interface EnvVars {
     API_HTTP_BASE_URL: string;
     API_WS_BASE_URL: string;
 }
 
-const envsSchema = joi
-    .object({
-        // NODE_ENV: joi
-        //   .string()
-        //   .valid('development', 'production', 'test')
-        //   .required(),
-        API_HTTP_BASE_URL: joi.string().uri().required(),
-        API_WS_BASE_URL: joi.string().uri().required(),
-    })
+const envsSchema = Joi.object({
+    API_HTTP_BASE_URL: Joi.string().uri().required(),
+    API_WS_BASE_URL: Joi.string().uri().required(),
+  })
     .unknown(true);
 
 const { error, value } = envsSchema.validate(process.env);

@@ -1,10 +1,13 @@
-import { json, Link, useActionData, useFetcher } from "@remix-run/react";
+import { json, Link, useActionData, useFetcher, useNavigate } from "@remix-run/react";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
 import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
+    console.log(response)
+    console.log(response?.data)
+    console.log(json(JSON.stringify(response)))
     // const gameSession = response?.data
     return json(response)
 };
@@ -12,24 +15,30 @@ export const action = async () => {
 function Index() {
     const updateGameSessionState = useGameStore((state)=> state.startGameSession)    
     const actionData = useActionData<typeof action>()
+    const navigate = useNavigate()
     let error
     let gameSession
     if (actionData && 'error' in actionData){
         error = actionData
     }
     if (actionData && !error) gameSession = actionData?.data
-    if (gameSession) updateGameSessionState(gameSession)
+    if (gameSession) {
+        console.log(gameSession)
+        updateGameSessionState(gameSession)
+        navigate(`/home/chooseCharacter`,{
+            replace: true
+        })
+    }
 
         
     const fetcher = useFetcher();
     const handleSubmit = ()=>{
         fetcher.submit(
+            {},
             {
-                action: "/home",
-                method: "post",
+                method: "POST",
                 encType: "application/x-www-form-urlencoded",
                 preventScrollReset: false,
-                replace: true,
             }
         );
     }
