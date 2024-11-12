@@ -1,6 +1,12 @@
 import { envs } from "~/env/envs";
 
-class WebSocketService {
+export interface IWebSocketService {
+    connect(): void;
+    sendMessage(message: string | object): void;
+    disconnect(): void;
+}
+
+class WebSocketService implements IWebSocketService {
     private socket: WebSocket | null = null;
     private gameId: string;
     private playerId: string | null = null;
