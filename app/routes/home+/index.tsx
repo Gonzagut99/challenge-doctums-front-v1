@@ -6,17 +6,26 @@ import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
-    console.log(response);
-    console.log(response?.data);
-    console.log(json(JSON.stringify(response)));
+    // if (!response) {
+    //     return json({ error: "No se pudo crear la sesión de juego" }, { status: 500 });
+    // }
+    // console.log(response);
+    // console.log(response?.data);
+    // console.log(json(JSON.stringify(response)));
     // const gameSession = response?.data
     return json(response);
 };
 
 function Index() {
-    const updateGameSessionState = useGameStore(
-        (state) => state.startGameSession
-    );
+    const {startGameSession,initializeWebSocket } = useGameStore();
+    // const updateGameSessionState = useGameStore(
+    //     (state) => state.startGameSession
+    // );
+    const gameSessionId = useGameStore((state) => state.gameSession?.id);
+    // const initilizeWebSocket = useGameStore(
+    //     (state) => state.initializeWebSocket
+    // );
+    const webSocketService = useGameStore((state) => state.webSocketService);
     const navigate = useNavigate();
     const fetcher = useFetcher<typeof action>();
 
@@ -25,17 +34,24 @@ function Index() {
         if (fetcher.data) {
             const error = fetcher.data?.error;
             const gameSession = fetcher.data?.data;
+            if (gameSession) {
+                startGameSession(gameSession);
+                initializeWebSocket(gameSession?.id)
+                console.log("gameSession", gameSessionId);
+
+                if (webSocketService) console.log("webSocketService", true);
+            }
 
             if (error) {
                 console.error("Error:", error);
                 // Manejar errores aquí (mostrar mensaje al usuario, etc.)
             } else if (gameSession) {
                 console.log("Sesión de juego:", gameSession);
-                updateGameSessionState(gameSession);
-                navigate("/home/chooseCharacter", { replace: true });
+                startGameSession(gameSession);
+                navigate(`/home/chooseCharacter?gameSessionId=${gameSession.id}`, { replace: true });
             }
         }
-    }, [fetcher.data, navigate, updateGameSessionState]);
+    }, [fetcher.data, gameSessionId, initializeWebSocket, navigate, startGameSession, webSocketService]);
 
     const handleSubmit = () => {
         fetcher.submit(

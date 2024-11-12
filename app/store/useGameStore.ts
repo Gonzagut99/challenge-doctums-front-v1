@@ -24,6 +24,7 @@ interface GameState {
   setPlayerData: (playerData: PlayerData) => void;
   setGameSessionNewPlayer: (player: PlayerData) => void;
   startGame: () => void;
+  initializeWebSocket: (gameId: string) => void;
   // rollDice: () => void;
   // updateTurn: (turnData: Turn) => void;
   startGameSession: (newSession: GameSession) => void;
@@ -52,7 +53,30 @@ export const useGameStore = create<GameState>((set, get) => ({
     // }
     set({ gameSession: newSession, isLoading: false });
   },
+  initializeWebSocket: (gameId: string) => {
+    const webSocketService = new WebSocketService(gameId);
+    // webSocketService.connect();
 
+    // // Example listener for incoming messages
+    // webSocketService.on('start_game', (data) => {
+    //   set({ 
+    //     isGameStarted: true, 
+    //     players: data.players, 
+    //     currentTurn: data.currentTurn 
+    //   });
+    // });
+
+    // webSocketService.on('turn_update', (data) => {
+    //   set({ currentTurn: data.currentTurn });
+    // });
+
+    // webSocketService.on('update_player_data', (data) => {
+    //   const updatedPlayerData = { ...get().playerData, ...data };
+    //   set({ playerData: updatedPlayerData });
+    // });
+
+    set({ webSocketService });
+  },
   // Action to reset the game session
   resetGameSession: () => set({ gameSession: null, error: null }),
   setPlayerData: (playerData: PlayerData) => set({ playerData }),

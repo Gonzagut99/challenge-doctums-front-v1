@@ -14,9 +14,17 @@ class WebSocketService implements IWebSocketService {
     private messageHandler: (message: string | object) => void;
 
     // 'message' can be string or a JSON object
-    constructor(gameId: string, playerId: string, messageHandler: (message: string | object) => void) {
+    constructor(gameId: string) {
         this.gameId = gameId;
+    }
+
+    // Method to set playerId later
+    setPlayerId(playerId: string) {
         this.playerId = playerId;
+    }
+
+    // Method to set messageHandler later
+    setMessageHandler(messageHandler: (message: string | object) => void) {
         this.messageHandler = messageHandler;
     }
 
