@@ -5,6 +5,7 @@ import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
 import { connectedPlayers } from "~/data/connectedPlayers";
+import { useRef } from "react";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
@@ -26,12 +27,22 @@ function Index() {
     const currentUserId = connectedPlayers[0].userId;
     const navigate = useNavigate();
     const gameCode = loaderData.sessionCode;
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const handleCopyCode = async () => {
         try {
-            await navigator.clipboard.writeText(gameCode);
-            // Opcional: Mostrar un toast o feedback
-            console.log('Código copiado al portapapeles');
+            if (navigator.clipboard && window.isSecureContext) {
+                // Usar la API del Portapapeles, solo funciona en localhost y https
+                await navigator.clipboard.writeText(gameCode);
+              }else{
+                // Usar el input cuando es http
+                inputRef.current?.select();
+                document.execCommand('copy');
+                inputRef.current?.blur();
+              }
+            // await navigator.clipboard.writeText(gameCode);
+            // // Opcional: Mostrar un toast o feedback
+            // console.log('Código copiado al portapapeles');
             toast.success('Código copiado al portapapeles');
         } catch (err) {
             console.error('Error al copiar:', err);
@@ -97,6 +108,7 @@ function Index() {
                         className="absolute inset-0 w-64 h-[4rem]"
                     />
                     <input
+                        ref={inputRef}
                         type="text"
                         value={gameCode}
                         readOnly

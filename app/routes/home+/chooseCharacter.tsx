@@ -1,11 +1,11 @@
-import { Form, json,  useLoaderData} from "@remix-run/react";
+import { Form, json,  useLoaderData, useNavigation} from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
 import { charactersData } from "~/data/characters";
 import { createPlayer } from "~/services/http/player";
 import { CharacterData } from '~/types/character';
 import { z } from "zod";
-import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, replace, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     getValidatedFormData,
@@ -17,7 +17,7 @@ import { useEffect } from "react";
 //Form validation and configuration
 const schema = z.object({
     playerName: z.string().min(3, "El nombre debe tener al menos 3 caractéres"),
-    characterId: z.number().min(1).max(1),
+    characterId: z.number().max(4).int("El id del personaje debe ser un número entero"),
     sessionCode: z.string().min(36, "El codigo debe tener 36 caractéres").max(36).uuid("No es un código válido")
 });
 
@@ -46,12 +46,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     await createPlayer({ name: data.playerName, game_session: data.sessionCode, avatar_id: "1" });
 
-    return redirect(`/game-hall?sessionCode=${data.sessionCode}`);
+    return replace(`/game-hall?sessionCode=${data.sessionCode}`);
 };
 
 function ChooseCharacter() {
     const loaderData = useLoaderData<typeof loader>();
-    console.log(loaderData.sessionCode)
+    const navigation = useNavigation();
+    // const submit = useSubmit();
 
     const form = useRemixForm<FormData>({
         mode: "onSubmit",
@@ -61,20 +62,27 @@ function ChooseCharacter() {
         }
     });
 
+    const handleSelectCharacter = (characterId:number) => {
+        form.setValue('characterId', characterId)
+    }
+
     
     const {
         handleSubmit,
         register,
         formState: { errors },
-        watch
+        watch,
     } = form;
-    // 3. Agregar logs para monitorear los valores
-    console.log('Watch values:', {
-        playerName: watch('playerName'),
-        characterId: watch('characterId'),
-        sessionCode: watch('sessionCode')
-    });
     
+    // const clickSubmitEvent = async () => {
+
+    //     if (validated) {
+    //         submit(form.getValues(), {
+    //             action: '/home/chooseCharacter',
+    //             method: 'post',
+    //         });
+    //     }
+    // }
     useEffect(() => {
         console.log('Watch values:', {
             playerName: watch('playerName'),
@@ -123,21 +131,39 @@ function ChooseCharacter() {
                                     </p>
                                 )}
                             </div>
-                        </div>                            
+                        </div>                       
                         <div className="grid grid-cols-4 grid-rows-1 gap-3">
                             {
                                 charactersData.map((character) => (
                                     <CharacterCard
                                         key={character.id}
                                         characterData={character}
-                                        onSelect={() => form.setValue('characterId', character.id)}
+                                        onClick={() => handleSelectCharacter(character.id)}
                                     />
                                 ))
                             }
                         </div>
+                        <div>
+                            {
+                                errors.root && (
+                                    <p className="text-red-500 text-base font-easvhs">
+                                        {errors.root.message}
+                                    </p>
+                                )
+                            }
+                            {
+                                errors.characterId && (
+                                    <p className="text-red-500 text-base font-easvhs">
+                                        {errors.characterId.message}
+                                    </p>
+                                )
+                            }
+                        </div>
                         <div className="flex justify-center">
-                            <Button2 className="font-easvhs text-2xl text-white" type="submit">
-                                COMENZAR
+                            <Button2 type="submit" className="font-easvhs text-2xl text-white" disabled = {navigation.state != "idle"}>
+                                {
+                                    navigation.state == "idle" ? "Continuar" : "Ingresando a sala de espera..."
+                                }
                             </Button2>
                         </div>
                     </Form>
@@ -150,12 +176,10 @@ function ChooseCharacter() {
 //extends React.HTMLProps<HTMLDivElement>
 interface CharacterCardProps extends React.HTMLProps<HTMLButtonElement> {
     characterData: CharacterData;
-    onSelect: () => void;
 }
 
 export const CharacterCard = ({
     characterData,
-    onSelect, 
     ...rest
 }: CharacterCardProps) => {
     const {
@@ -170,11 +194,8 @@ export const CharacterCard = ({
         <button 
             {...rest}
             className="w-[12rem] flex flex-col gap-2 hover:scale-105 transform transition-transform duration-300 focus:outline-dotted focus:outline-[3px] focus:outline-zinc-900"
-            onClick={onSelect}
             id={id.toString()}
-            type="button"
-            tabIndex={0}
-            
+            type="button"            
         >
             <header className="px-4 py-1 border-zinc-900 border-[3px] rounded-sm bg-white">
                 <h3 className="font-easvhs text-base text-center">

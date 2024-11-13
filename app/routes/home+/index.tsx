@@ -81,9 +81,11 @@ function Index() {
                 </h1>
             </header>
             <div className="flex flex-col gap-4">
-                <Button onClick={handleSubmit}>
+                <Button onClick={handleSubmit} disabled={fetcher.state != 'idle'}>
                     <span className="z-10  text-white font-easvhs text-2xl">
-                        Crear partida
+                        {
+                            fetcher.state === "submitting" || fetcher.state === "loading" ? "Creando partida..." : "Crear partida"
+                        }
                     </span>
                 </Button>
                 <Link to={"/home/joinGame"}>
