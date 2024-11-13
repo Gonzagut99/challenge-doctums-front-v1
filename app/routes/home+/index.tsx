@@ -2,7 +2,7 @@ import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
-import { useGameStore } from "~/store/useGameStore";
+// import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
@@ -17,15 +17,15 @@ export const action = async () => {
 };
 
 function Index() {
-    const {startGameSession,initializeWebSocket } = useGameStore();
+    // const {startGameSession,initializeWebSocket } = useGameStore();
     // const updateGameSessionState = useGameStore(
     //     (state) => state.startGameSession
     // );
-    const gameSessionId = useGameStore((state) => state.gameSession?.id);
-    // const initilizeWebSocket = useGameStore(
-    //     (state) => state.initializeWebSocket
-    // );
-    const webSocketService = useGameStore((state) => state.webSocketService);
+    // const gameSessionId = useGameStore((state) => state.gameSession?.id);
+    // // const initilizeWebSocket = useGameStore(
+    // //     (state) => state.initializeWebSocket
+    // // );
+    // const webSocketService = useGameStore((state) => state.webSocketService);
     const navigate = useNavigate();
     const fetcher = useFetcher<typeof action>();
 
@@ -34,24 +34,24 @@ function Index() {
         if (fetcher.data) {
             const error = fetcher.data?.error;
             const gameSession = fetcher.data?.data;
-            if (gameSession) {
-                startGameSession(gameSession);
-                initializeWebSocket(gameSession?.id)
-                console.log("gameSession", gameSessionId);
+            // if (gameSession) {
+            //     startGameSession(gameSession);
+            //     initializeWebSocket(gameSession?.id)
+            //     // console.log("gameSession", gameSessionId);
 
-                if (webSocketService) console.log("webSocketService", true);
-            }
+            //     // if (webSocketService) console.log("webSocketService", true);
+            // }
 
             if (error) {
                 console.error("Error:", error);
                 // Manejar errores aquí (mostrar mensaje al usuario, etc.)
             } else if (gameSession) {
                 console.log("Sesión de juego:", gameSession);
-                startGameSession(gameSession);
+                //startGameSession(gameSession);
                 navigate(`/home/chooseCharacter?gameSessionId=${gameSession.id}`, { replace: true });
             }
         }
-    }, [fetcher.data, gameSessionId, initializeWebSocket, navigate, startGameSession, webSocketService]);
+    }, [fetcher.data, navigate,]);
 
     const handleSubmit = () => {
         fetcher.submit(
