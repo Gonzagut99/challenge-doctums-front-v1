@@ -2,10 +2,16 @@ import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
+import { globalWebSocketService } from "~/services/ws";
 // import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
+    const gameSession = response?.data
+    if(gameSession){
+        globalWebSocketService.setGameId(gameSession.id);
+        globalWebSocketService.connect();
+    }
     // if (!response) {
     //     return json({ error: "No se pudo crear la sesión de juego" }, { status: 500 });
     // }
@@ -34,6 +40,10 @@ function Index() {
         if (fetcher.data) {
             const error = fetcher.data?.error;
             const gameSession = fetcher.data?.data;
+            // if(gameSession) {
+            //     globalWebSocketService.setGameId(gameSession.id);
+            //     globalWebSocketService.connect();
+            // }
             // if (gameSession) {
             //     startGameSession(gameSession);
             //     initializeWebSocket(gameSession?.id)
@@ -48,7 +58,7 @@ function Index() {
             } else if (gameSession) {
                 console.log("Sesión de juego:", gameSession);
                 //startGameSession(gameSession);
-                navigate(`/home/chooseCharacter?gameSessionId=${gameSession.id}`, { replace: true });
+                navigate(`/home/chooseCharacter?sessionCode=${gameSession.id}`, { replace: true });
             }
         }
     }, [fetcher.data, navigate,]);

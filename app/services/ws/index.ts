@@ -1,4 +1,6 @@
+
 import { envs } from "~/env/envs";
+import ServerWebSocket from "ws";
 
 export interface IWebSocketService {
     connect(): void;
@@ -7,14 +9,19 @@ export interface IWebSocketService {
 }
 
 class WebSocketService implements IWebSocketService {
-    private socket: WebSocket | null = null;
+    private socket: ServerWebSocket | null = null;
     private gameId: string;
     private playerId: string | null = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private messageHandler: (message: string | object) => void;
 
-    // 'message' can be string or a JSON object
-    constructor(gameId: string) {
+    // // 'message' can be string or a JSON object
+    // constructor(gameId: string) {
+    //     this.gameId = gameId;
+    // }
+
+    // Method to set playerId later
+    setGameId(gameId: string) {
         this.gameId = gameId;
     }
 
@@ -29,19 +36,19 @@ class WebSocketService implements IWebSocketService {
     }
 
     connect() {
-        this.socket = new WebSocket(`${envs.apiWsBaseUrl}/game/${this.gameId}`);
+        this.socket = new ServerWebSocket(`${envs.apiWsBaseUrl}/game/connect/${this.gameId}`);
 
         this.socket.onopen = () => {
             console.log("WebSocket connection established");
             // Enviar mensaje al conectarse
-            if (this.playerId && this.socket) {
-                this.socket.send(this.playerId);
-            }
+            // if (this.playerId && this.socket) {
+            //     this.socket.send(this.playerId);
+            // }
         };
 
         this.socket.onmessage = (event) => {
             try {
-              const message = JSON.parse(event.data);
+              const message = JSON.parse(event.data.toString());
               // Manejar el mensaje JSON
               this.messageHandler(message);
             } catch (error) {
@@ -79,7 +86,10 @@ class WebSocketService implements IWebSocketService {
     }
 }
 
-export default WebSocketService;
+
+export const globalWebSocketService = new WebSocketService();
+
+//export default WebSocketService;
 
 // Invoking the service
 // const wsService = new WebSocketService(gameId, playerId);

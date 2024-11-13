@@ -5,8 +5,9 @@ import { envs } from '~/env/envs';
 const API_BASE_URL = envs.apiHttpBaseUrl // Cambia esto a la URL de tu backend
 
 export interface Player {
-    id: string;
+    name: string;
     game_session: string;
+    avatar_id: string;
     // Añade otros campos según tu modelo PlayerModel
 }
 
