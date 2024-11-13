@@ -1,4 +1,5 @@
-import { useNavigate } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { Button2 } from "~/components/custom/Button2";
 import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
@@ -7,12 +8,24 @@ import { connectedPlayers } from "~/data/connectedPlayers";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode");
+    console.log(sessionCode)
+  
+    if(!sessionCode){
+      return redirect("/home");
+      }
+      return json({ sessionCode });
+};
+
 
 
 function Index() {
+    const loaderData = useLoaderData<typeof loader>()
     const currentUserId = connectedPlayers[0].userId;
     const navigate = useNavigate();
-    const gameCode = "123e4567-e89b-12d3-a456-426614174000";
+    const gameCode = loaderData.sessionCode;
 
     const handleCopyCode = async () => {
         try {
