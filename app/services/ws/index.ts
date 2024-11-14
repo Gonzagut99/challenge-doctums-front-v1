@@ -45,6 +45,10 @@ class WebSocketService implements IWebSocketService {
         this.messageHandler = messageHandler;
     }
 
+    removeMessageHandler() {
+        this.messageHandler = () => {};
+    }
+
     connect() {
         this.socket = new ServerWebSocket(`${envs.apiWsBaseUrl}/game/connect/${this.gameId}`);
 

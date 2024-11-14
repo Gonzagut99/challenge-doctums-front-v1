@@ -5,32 +5,30 @@ import { Button2 } from "~/components/custom/Button2";
 import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
-import { globalWebSocketService } from "~/services/ws";
 import { charactersData } from "~/data/characters";
+import { globalWebSocketService } from "~/services/ws";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-    globalWebSocketService.joinGame()
+    
     const url = new URL(request.url);
     const sessionCode = url.searchParams.get("sessionCode");
-    
-    
-    
+    const connectedPlayers = globalWebSocketService.getConnectedPlayers();
+    const player = globalWebSocketService.getCurrentPlayer()
     
     if(!sessionCode ){
       return redirect("/home");
     }
-      return json({ sessionCode});
+      return json({ sessionCode, player, connectedPlayers});
 };
 
 
 
 function Index() {
     const loaderData = useLoaderData<typeof loader>()
-    const player = globalWebSocketService.getCurrentPlayer();
-    const connectedPlayers = globalWebSocketService.getConnectedPlayers();
-    const currentUserId = player?.id;
+    const connectedPlayers = loaderData.connectedPlayers;
+    const currentUserId = loaderData.player?.id;
     // const currentUserId = loaderData.player.id;
     // const connectedPlayers = loaderData.connectedPlayers;
 

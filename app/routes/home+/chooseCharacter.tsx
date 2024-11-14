@@ -51,6 +51,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     globalWebSocketService.setPlayer(createdPlayer.data);
+    globalWebSocketService.joinGame();
     return replace(`/game-hall?sessionCode=${data.sessionCode}`);
 };
 
