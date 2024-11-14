@@ -13,6 +13,7 @@ import {
     useRemixForm,
 } from "remix-hook-form";
 import { useEffect } from "react";
+import { globalWebSocketService } from "~/services/ws";
 
 //Form validation and configuration
 const schema = z.object({
@@ -27,7 +28,6 @@ const resolver = zodResolver(schema);
 export const loader = ( { request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const sessionCode = url.searchParams.get("sessionCode");
-  console.log(sessionCode)
 
   if(!sessionCode){
     return redirect("/home");
@@ -44,8 +44,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         return json({ errors, receivedValues }, { status: 400 });
     }
 
-    await createPlayer({ name: data.playerName, game_session: data.sessionCode, avatar_id: "1" });
+    const createdPlayer = await createPlayer({ name: data.playerName, game_session_id: data.sessionCode, avatar_id: data.characterId.toString() });
+    
+    if(createdPlayer.data == undefined){
+        return json({ error: "No se pudo crear el jugador" }, { status: 500 });
+    }
 
+    globalWebSocketService.setPlayer(createdPlayer.data);
     return replace(`/game-hall?sessionCode=${data.sessionCode}`);
 };
 

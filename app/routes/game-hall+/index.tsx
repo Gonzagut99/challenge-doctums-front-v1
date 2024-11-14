@@ -1,30 +1,39 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { useRef } from "react";
 import { json, redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { Button2 } from "~/components/custom/Button2";
 import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
-import { connectedPlayers } from "~/data/connectedPlayers";
-import { useRef } from "react";
+import { globalWebSocketService } from "~/services/ws";
+import { charactersData } from "~/data/characters";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+    globalWebSocketService.joinGame()
     const url = new URL(request.url);
     const sessionCode = url.searchParams.get("sessionCode");
-    console.log(sessionCode)
-  
-    if(!sessionCode){
+    
+    
+    
+    
+    if(!sessionCode ){
       return redirect("/home");
-      }
-      return json({ sessionCode });
+    }
+      return json({ sessionCode});
 };
 
 
 
 function Index() {
     const loaderData = useLoaderData<typeof loader>()
-    const currentUserId = connectedPlayers[0].userId;
+    const player = globalWebSocketService.getCurrentPlayer();
+    const connectedPlayers = globalWebSocketService.getConnectedPlayers();
+    const currentUserId = player?.id;
+    // const currentUserId = loaderData.player.id;
+    // const connectedPlayers = loaderData.connectedPlayers;
+
     const navigate = useNavigate();
     const gameCode = loaderData.sessionCode;
     const inputRef = useRef<HTMLInputElement>(null);
@@ -71,24 +80,27 @@ function Index() {
             <section className="grow flex justify-center items-end gap-3">
             {
                 connectedPlayers.map((player) => {
+                    const characterData = charactersData.find((character) => character.id == parseInt(player.avatarId)) ?? charactersData[0];
+                    
                     const nameTooltipDefaultClassname = "font-easvhs text-xl text-zinc-900 bg-zinc-50 border-[3px] border-zinc-900 rounded-md px-2 py-1"
-                    const nameTooltipClassname = twMerge(nameTooltipDefaultClassname, player.characterData.twTextColor)
-                    if (player.userId === currentUserId) {
+                    const nameTooltipClassname = twMerge(nameTooltipDefaultClassname, characterData.twTextColor)
+                    if (player.id === currentUserId) {
+                        
                         return (
-                            <div key={player.userId} className="flex items-center flex-col">
+                            <div key={player.id} className="flex items-center flex-col">
                                 <div className={nameTooltipClassname}>
                                     Tú
                                 </div>
-                                <img src={player.characterData.avatar} alt={player.characterData.profession} className="w-16 h-28 object-cover" />
+                                <img src={characterData.avatar} alt={characterData.profession} className="w-16 h-28 object-cover" />
                             </div>
                         )
                     }
                     return (
-                        <div key={player.userId} className="flex items-center flex-col ">
+                        <div key={player.id} className="flex items-center flex-col ">
                         <div className={nameTooltipClassname}>
                             {player.name}
                         </div>
-                        <img src={player.characterData.avatar} alt={player.characterData.profession} className="w-16 h-28 object-cover" />
+                        <img src={characterData.avatar} alt={characterData.profession} className="w-16 h-28 object-cover" />
                     </div>
                     )
                 })

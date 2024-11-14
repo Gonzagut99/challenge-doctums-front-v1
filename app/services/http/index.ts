@@ -27,4 +27,4 @@ class ApiClient {
     }
 }
 
-export const apiClient = new ApiClient(envs.apiHttpBaseUrl);
+export const apiClient = new ApiClient(`${envs.apiHttpBaseUrl}/game`);

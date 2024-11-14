@@ -1,6 +1,7 @@
-import { CharacterData } from './character'
+//import { CharacterData } from './character'
 export interface ConnectedPlayer{
     name: string;
-    userId: string; //is UUID
-    characterData: CharacterData;
+    id: string; //is UUID
+    avatarId: string;
+    //characterData: CharacterData;
 }

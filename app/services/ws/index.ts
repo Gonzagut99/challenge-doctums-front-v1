@@ -1,18 +1,24 @@
 
 import { envs } from "~/env/envs";
 import ServerWebSocket from "ws";
+import { ConnectedPlayer } from "~/types/connectedPlayer";
+
+
+import { Player } from "../http/player";
 
 export interface IWebSocketService {
     connect(): void;
     sendMessage(message: string | object): void;
     disconnect(): void;
+    joinGame(playerId: string): void;
+    getConnectedPlayers(): ConnectedPlayer[];
 }
 
 class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
-    private playerId: string | null = null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private currentPlayer: Player | null = null;
+    private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
@@ -26,8 +32,12 @@ class WebSocketService implements IWebSocketService {
     }
 
     // Method to set playerId later
-    setPlayerId(playerId: string) {
-        this.playerId = playerId;
+    setPlayer(player: Player) {
+        this.currentPlayer = player;
+    }
+
+    getCurrentPlayer() {
+        return this.currentPlayer
     }
 
     // Method to set messageHandler later
@@ -69,7 +79,7 @@ class WebSocketService implements IWebSocketService {
 
     // 'message' can be string or a JSON object
     sendMessage(message: string | object) {
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
             console.error(
@@ -78,6 +88,36 @@ class WebSocketService implements IWebSocketService {
             );
         }
     }
+
+    // Join the game with a player name
+    joinGame() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const joinMessage = {
+                method: 'join',
+                player_id: this.currentPlayer?.id,
+            };
+
+            // Send the message to the server
+            this.sendMessage(joinMessage);
+
+            // Optionally, listen for players' info update after joining
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                if (message.status === 'success') {
+                    this.connectedPlayers = message.game.players;
+                    console.log("Updated Players List:", this.connectedPlayers);
+                }
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    // Get the current list of players
+    getConnectedPlayers() {
+        return this.connectedPlayers;
+    }
+
 
     disconnect() {
         if (this.socket) {

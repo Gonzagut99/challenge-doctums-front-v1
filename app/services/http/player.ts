@@ -5,8 +5,16 @@ import { envs } from '~/env/envs';
 const API_BASE_URL = envs.apiHttpBaseUrl // Cambia esto a la URL de tu backend
 
 export interface Player {
+    id: string;
     name: string;
-    game_session: string;
+    game_session_id: string;
+    avatar_id: string;
+    // Añade otros campos según tu modelo PlayerModel
+}
+
+export interface PlayerToCreate {
+    name: string;
+    game_session_id: string;
     avatar_id: string;
     // Añade otros campos según tu modelo PlayerModel
 }
@@ -20,9 +28,9 @@ export const getAllPlayers = async (): Promise<ResponseModel<Player[]>> => {
     }
 };
 
-export const createPlayer = async (player: Player): Promise<ResponseModel<Player>> => {
+export const createPlayer = async (player: PlayerToCreate): Promise<ResponseModel<Player>> => {
     try {
-        const response = await axios.post<ResponseModel<Player>>(`${API_BASE_URL}/create`, player);
+        const response = await axios.post<ResponseModel<Player>>(`${API_BASE_URL}/player/create`, player);
         return response.data;
     } catch (error) {
         throw new Error(`Error creating player: ${error}`);
