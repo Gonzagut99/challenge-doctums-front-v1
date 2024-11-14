@@ -6,6 +6,7 @@ import { ConnectedPlayer } from "~/types/connectedPlayer";
 
 import { Player } from "../http/player";
 
+
 export interface IWebSocketService {
     connect(): void;
     sendMessage(message: string | object): void;
@@ -60,17 +61,17 @@ class WebSocketService implements IWebSocketService {
             // }
         };
 
-        this.socket.onmessage = (event) => {
-            try {
-              const message = JSON.parse(event.data.toString());
-              // Manejar el mensaje JSON
-              this.messageHandler(message);
-            } catch (error) {
-              // El mensaje no es JSON válido, manejar como texto plano
-              console.log("Mensaje de texto recibido:", event.data);
-              this.messageHandler({ type: 'text', data: event.data });
-            }
-          };
+        // this.socket.onmessage = (event) => {
+        //     try {
+        //       const message = JSON.parse(event.data.toString());
+        //       // Manejar el mensaje JSON
+        //       this.messageHandler(message);
+        //     } catch (error) {
+        //       // El mensaje no es JSON válido, manejar como texto plano
+        //       console.log("Mensaje de texto recibido:", event.data);
+        //       this.messageHandler({ type: 'text', data: event.data });
+        //     }
+        //   };
 
         this.socket.onclose = () => {
             console.log("WebSocket connection closed");
@@ -110,6 +111,9 @@ class WebSocketService implements IWebSocketService {
                 if (message.status === 'success') {
                     this.connectedPlayers = message.game.players;
                     console.log("Updated Players List:", this.connectedPlayers);
+                    if (this.messageHandler){
+                        this.messageHandler({type: 'join', data: this.connectedPlayers});
+                    }
                 }
             };
         } else {

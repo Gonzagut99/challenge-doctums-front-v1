@@ -128,6 +128,7 @@ function ChooseCharacter() {
                                 <input
                                     {...register("playerName")}
                                     type="text"
+                                    id="name"
                                     name="playerName"
                                     className="bg-transparent relative font-easvhs text-center w-80 h-[3.5rem] px-4 text-xl border-none active:border-none ring-0 focus:ring-0 active:ring-0 outline-none focus:outline-none"
                                 />
