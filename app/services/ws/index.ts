@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { envs } from "~/env/envs";
 import ServerWebSocket from "ws";
@@ -6,6 +7,7 @@ import { ConnectedPlayer } from "~/types/connectedPlayer";
 import { Player } from "../http/player";
 import { emitter } from "~/utils/emitter.server";
 import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
+import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 
 export interface IWebSocketService {
     connect(): void;
@@ -22,6 +24,8 @@ class WebSocketService implements IWebSocketService {
     private currentPlayer: Player | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private startGameResponse: GameStartMessage;
+    private turnOrderStageResponse: TurnOrderStage;
+    private gameStateMessage: any;
     //private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
@@ -44,19 +48,23 @@ class WebSocketService implements IWebSocketService {
     }
 
     isGameStarted() {
-        return this.startGameResponse?.status === 'success'
-    }
-
-    getGameStartResponse() {
-        return this.startGameResponse;
+        return this.gameStateMessage?.status === 'success'
     }
 
     isCurrentPlayerTurn() {
-        return this.startGameResponse?.current_turn === this.currentPlayer?.id;
+        return this.gameStateMessage?.current_turn === this.currentPlayer?.id;
     }
 
     getCurrentPlayerTurn() {
-        return this.startGameResponse?.current_turn;
+        return this.gameStateMessage?.current_turn;
+    }
+
+    getStageMethod() {
+        return this.gameStateMessage?.method;
+    }
+
+    getGameState<T>() {
+        return this.gameStateMessage as T;
     }
 
     // Method to set messageHandler later
@@ -132,11 +140,7 @@ class WebSocketService implements IWebSocketService {
                     emitter.emit('players', this.connectedPlayers);
                 }
 
-                if(message.status === 'success' && message.method === 'start_game') {
-                    this.startGameResponse = message;
-                    console.log("Host started game", this.startGameResponse);
-                    emitter.emit('players', this.connectedPlayers);
-                }
+                this.handleStartGameResponse(message);
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
@@ -156,16 +160,53 @@ class WebSocketService implements IWebSocketService {
 
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
-                if (message.status === 'success' && message.method == "start_game") {
-                    this.startGameResponse = message;
-                    console.log("Host started game", this.startGameResponse);
-                    emitter.emit('players', this.connectedPlayers);
-                }
+                this.handleStartGameResponse(message);
+                this.handlerTurnOrderStage(message);
+
+                
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
     }
+
+    rollDices() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const startGame = {
+                method: 'turn_order_stage'
+            };
+
+            // Send the message to the server
+            this.sendMessage(startGame);
+
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                this.handlerTurnOrderStage(message);
+                
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    handleStartGameResponse(message: any) {
+        if (message.status === 'success' && message.method == "start_game") {
+            this.startGameResponse = message;
+            this.gameStateMessage = message;
+            console.log("Host started game", this.startGameResponse);
+            emitter.emit('players', this.connectedPlayers);
+        }
+    }
+
+    handlerTurnOrderStage(message: any) {
+        if (message.method === 'turn_order_stage') {
+            this.turnOrderStageResponse = message;
+            this.gameStateMessage = message;
+            console.log("Turn Stage", message);
+            emitter.emit('game', message);
+        }
+    }
+    
 
     // Get the current list of players
     getConnectedPlayers() {

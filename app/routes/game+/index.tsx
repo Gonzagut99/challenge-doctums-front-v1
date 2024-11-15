@@ -1,28 +1,52 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { twMerge } from "tailwind-merge";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useState } from "react";
-import { json, useNavigate } from "@remix-run/react";
+import { json, replace, useNavigate, useSubmit } from "@remix-run/react";
 import { useLiveLoader } from "~/utils/use-live-loader";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { globalWebSocketService } from "~/services/ws";
-import { Player, TurnOrder } from "~/types/methods_jsons/startGameResponse";
+import { GameStartMessage, Player, TurnOrder } from "~/types/methods_jsons/startGameResponse";
 import { charactersData } from "~/data/characters";
+import { getFormDataFromSearchParams } from "remix-hook-form";
+import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const player = globalWebSocketService.getCurrentPlayer();
-    const gameInitState = globalWebSocketService.getGameStartResponse();
+    const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
 
-    return json({player, gameInitState, currentPlayerTurnId });
+    if(gameStateMethod == "turn_order_stage") {
+        const gameState = globalWebSocketService.getGameState<TurnOrderStage>();
+        return json({player, gameState, currentPlayerTurnId });
+    }
+
+    const gameState = globalWebSocketService.getGameState<GameStartMessage>();
+    return json({player, gameState, currentPlayerTurnId });
 }
+
+export const action = async({request}: ActionFunctionArgs) => {
+    // GET THE DATA FROM THE submit called in the component
+    const formData = await request.formData();
+    const method = formData.get("method");
+  
+    if(method == "turn_order_stage") {
+        globalWebSocketService.rollDices();
+    }
+    
+    return json({ message: "Dices rolled" });
+}
+
+
 
 export default function Index() {
     const loaderData = useLiveLoader<typeof loader>();
-    const gameInitData = loaderData.gameInitState;
+    const gameInitData = loaderData.gameState;
     const player = loaderData.player;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId; 
     const navigate = useNavigate();
+    const submit = useSubmit();
 
     const possibleDiceResult: DicesResult = {
         userId: "1",
@@ -31,16 +55,25 @@ export default function Index() {
         total: 20,
     };
     const [dicesResult, setDicesResult] = useState<DicesResult | null>(null);
-    const handleDiceResult = () => {
-        setDicesResult(possibleDiceResult);
+    const handleOrderTurn = () => {
+        //setDicesResult(possibleDiceResult);
+        const formData = new FormData();
+        formData.append("method", "turn_order_stage");
+        submit(
+            formData,
+            {
+                method: "post"
+            }
+        )
     };
+
 
     return (
         <article className="relative z-20 h-full w-full bg-gradient-to-b from-sky-500 to-sky-100 p-2 flex flex-col gap-2">
             <section className="flex justify-center">
                 <WhiteContainer>
                     <span className="text-sm text-zinc font-dogica-bold px-5">
-                        Lanza los dados para definir el orden de turno
+                        {gameInitData.message}
                     </span>
                 </WhiteContainer>
             </section>
@@ -51,7 +84,7 @@ export default function Index() {
                 <div className="flex flex-col gap-1">
                     {gameInitData.turns_order.map((playerTurn) => {
                         
-                        if (playerTurn.playerId === player?.id) {
+                        if (playerTurn?.playerId === player?.id) {
                             return (
                                 <CurrentUserCard
                                     key={playerTurn.playerId}
@@ -94,9 +127,14 @@ export default function Index() {
                     ))}
                 </div>
                 <div className="flex gap-4 justify-center">
-                    <ButtonDices onClick={handleDiceResult}>
+                    <ButtonDices onClick={handleOrderTurn}>
                         <span className="text-white font-easvhs">
-                            Lanzar Dados
+                            {currentPlayerTurnId === player?.id 
+                                ?  (gameInitData.method == "start_game" || gameInitData.method == "turn_order_stage") 
+                                    ? "Define Tu orden de turno" 
+                                    : "Espera"
+                                : "Esperar"
+                            }
                         </span>
                     </ButtonDices>
                     {dicesResult && (
