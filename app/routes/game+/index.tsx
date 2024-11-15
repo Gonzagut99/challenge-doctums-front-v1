@@ -39,14 +39,14 @@ export default function Index() {
                         if (playerData.isCurrentPlayer) {
                             return (
                                 <CurrentUserCard
-                                    key={playerData.connectedPlayer.userId}
+                                    key={playerData.connectedPlayer.id}
                                     gamePlayerData={playerData}
                                 />
                             );
                         } else {
                             return (
                                 <PlayerCard
-                                    key={playerData.connectedPlayer.userId}
+                                    key={playerData.connectedPlayer.id}
                                     gamePlayerData={playerData}
                                 />
                             );

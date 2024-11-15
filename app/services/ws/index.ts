@@ -5,6 +5,7 @@ import { ConnectedPlayer } from "~/types/connectedPlayer";
 
 
 import { Player } from "../http/player";
+import { emitter } from "~/utils/emitter.server";
 
 
 export interface IWebSocketService {
@@ -111,9 +112,10 @@ class WebSocketService implements IWebSocketService {
                 if (message.status === 'success') {
                     this.connectedPlayers = message.game.players;
                     console.log("Updated Players List:", this.connectedPlayers);
-                    if (this.messageHandler){
-                        this.messageHandler({type: 'join', data: this.connectedPlayers});
-                    }
+                    emitter.emit('players', this.connectedPlayers);
+                    // if (this.messageHandler){
+                    //     this.messageHandler({type: 'join', data: this.connectedPlayers});
+                    // }
                 }
             };
         } else {

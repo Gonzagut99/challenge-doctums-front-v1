@@ -1,12 +1,13 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useRef } from "react";
-import { json, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { json, redirect, useNavigate } from "@remix-run/react";
 import { Button2 } from "~/components/custom/Button2";
 import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
 import { charactersData } from "~/data/characters";
 import { globalWebSocketService } from "~/services/ws";
+import { useLiveLoader } from "~/utils/use-live-loader";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
@@ -26,7 +27,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 
 function Index() {
-    const loaderData = useLoaderData<typeof loader>()
+    const loaderData = useLiveLoader<typeof loader>()
     const connectedPlayers = loaderData.connectedPlayers;
     const currentUserId = loaderData.player?.id;
     // const currentUserId = loaderData.player.id;
