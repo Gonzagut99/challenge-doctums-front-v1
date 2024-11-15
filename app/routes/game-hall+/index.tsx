@@ -19,9 +19,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const sessionCode = url.searchParams.get("sessionCode");
     const connectedPlayers = globalWebSocketService.getConnectedPlayers();
     const player = globalWebSocketService.getCurrentPlayer();
+    const isGameStarted = globalWebSocketService.isGameStarted();
 
     if (!sessionCode) {
         return redirect("/home");
+    }
+
+    if(isGameStarted){
+        return redirect("/game");
     }
     return json({ sessionCode, player, connectedPlayers });
 };

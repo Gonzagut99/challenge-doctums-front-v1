@@ -43,6 +43,10 @@ class WebSocketService implements IWebSocketService {
         return this.currentPlayer
     }
 
+    isGameStarted() {
+        return this.startGameResponse?.status === 'success'
+    }
+
     // Method to set messageHandler later
     // setMessageHandler(messageHandler: (message: string | object) => void) {
     //     this.messageHandler = messageHandler;
@@ -115,6 +119,12 @@ class WebSocketService implements IWebSocketService {
                     console.log("Updated Players List:", this.connectedPlayers);
                     emitter.emit('players', this.connectedPlayers);
                 }
+
+                if(message.status === 'success' && message.method === 'start_game') {
+                    this.startGameResponse = message;
+                    console.log("Host started game", this.startGameResponse);
+                    emitter.emit('players', this.connectedPlayers);
+                }
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
@@ -132,7 +142,6 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(startGame);
 
-            // Optionally, listen for players' info update after joining
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
                 if (message.status === 'success' && message.method == "start_game") {
