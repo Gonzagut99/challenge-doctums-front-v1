@@ -61,10 +61,10 @@ export interface GameStartMessage {
   turns_order: TurnOrder[];
 }
 
-interface Player {
+export interface Player {
   id: string;
   name: string;
-  avatarId: number;
+  avatarId: string;
   budget: number;
   score: number;
   efficiencies: Efficiencies;
@@ -74,9 +74,10 @@ interface Efficiencies {
   [key: string]: number;
 }
 
-interface TurnOrder {
+export interface TurnOrder {
   playerId: string;
   name: string;
+  avatarId: string;
   dices: number[];
   total: number;
 }

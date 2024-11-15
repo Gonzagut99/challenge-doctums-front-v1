@@ -47,6 +47,18 @@ class WebSocketService implements IWebSocketService {
         return this.startGameResponse?.status === 'success'
     }
 
+    getGameStartResponse() {
+        return this.startGameResponse;
+    }
+
+    isCurrentPlayerTurn() {
+        return this.startGameResponse?.current_turn === this.currentPlayer?.id;
+    }
+
+    getCurrentPlayerTurn() {
+        return this.startGameResponse?.current_turn;
+    }
+
     // Method to set messageHandler later
     // setMessageHandler(messageHandler: (message: string | object) => void) {
     //     this.messageHandler = messageHandler;

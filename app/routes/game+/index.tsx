@@ -1,13 +1,27 @@
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
-import { ConnectedPlayer } from "~/types/connectedPlayer";
-import { CharacterData } from "~/types/character";
-import { testConnectedPlayers as connectedPlayers } from "~/data/connectedPlayers";
 import { twMerge } from "tailwind-merge";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useState } from "react";
-import { useNavigate } from "@remix-run/react";
+import { json, useNavigate } from "@remix-run/react";
+import { useLiveLoader } from "~/utils/use-live-loader";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { globalWebSocketService } from "~/services/ws";
+import { Player, TurnOrder } from "~/types/methods_jsons/startGameResponse";
+import { charactersData } from "~/data/characters";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const player = globalWebSocketService.getCurrentPlayer();
+    const gameInitState = globalWebSocketService.getGameStartResponse();
+    const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
+
+    return json({player, gameInitState, currentPlayerTurnId });
+}
 
 export default function Index() {
+    const loaderData = useLiveLoader<typeof loader>();
+    const gameInitData = loaderData.gameInitState;
+    const player = loaderData.player;
+    const currentPlayerTurnId = loaderData.currentPlayerTurnId; 
     const navigate = useNavigate();
 
     const possibleDiceResult: DicesResult = {
@@ -35,19 +49,20 @@ export default function Index() {
 
                 </div>
                 <div className="flex flex-col gap-1">
-                    {gamePlayerData.map((playerData) => {
-                        if (playerData.isCurrentPlayer) {
+                    {gameInitData.turns_order.map((playerTurn) => {
+                        
+                        if (playerTurn.playerId === player?.id) {
                             return (
                                 <CurrentUserCard
-                                    key={playerData.connectedPlayer.id}
-                                    gamePlayerData={playerData}
+                                    key={playerTurn.playerId}
+                                    player={playerTurn}
                                 />
                             );
                         } else {
                             return (
                                 <PlayerCard
-                                    key={playerData.connectedPlayer.id}
-                                    gamePlayerData={playerData}
+                                    key={playerTurn.playerId}
+                                    player={playerTurn}
                                 />
                             );
                         }
@@ -148,64 +163,52 @@ const gameControlButtons: GameControlButton[] = [
     },
 ];
 
-interface GamePlayerData {
-    score: number;
-    budget: number;
-    isCurrentPlayer: boolean;
-    currentTurnPlayerId: string;
-    date: string;
-    activeProducts: number;
-    ongoingProjects: number;
-    characterData: CharacterData;
-    connectedPlayer: ConnectedPlayer;
-}
+// const gamePlayerData: GameStartMessage = {
+//     method: "start_game",
+//     status: "success",
+//     message: "¡El juego ha comenzado!",
+//     current_turn: "45646e2d-178a-4c02-942c-347e352bdc76",
+//     legacy_products: ["2", "7", "22"],
+//     player: {
+//         id: "45646e2d-178a-4c02-942c-347e352bdc76",
+//         name: "Noelia",
+//         avatarId: "1",
+//         budget: 100000,
+//         score: 0,
+//         efficiencies: {
+//             1: 5,
+//             2: 0,
+//             3: 0,
+//             4: 5,
+//             5: 0,
+//             6: 0,
+//             7: 5,
+//             8: 0,
+//             9: 0,
+//             10: 0,
+//             11: 0,
+//             12: 5,
+//         },
+//     },
+//     turns_order: [
+//         {
+//             playerId: "45646e2d-178a-4c02-942c-347e352bdc76",
+//             name: "Noelia",
+//             avatarId: "1",
+//             dices: [5, 1],
+//             total: 6,
+//         },
+//         {
+//             playerId: "b4965265-9ce7-4a93-b1ed-5d48d4c652d5",
+//             avatarId: "2",
+//             name: "Aubrey",
+//             dices: [2, 1],
+//             total: 3,
+//         },
+//     ],
+// };
 
-const gamePlayerData: GamePlayerData[] = [
-    {
-        score: 120,
-        budget: 10050,
-        isCurrentPlayer: true,
-        currentTurnPlayerId: "1",
-        date: "17/09",
-        activeProducts: 0,
-        ongoingProjects: 0,
-        characterData: connectedPlayers[0].characterData,
-        connectedPlayer: connectedPlayers[0],
-    },
-    {
-        score: 800,
-        budget: 900,
-        isCurrentPlayer: false,
-        currentTurnPlayerId: "2",
-        date: "12/05",
-        activeProducts: 0,
-        ongoingProjects: 0,
-        characterData: connectedPlayers[1].characterData,
-        connectedPlayer: connectedPlayers[1],
-    },
-    {
-        score: 1020,
-        budget: 2700,
-        isCurrentPlayer: false,
-        currentTurnPlayerId: "3",
-        date: "22/09",
-        activeProducts: 0,
-        ongoingProjects: 0,
-        characterData: connectedPlayers[2].characterData,
-        connectedPlayer: connectedPlayers[2],
-    },
-    {
-        score: 350,
-        budget: 500,
-        isCurrentPlayer: false,
-        currentTurnPlayerId: "4",
-        date: "13/03",
-        activeProducts: 0,
-        ongoingProjects: 0,
-        characterData: connectedPlayers[3].characterData,
-        connectedPlayer: connectedPlayers[3],
-    },
-];
+    
 
 interface PlayerCardIcons {
     field: string;
@@ -214,37 +217,37 @@ interface PlayerCardIcons {
     text: string;
 }
 
-const playerCardIcons = (gamePlayerData: GamePlayerData): PlayerCardIcons[] => {
+const playerCardIcons = (playerData: Player): PlayerCardIcons[] => {
     return [
         {
             field: "budget",
             icon: "/assets/icons/cashIcon.png",
             tw_bg: "bg-[#99C579]",
-            text: gamePlayerData.budget.toString(),
+            text: playerData.budget.toString(),
         },
         {
             field: "score",
             icon: "/assets/icons/scoreIcon.png",
             tw_bg: "bg-[#e7c710]",
-            text: gamePlayerData.score.toString(),
+            text: playerData.score.toString(),
         },
-        {
-            field: "date",
-            icon: "/assets/icons/dateIcon.png",
-            tw_bg: "bg-[#e4675c]",
-            text: gamePlayerData.date,
-        },
-        {
-            field: "activeProducts",
-            icon: "/assets/icons/objectCountIcon.png",
-            tw_bg: "bg-[#D9D9D9]",
-            text: gamePlayerData.activeProducts.toString(),
-        },
+        // {
+        //     field: "date",
+        //     icon: "/assets/icons/dateIcon.png",
+        //     tw_bg: "bg-[#e4675c]",
+        //     text: gamePlayerData.date,
+        // },
+        // {
+        //     field: "activeProducts",
+        //     icon: "/assets/icons/objectCountIcon.png",
+        //     tw_bg: "bg-[#D9D9D9]",
+        //     text: gamePlayerData.activeProducts.toString(),
+        // },
     ];
 };
 
 interface UserCardProps {
-    gamePlayerData: GamePlayerData;
+    player: TurnOrder;
 }
 
 // export interface CharacterData {
@@ -256,7 +259,12 @@ interface UserCardProps {
 //     color: string;
 //     twTextColor: string;
 // }
-function CurrentUserCard({ gamePlayerData }: UserCardProps) {
+function CurrentUserCard({ player }: UserCardProps) {
+    const characterData = charactersData.find(
+        (character) => character.id === parseInt(player.avatarId)
+    ) ?? charactersData[0];
+
+
     return (
         <WhiteContainer className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 ">
             <div className="grid grid-cols-1 grid-rows-[1fr_1fr] max-h-full">
@@ -264,19 +272,19 @@ function CurrentUserCard({ gamePlayerData }: UserCardProps) {
                     <figure
                         className={twMerge(
                             "border-[3px] border-zinc-900 grow aspect-square flex items-center",
-                            gamePlayerData.characterData.color
+                            characterData.color
                         )}
                     >
                         <img
                             className="object-contain aspect-square"
-                            src={gamePlayerData.characterData.image}
+                            src={characterData.image}
                             alt="Avatar imag"
                         />
                     </figure>
                     <div className="w-[13rem] min-w-[13rem]">
                         <p className="font-easvhs text-lg">Tú</p>
                         <div className="grid grid-cols-2 gap-1">
-                            {playerCardIcons(gamePlayerData).map((icon) => (
+                            {/* {playerCardIcons(player).map((icon) => (
                                 <div
                                     key={icon.field}
                                     id={icon.field}
@@ -298,7 +306,7 @@ function CurrentUserCard({ gamePlayerData }: UserCardProps) {
                                         {icon.text}
                                     </span>
                                 </div>
-                            ))}
+                            ))} */}
                         </div>
                     </div>
                 </header>
@@ -307,7 +315,7 @@ function CurrentUserCard({ gamePlayerData }: UserCardProps) {
                         Proyectos en marcha:
                     </h4>
                     <div className="grow flex items-center">
-                        {gamePlayerData.ongoingProjects === 0 ? (
+                        {/* {gamePlayerData.ongoingProjects === 0 ? (
                             <p className="text-[12px] font-easvhs text-center opacity-30 w-full">
                                 No tienes proyectos en marcha
                             </p>
@@ -316,35 +324,40 @@ function CurrentUserCard({ gamePlayerData }: UserCardProps) {
                                 Tienes {gamePlayerData.ongoingProjects}{" "}
                                 proyectos en marcha
                             </span>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </div>
         </WhiteContainer>
     );
 }
-function PlayerCard({ gamePlayerData }: UserCardProps) {
+function PlayerCard({ player }: UserCardProps) {
+    const characterData = charactersData.find(
+        (character) => character.id === parseInt(player.avatarId)
+    ) ?? charactersData[0];
+
+    
     return (
         <WhiteContainer className="max-w-[19rem] min-w-[19rem]">
             <header className="flex gap-2">
                 <figure
                     className={twMerge(
                         "border-[3px] border-zinc-900 aspect-square grow",
-                        gamePlayerData.characterData.color
+                        characterData.color
                     )}
                 >
                     <img
                         className="object-contain aspect-square"
-                        src={gamePlayerData.characterData.image}
+                        src={characterData.image}
                         alt="Avatar imag"
                     />
                 </figure>
                 <div className="w-56 min-w-56">
                     <p className="font-easvhs text-lg">
-                        {gamePlayerData.connectedPlayer.name}
+                        {player.name}
                     </p>
                     <div className="grid grid-cols-2 gap-1">
-                        {playerCardIcons(gamePlayerData).map((icon) => {
+                        {/* {playerCardIcons(player).map((icon) => {
                             if (
                                 icon.field === "date" ||
                                 icon.field === "activeProducts"
@@ -373,7 +386,7 @@ function PlayerCard({ gamePlayerData }: UserCardProps) {
                                     </span>
                                 </div>
                             );
-                        })}
+                        })} */}
                     </div>
                 </div>
             </header>
