@@ -9,6 +9,7 @@ export interface Player {
     name: string;
     game_session_id: string;
     avatar_id: string;
+    isHost: boolean;
     // Añade otros campos según tu modelo PlayerModel
 }
 

@@ -1,7 +1,7 @@
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { ConnectedPlayer } from "~/types/connectedPlayer";
 import { CharacterData } from "~/types/character";
-import { connectedPlayers } from "~/data/connectedPlayers";
+import { testConnectedPlayers as connectedPlayers } from "~/data/connectedPlayers";
 import { twMerge } from "tailwind-merge";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useState } from "react";
@@ -123,14 +123,14 @@ const gameControlButtons: GameControlButton[] = [
         title: "Ver Eficiencias",
         description:
             "Habilidades especiales que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
-        control: "efficiencies",
+        control: "myEfficiencies",
     },
     {
         icon: "/assets/icons/resourcesIcon.png",
         title: "Ver Recursos",
         description:
             "Herramienta, tiempo y equipo humano necesarios para ejecutar tus proyectos.",
-        control: "resources",
+        control: "myResources",
     },
     {
         icon: "/assets/icons/productsIcon.png",

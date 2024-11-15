@@ -3,10 +3,9 @@ import { envs } from "~/env/envs";
 import ServerWebSocket from "ws";
 import { ConnectedPlayer } from "~/types/connectedPlayer";
 
-
 import { Player } from "../http/player";
 import { emitter } from "~/utils/emitter.server";
-
+import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 
 export interface IWebSocketService {
     connect(): void;
@@ -14,6 +13,7 @@ export interface IWebSocketService {
     disconnect(): void;
     joinGame(playerId: string): void;
     getConnectedPlayers(): ConnectedPlayer[];
+    startGame(): void;
 }
 
 class WebSocketService implements IWebSocketService {
@@ -21,7 +21,8 @@ class WebSocketService implements IWebSocketService {
     private gameId: string;
     private currentPlayer: Player | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
-    private messageHandler: (message: string | object) => void;
+    private startGameResponse: GameStartMessage;
+    //private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
     // constructor(gameId: string) {
@@ -43,13 +44,13 @@ class WebSocketService implements IWebSocketService {
     }
 
     // Method to set messageHandler later
-    setMessageHandler(messageHandler: (message: string | object) => void) {
-        this.messageHandler = messageHandler;
-    }
+    // setMessageHandler(messageHandler: (message: string | object) => void) {
+    //     this.messageHandler = messageHandler;
+    // }
 
-    removeMessageHandler() {
-        this.messageHandler = () => {};
-    }
+    // removeMessageHandler() {
+    //     this.messageHandler = () => {};
+    // }
 
     connect() {
         this.socket = new ServerWebSocket(`${envs.apiWsBaseUrl}/game/connect/${this.gameId}`);
@@ -109,13 +110,35 @@ class WebSocketService implements IWebSocketService {
             // Optionally, listen for players' info update after joining
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
-                if (message.status === 'success') {
+                if (message.status === 'success' && message.method == "join") {
                     this.connectedPlayers = message.game.players;
                     console.log("Updated Players List:", this.connectedPlayers);
                     emitter.emit('players', this.connectedPlayers);
-                    // if (this.messageHandler){
-                    //     this.messageHandler({type: 'join', data: this.connectedPlayers});
-                    // }
+                }
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+
+    //Join the game with a player name
+    startGame() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const startGame = {
+                method: 'start_game'
+            };
+
+            // Send the message to the server
+            this.sendMessage(startGame);
+
+            // Optionally, listen for players' info update after joining
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                if (message.status === 'success' && message.method == "start_game") {
+                    this.startGameResponse = message;
+                    console.log("Host started game", this.startGameResponse);
+                    emitter.emit('players', this.connectedPlayers);
                 }
             };
         } else {

@@ -3,19 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Modal from "~/components/custom/Modal";
 
-// type ProductFeature = {
-//     icon: string;
-//     id: number;
-// }
-
-// interface TabletTileData{
-//     title: string;
-//     icon: string;
-//     productDescription: 'Productos a producir:' | 'Productos a desarrollar:' | 'Requiere:';
-//     products: ProductFeature[];
-// }
-
-function EfficiencyModal() {
+export default function EfficiencyModal() {
     const [isModalOpen, setIsModalOpen] = useState(true);
 
     const navigate = useNavigate();
@@ -45,5 +33,3 @@ function EfficiencyModal() {
     </AnimatePresence>
   )
 }
-
-export default EfficiencyModal
