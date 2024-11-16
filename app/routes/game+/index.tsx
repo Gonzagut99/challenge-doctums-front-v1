@@ -46,6 +46,10 @@ export const action = async({request}: ActionFunctionArgs) => {
     if(method == "turn_order_stage") {
         globalWebSocketService.rollDices();
     }
+
+    if(method == "start_new_turn") {
+        globalWebSocketService.startNewTurn();
+    }
     
     return json({ message: "Dices rolled" });
 }
@@ -59,7 +63,6 @@ export default function Index() {
     const playerClientInfo = loaderData.playerClientInfo;
     const turnsOrder = loaderData.playersTurnOrder;
     const currentPlayerTurnId = gameInitData.current_turn;
-    console.log("gameInitData", gameInitData);
 
 
     const playerToStartNewTurn = (gameInitData as TurnOrderStage).first_player_turn;
@@ -470,6 +473,7 @@ function ButtonsManager(props: any) {
             return <StartGameButton {...rest} />;
         case "turn_order_stage":
             return <TurnOrderButton {...rest} />;
+        
         default:
             return null;
     }

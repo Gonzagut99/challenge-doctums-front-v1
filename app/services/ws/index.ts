@@ -213,7 +213,7 @@ class WebSocketService implements IWebSocketService {
                 const message = JSON.parse(event.data.toString());
                 this.handleStartGameResponse(message);
                 this.handlerTurnOrderStage(message);
-
+                this.handleNotifications(message);
                 
             };
         } else {
@@ -252,16 +252,24 @@ class WebSocketService implements IWebSocketService {
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
                 this.handleNewTurnStart(message);
-                
+                this.handleNotifications(message);
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
     }
 
+    handleNotifications(message: any) {
+        if (message.method === 'notification') {
+            this.gameStateMessage = message;
+            console.log("notification", message);
+            emitter.emit('game', message);
+        }
+    }
+
     handleNewTurnStart(message: any) {
         if (message.method === 'new_turn_start') {
-            this.startNewTurn = message;
+            this.turnStartInfo = message;
             this.gameStateMessage = message;
             console.log("New Turn Start", message);
             emitter.emit('game', message);
