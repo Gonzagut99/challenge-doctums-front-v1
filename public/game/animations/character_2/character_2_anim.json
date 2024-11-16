@@ -8,15 +8,15 @@
             "frames": [
                 {
                     "key": "character_2",
+                    "frame": "18"
+                },
+                {
+                    "key": "character_2",
                     "frame": "19"
                 },
                 {
                     "key": "character_2",
                     "frame": "20"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "21"
                 }
             ]
         },
@@ -24,11 +24,15 @@
             "key": "walk_right",
             "type": "frames",
             "repeat": -1,
-            "frameRate": 10,
+            "frameRate": 12,
             "frames": [
                 {
                     "key": "character_2",
-                    "frame": "14"
+                    "frame": "11"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "10"
                 },
                 {
                     "key": "character_2",
@@ -37,10 +41,6 @@
                 {
                     "key": "character_2",
                     "frame": "12"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "13"
                 }
             ]
         },
@@ -52,7 +52,7 @@
             "frames": [
                 {
                     "key": "character_2",
-                    "frame": "9"
+                    "frame": "5"
                 },
                 {
                     "key": "character_2",
@@ -60,7 +60,7 @@
                 },
                 {
                     "key": "character_2",
-                    "frame": "9"
+                    "frame": "5"
                 },
                 {
                     "key": "character_2",
@@ -72,8 +72,12 @@
             "key": "walk_backward",
             "type": "frames",
             "repeat": -1,
-            "frameRate": 8,
+            "frameRate": 6,
             "frames": [
+                {
+                    "key": "character_2",
+                    "frame": "14"
+                },
                 {
                     "key": "character_2",
                     "frame": "15"
@@ -85,18 +89,14 @@
                 {
                     "key": "character_2",
                     "frame": "17"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "18"
                 }
             ]
         },
         {
-            "key": "walk_toward",
+            "key": "walk_forward",
             "type": "frames",
             "repeat": -1,
-            "frameRate": 8,
+            "frameRate": 12,
             "frames": [
                 {
                     "key": "character_2",

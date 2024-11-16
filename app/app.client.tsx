@@ -18,7 +18,7 @@ function App()
         {     
             const scene = phaserRef.current.scene as MainMenu;
             
-            if (scene)
+           if (scene)
             {
                 scene.changeScene();
             }

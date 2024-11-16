@@ -7,7 +7,7 @@ interface Position {
 
 export const changeDirection: Position[] = [
     //Los ids mayor a 360 son solisiones transparentes para el cambio de direccion
-    { x: 430, y: 5770, id: 366 },
+    { x: 435, y: 5770, id: 366 },
     { x: 560, y: 4380, id: 367 },
     { x: 880, y: 2600, id: 368 },
     { x: 870-190, y: 1220, id: 370 },
@@ -20,10 +20,10 @@ export const changeDirection: Position[] = [
     { x: 630, y: 3960, type: "level-4", id: 150 },//abril
     { x: 690, y: 3510, type: "level-3", id: 180 },//junio
     { x: 1010, y: 1710, type: "rest", id: 300 },
-    
     { x: 950, y: 2160, type: "level-3", id: 270 },//septiembre
     { x: 690, y: 3330, type: "rest", id: 181 },
     { x: 750-70, y: 1100, type: "level-5", id: 331 },
+    { x: 120, y: 6090, id: 0 },
     
 
 ];

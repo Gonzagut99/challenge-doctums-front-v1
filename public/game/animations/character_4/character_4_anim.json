@@ -1,6 +1,17 @@
 {
     "anims": [
         {
+            "key": "idle",
+            "type": "frames",
+            "repeat": -1,
+            "frames": [
+                {
+                    "key": "character_4",
+                    "frame": "1"
+                }
+            ]
+        },
+        {
             "key": "rest",
             "type": "frames",
             "repeat": -1,
@@ -8,15 +19,15 @@
             "frames": [
                 {
                     "key": "character_4",
-                    "frame": "18"
-                },
-                {
-                    "key": "character_4",
                     "frame": "19"
                 },
                 {
                     "key": "character_4",
                     "frame": "20"
+                },
+                {
+                    "key": "character_4",
+                    "frame": "21"
                 }
             ]
         },
@@ -24,8 +35,12 @@
             "key": "walk_right",
             "type": "frames",
             "repeat": -1,
-            "frameRate": 12,
+            "frameRate": 10,
             "frames": [
+                {
+                    "key": "character_4",
+                    "frame": "12"
+                },
                 {
                     "key": "character_4",
                     "frame": "11"
@@ -36,11 +51,7 @@
                 },
                 {
                     "key": "character_4",
-                    "frame": "11"
-                },
-                {
-                    "key": "character_4",
-                    "frame": "12"
+                    "frame": "13"
                 }
             ]
         },
@@ -52,7 +63,7 @@
             "frames": [
                 {
                     "key": "character_4",
-                    "frame": "5"
+                    "frame": "7"
                 },
                 {
                     "key": "character_4",
@@ -60,7 +71,7 @@
                 },
                 {
                     "key": "character_4",
-                    "frame": "5"
+                    "frame": "9"
                 },
                 {
                     "key": "character_4",
@@ -76,7 +87,11 @@
             "frames": [
                 {
                     "key": "character_4",
-                    "frame": "14"
+                    "frame": "17"
+                },
+                {
+                    "key": "character_4",
+                    "frame": "18"
                 },
                 {
                     "key": "character_4",
@@ -85,34 +100,30 @@
                 {
                     "key": "character_4",
                     "frame": "16"
-                },
-                {
-                    "key": "character_4",
-                    "frame": "17"
                 }
             ]
         },
         {
-            "key": "walk_toward",
+            "key": "walk_forward",
             "type": "frames",
             "repeat": -1,
             "frameRate": 8,
             "frames": [
                 {
                     "key": "character_4",
-                    "frame": "3"
-                },
-                {
-                    "key": "character_4",
-                    "frame": "4"
-                },
-                {
-                    "key": "character_4",
-                    "frame": "3"
+                    "frame": "1"
                 },
                 {
                     "key": "character_4",
                     "frame": "2"
+                },
+                {
+                    "key": "character_4",
+                    "frame": "1"
+                },
+                {
+                    "key": "character_4",
+                    "frame": "4"
                 }
             ]
         }

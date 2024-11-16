@@ -15,16 +15,17 @@ const config: Phaser.Types.Core.GameConfig = {
     parent: 'game-container',
     backgroundColor: '#028af8',
     scene: [
-        Boot,
-        Preloader,
-        MainMenu,
-        MainScene,
-        MainGame,
-        GameOver
+        //Boot,
+        //Preloader,
+        //MainMenu,
+       MainScene,
+        //MainGame,
+        //GameOver
     ]
 };
 
 const StartGame = (parent: string) => {
+
 
     return new Game({ ...config, parent });
 
