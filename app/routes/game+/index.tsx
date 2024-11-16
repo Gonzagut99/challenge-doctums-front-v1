@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { twMerge } from "tailwind-merge";
@@ -17,13 +18,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
 
-    if(gameStateMethod == "turn_order_stage") {
-        const gameState = globalWebSocketService.getGameState<TurnOrderStage>();
+    if(gameStateMethod == "start_game") {
+        const gameState = globalWebSocketService.getGameState<GameStartMessage>();
         return json({player, gameState, currentPlayerTurnId });
     }
 
-    const gameState = globalWebSocketService.getGameState<GameStartMessage>();
-    return json({player, gameState, currentPlayerTurnId });
+    if(gameStateMethod == "turn_order_stage") {
+        const gameState = globalWebSocketService.getGameState<TurnOrderStage>();
+        const diceResults = gameState.turns_order.find((turn) => turn.playerId === player?.id)?.dices;
+        return json({player, gameState, diceResults, currentPlayerTurnId });
+    }
+    const gameState: any = { message: "No game state found" };
+    const response: any = {player, gameState, currentPlayerTurnId }
+    return json(response);
 }
 
 export const action = async({request}: ActionFunctionArgs) => {
@@ -44,19 +51,16 @@ export default function Index() {
     const loaderData = useLiveLoader<typeof loader>();
     const gameInitData = loaderData.gameState;
     const player = loaderData.player;
-    const currentPlayerTurnId = loaderData.currentPlayerTurnId; 
+    const currentPlayerTurnId = loaderData.currentPlayerTurnId;
     const navigate = useNavigate();
     const submit = useSubmit();
 
-    const possibleDiceResult: DicesResult = {
-        userId: "1",
-        diceNumber: 5,
-        result: [3, 4, 5, 6, 2],
-        total: 20,
-    };
+    
     const [dicesResult, setDicesResult] = useState<DicesResult | null>(null);
     const handleOrderTurn = () => {
-        //setDicesResult(possibleDiceResult);
+        // if(loaderData.dicesResults) {
+        //     setDicesResult(loaderData.dicesResults as );
+        // }
         const formData = new FormData();
         formData.append("method", "turn_order_stage");
         submit(
@@ -82,7 +86,7 @@ export default function Index() {
 
                 </div>
                 <div className="flex flex-col gap-1">
-                    {gameInitData.turns_order.map((playerTurn) => {
+                    {gameInitData.turns_order.map((playerTurn: TurnOrder) => {
                         
                         if (playerTurn?.playerId === player?.id) {
                             return (
