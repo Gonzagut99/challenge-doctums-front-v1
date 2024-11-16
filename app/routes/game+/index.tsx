@@ -3,8 +3,9 @@
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { twMerge } from "tailwind-merge";
 import { ButtonDices } from "~/components/custom/ButtonDices";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { json, replace, useNavigate, useSubmit } from "@remix-run/react";
+
 import { useLiveLoader } from "~/utils/use-live-loader";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { globalWebSocketService } from "~/services/ws";
@@ -53,9 +54,13 @@ export default function Index() {
     const player = loaderData.player;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
     const navigate = useNavigate();
+    const gameCanvasRef = useRef(null); // Referencia para el contenedor del canvas de Phaser
+    const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
+
+    //const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null); // Estado para controlar la instancia del juego
+
     const submit = useSubmit();
 
-    
     const [dicesResult, setDicesResult] = useState<DicesResult | null>(null);
     const handleOrderTurn = () => {
         // if(loaderData.dicesResults) {
@@ -71,6 +76,52 @@ export default function Index() {
         )
     };
 
+    
+    useEffect(() => {
+        let isGameInitialized = false; // Variable para controlar la inicialización
+
+        if (typeof window !== "undefined" && gameCanvasRef.current && !isGameInitialized) {
+             const loadMainScene = async () => {
+                const { MainScene } = await import("~/game/scenes/MainScene"); // Importación dinámica
+
+                const config = {
+                    type: Phaser.AUTO,
+                    width: 790,
+                    height: 440,
+                    backgroundColor: undefined,
+                    transparent: true,
+                    parent: gameCanvasRef.current, 
+                    scene: MainScene, 
+                    physics: {
+                        default: "arcade",
+                        arcade: {
+                            debug: true,
+                            gravity: { x: 0, y: 0 },
+                        },
+                    },
+                };
+
+                // Crea la instancia del juego de Phaser y almacénala en una referencia
+                if (!gameInstanceRef.current) {
+                    gameInstanceRef.current = new Phaser.Game(config);
+                    isGameInitialized = true;
+                }
+            };
+            loadMainScene().catch((error) => {
+                console.error("Error loading MainScene:", error);
+            });
+        }
+        return () => {
+            // Limpia la instancia del juego al desmontar el componente
+            if (gameInstanceRef.current) {
+                gameInstanceRef.current.destroy(true);
+                gameInstanceRef.current = null;
+            }
+        };
+
+
+    }, []);
+
 
     return (
         <article className="relative z-20 h-full w-full bg-gradient-to-b from-sky-500 to-sky-100 p-2 flex flex-col gap-2">
@@ -82,7 +133,7 @@ export default function Index() {
                 </WhiteContainer>
             </section>
             <section className="flex">
-                <div id='GameCanvas' className="w-[800px] h-[442px]">
+                <div id='GameCanvas' ref={gameCanvasRef} className="w-[800px] h-[442px]">
 
                 </div>
                 <div className="flex flex-col gap-1">

@@ -1,0 +1,132 @@
+{
+    "anims": [
+        {
+            "key": "rest",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 2,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "19"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "20"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "21"
+                }
+            ]
+        },
+        {
+            "key": "walk_backward",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 8,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "17"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "16"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "15"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "18"
+                }
+            ]
+        },
+        {
+            "key": "walk_forward",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 6,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "1"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "2"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "3"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "4"
+                }
+            ]
+        },
+        {
+            "key": "walk_left",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 10,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "6"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "5"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "8"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "7"
+                }
+            ]
+        },
+        {
+            "key": "walk_right",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 10,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "11"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "10"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "13"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "12"
+                }
+            ]
+        },
+        {
+            "key": "idle",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 2,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "1"
+                }
+            ]
+        }
+    ]
+}
