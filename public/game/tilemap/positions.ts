@@ -23,7 +23,7 @@ export const changeDirection: Position[] = [
     { x: 950, y: 2160, type: "level-3", id: 270 },//septiembre
     { x: 690, y: 3330, type: "rest", id: 181 },
     { x: 750-70, y: 1100, type: "level-5", id: 331 },
-    { x: 120, y: 6090, id: 0 },
+   
     
 
 ];
@@ -32,11 +32,13 @@ export const sameDirection : Position[]  = [
     { x: 1010, y:1560, id: 369 },
     
 
-    
-
 ];
 
 export const dayPositions : Position[] = [
+    { x: 45, y: 6090, id: 400 },
+    { x: 80, y: 6090, id: 400 },
+    { x: 115, y: 6090, id: 400 },
+    { x: 150, y: 6090, id: 400 },
     { x: 210, y: 6070, type: "level-3", id: 1 },
     { x: 290, y: 6070, type: "level-3", id: 2 },
     { x: 370, y: 6070, type: "level-3", id: 3 },
