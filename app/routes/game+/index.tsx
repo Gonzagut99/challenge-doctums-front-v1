@@ -14,26 +14,23 @@ import { charactersData } from "~/data/characters";
 import { getFormDataFromSearchParams } from "remix-hook-form";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 
+const gameStateHandlers = {
+    "start_game": () => globalWebSocketService.getGameState<GameStartMessage>(),
+    "turn_order_stage": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const player = globalWebSocketService.getCurrentPlayer();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
 
-    if(gameStateMethod == "start_game") {
-        const gameState = globalWebSocketService.getGameState<GameStartMessage>();
-        return json({player, gameState, currentPlayerTurnId });
+    if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
+        return json({ error: "Invalid game state method" }, { status: 400 });
     }
 
-    if(gameStateMethod == "turn_order_stage") {
-        const gameState = globalWebSocketService.getGameState<TurnOrderStage>();
-        const diceResults = gameState.this_player_turn_results?.dices;
-        const is_order_stage_over = gameState.is_turn_order_stage_over
-        return json({player, gameState, diceResults, is_order_stage_over, currentPlayerTurnId });
-    }
-    const gameState: any = { message: "No game state found" };
-    const response: any = {player, gameState, currentPlayerTurnId }
-    return json(response);
-}
+    const gameState = gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
+    return json({ player, gameState, currentPlayerTurnId });
+};
 
 export const action = async({request}: ActionFunctionArgs) => {
     // GET THE DATA FROM THE submit called in the component
@@ -50,13 +47,17 @@ export const action = async({request}: ActionFunctionArgs) => {
 
 
 export default function Index() {
-    const loaderData = useLiveLoader<typeof loader>();
-    const gameInitData = loaderData.gameState;
+    const loaderData: any = useLiveLoader<typeof loader>();
+    const gameInitData: TurnOrderStage | GameStartMessage = loaderData.gameState;
     const player = loaderData.player;
     const currentPlayerTurnId = gameInitData.current_turn;
-    const playerToStartNewTurn = gameInitData.first_player_turn;
-    const is_turn_order_stage_over = gameInitData.is_turn_order_stage_over;
-    const dicesResult = loaderData.diceResults ?? null;
+
+
+    const playerToStartNewTurn = (gameInitData as TurnOrderStage).first_player_turn;
+    const is_turn_order_stage_over = (gameInitData as TurnOrderStage).is_turn_order_stage_over;
+    const dicesResult = (gameInitData as TurnOrderStage).this_player_turn_results?.dices ?? null;
+    
+    
     const navigate = useNavigate();
     const gameCanvasRef = useRef(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
@@ -70,20 +71,7 @@ export default function Index() {
     const handleOrderTurn = () => {
         const currentPlayerOrderTurnId = loaderData.current_player_order_turn ?? currentPlayerTurnId;
 
-        const formData = new FormData();
-            formData.append("method", "turn_order_stage");
-            submit(
-                formData,
-                {
-                    method: "post"
-                }
-            )
-        
-        // if(currentPlayerOrderTurnId === player?.id) {
-        //     // if(loaderData.diceResults) {
-        //     //     setDicesResult(loaderData.diceResults);
-        //     // }
-        //     const formData = new FormData();
+        // const formData = new FormData();
         //     formData.append("method", "turn_order_stage");
         //     submit(
         //         formData,
@@ -91,7 +79,20 @@ export default function Index() {
         //             method: "post"
         //         }
         //     )
-        // }
+        
+        if(currentPlayerOrderTurnId === player?.id) {
+            // if(dicesResult) {
+            //     setDicesResult(loaderData.diceResults);
+            // }
+            const formData = new FormData();
+            formData.append("method", "turn_order_stage");
+            submit(
+                formData,
+                {
+                    method: "post"
+                }
+            )
+        }
     };
 
     
@@ -205,7 +206,7 @@ export default function Index() {
                             <ButtonsManager method={gameInitData.method} 
                                 handleOrderTurn={handleOrderTurn} 
                                 message={currentPlayerTurnId === player?.id 
-                                    ? "Define Tu orden de turno" 
+                                    ? "Lanza los dados" 
                                     : "Esperar"
                                 }
                             />
@@ -215,7 +216,7 @@ export default function Index() {
                                 handleOrderTurn={handleOrderTurn} 
                                 message={playerToStartNewTurn === player?.id 
                                     ? "Comienza tu nuevo turno!" 
-                                    : "Esperar"
+                                    : "Espera tu turno"
                                 }
                             />
                         )

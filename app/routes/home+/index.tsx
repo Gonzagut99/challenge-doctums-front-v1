@@ -2,15 +2,14 @@ import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
-import { globalWebSocketService } from "~/services/ws";
+import { initializeWebSocket } from "~/services/ws";
 // import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
     const gameSession = response?.data
     if(gameSession){
-        globalWebSocketService.setGameId(gameSession.id);
-        globalWebSocketService.connect();
+        initializeWebSocket(gameSession.id);
     }
     // if (!response) {
     //     return json({ error: "No se pudo crear la sesión de juego" }, { status: 500 });
