@@ -11,6 +11,28 @@ const { emitter } = isServer
     : await import("~/utils/emitter.client");
 import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
+import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
+
+
+// {
+//     id: this.currentPlayerAvatarInfo?.id,
+//     name: this.currentPlayerAvatarInfo?.name,
+//     avatarId: this.currentPlayerAvatarInfo?.avatar_id,
+//     budget: this.startGameResponse?.budget,
+//     score: this.currentPlayerAvatarInfo?.score,
+//     efficiencies: this.currentPlayerAvatarInfo?.efficiencies,
+    
+
+// }
+
+export type PlayerClientInfo =  {
+    id: string;
+    name: string;
+    avatarId: string;
+    budget: number;
+    score: number;
+    //modifiers: any;
+}
 
 export interface IWebSocketService {
     connect(): void;
@@ -24,10 +46,12 @@ export interface IWebSocketService {
 class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
-    private currentPlayer: Player | null = null;
+    private currentPlayerAvatarInfo: Player | null = null;
+    private playerClientInfo: PlayerClientInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
+    private turnStartInfo: StartNewTurn;
     private gameStateMessage: any;
     //private messageHandler: (message: string | object) => void;
 
@@ -40,8 +64,8 @@ class WebSocketService implements IWebSocketService {
         return this.startGameResponse;
     }
 
-    getTurnOrdersResult() {
-        return this.turnOrderStageResponse;
+    getDefinedTurnsOrder() {
+        return this.turnOrderStageResponse?.turns_order ?? [];
     }
 
 
@@ -50,13 +74,27 @@ class WebSocketService implements IWebSocketService {
         this.gameId = gameId;
     }
 
-    // Method to set playerId later
     setPlayer(player: Player) {
-        this.currentPlayer = player;
+        this.currentPlayerAvatarInfo = player;
     }
 
-    getCurrentPlayer() {
-        return this.currentPlayer
+    getCurrentPlayerAvatarInfo() {
+        return this.currentPlayerAvatarInfo
+    }
+
+    setPlayerClientInfo() {
+        this.playerClientInfo = {
+            id: this.currentPlayerAvatarInfo?.id ?? '',
+            name: this.currentPlayerAvatarInfo?.name ?? '',
+            avatarId: this.currentPlayerAvatarInfo?.avatar_id ?? '',
+            budget: this.startGameResponse?.player.budget ?? 0,
+            score: this.startGameResponse?.player.score ?? 0,
+            //modifiers: this.turnStartInfo?. ?? {},
+        };
+    }
+
+    getPlayerClientInfo() {
+        return this.playerClientInfo;
     }
 
     isGameStarted() {
@@ -64,7 +102,11 @@ class WebSocketService implements IWebSocketService {
     }
 
     isCurrentPlayerTurn() {
-        return this.gameStateMessage?.current_turn === this.currentPlayer?.id;
+        return this.gameStateMessage?.current_turn === this.currentPlayerAvatarInfo?.id;
+    }
+
+    getTurnsOrder() {
+        return this.gameStateMessage?.turns_order;
     }
 
     getCurrentPlayerTurn() {
@@ -137,7 +179,7 @@ class WebSocketService implements IWebSocketService {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             const joinMessage = {
                 method: 'join',
-                player_id: this.currentPlayer?.id,
+                player_id: this.currentPlayerAvatarInfo?.id,
             };
 
             // Send the message to the server
@@ -163,18 +205,18 @@ class WebSocketService implements IWebSocketService {
     //Join the game with a player name
     startGame() {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
-            const startGame = {
+            const send = {
                 method: 'start_game'
             };
 
             // Send the message to the server
-            this.sendMessage(startGame);
+            this.sendMessage(send);
 
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
                 this.handleStartGameResponse(message);
                 this.handlerTurnOrderStage(message);
-
+                this.handleNotifications(message);
                 
             };
         } else {
@@ -184,12 +226,12 @@ class WebSocketService implements IWebSocketService {
 
     rollDices() {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
-            const startGame = {
+            const send = {
                 method: 'turn_order_stage'
             };
 
             // Send the message to the server
-            this.sendMessage(startGame);
+            this.sendMessage(send);
 
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
@@ -201,10 +243,47 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
+    startNewTurn() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const startGame = {
+                method: 'start_new_turn'
+            };
+
+            // Send the message to the server
+            this.sendMessage(startGame);
+
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                this.handleNewTurnStart(message);
+                this.handleNotifications(message);
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    handleNotifications(message: any) {
+        if (message.method === 'notification') {
+            this.gameStateMessage = message;
+            console.log("notification", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    handleNewTurnStart(message: any) {
+        if (message.method === 'new_turn_start') {
+            this.turnStartInfo = message;
+            this.gameStateMessage = message;
+            console.log("New Turn Start", message);
+            emitter.emit('game', message);
+        }
+    }
+
     handleStartGameResponse(message: any) {
         if (message.status === 'success' && message.method == "start_game") {
             this.startGameResponse = message;
             this.gameStateMessage = message;
+            this.setPlayerClientInfo()
             console.log("Host started game", this.startGameResponse);
             emitter.emit('players', this.connectedPlayers);
         }
