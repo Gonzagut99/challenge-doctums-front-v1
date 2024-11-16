@@ -4,7 +4,7 @@ import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { twMerge } from "tailwind-merge";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useRef, useState, useEffect } from "react";
-import { json, replace, useNavigate, useSubmit } from "@remix-run/react";
+import { Outlet, json, replace, useNavigate, useSubmit } from "@remix-run/react";
 
 import { useLiveLoader } from "~/utils/use-live-loader";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -207,6 +207,7 @@ export default function Index() {
                     )}
                 </div>
             </section>
+            <Outlet></Outlet>
         </article>
     );
 }
@@ -218,7 +219,7 @@ interface DicesResult {
     total: number;
 }
 
-interface GameControlButton {
+export interface GameControlButton {
     icon: string;
     title: string;
     description: string;

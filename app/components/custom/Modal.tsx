@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { XButton } from './xButton'
 
 import { registerHotkey, setHotkeysScope } from "~/utils/hotkeysHelpers";
+import { BackButton } from "./BackButton";
 
 export function useOutsideRefsClick(refs: React.RefObject<HTMLElement>[], callback: () => void) {
     useEffect(() => {
@@ -32,6 +33,7 @@ export default function Modal(
     props: React.PropsWithChildren<{
         title?: string;
         isDisabled?: boolean;
+        type?: 'close' | 'back';
         onDismiss: () => void;
     }>
 ) {
@@ -53,7 +55,7 @@ export default function Modal(
         };
     }, []);
 
-    const { onDismiss, isDisabled } = props;
+    const { onDismiss, isDisabled, type = 'close' } = props;
 
     const handleOutsideClickOrDismissKeypress = useCallback(() => {
         if (isInitialized && !isDisabled) {
@@ -111,9 +113,17 @@ export default function Modal(
                                         <header className="flex justify-center ">
                                             <div className="w-full relative py-2 px-4 flex bg-zinc-50 rounded-md border-[3px] border-zinc-900">
                                                 <p id="modal-title" className="text-center w-full font-dogica-bold">{props.title}</p>
-                                                {!isDisabled && (
-                                                    <XButton className="size-8 absolute right-2 top-1" onClick={handleOutsideClickOrDismissKeypress}/>
-                                                )}
+                                                {
+                                                    type === 'close' ? (
+                                                        !isDisabled && (
+                                                            <XButton className="size-8 absolute right-2 top-1" onClick={handleOutsideClickOrDismissKeypress}/>
+                                                        )
+                                                    ):(
+                                                        !isDisabled && (
+                                                            <BackButton className="size-8 absolute right-2 top-1" onClick={handleOutsideClickOrDismissKeypress}/>
+                                                        )
+                                                    )
+                                                }
                                                 
                                             </div>
                                         </header>
