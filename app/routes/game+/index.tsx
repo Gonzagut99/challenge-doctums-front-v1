@@ -14,25 +14,23 @@ import { charactersData } from "~/data/characters";
 import { getFormDataFromSearchParams } from "remix-hook-form";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 
+const gameStateHandlers = {
+    "start_game": () => globalWebSocketService.getGameState<GameStartMessage>(),
+    "turn_order_stage": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const player = globalWebSocketService.getCurrentPlayer();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
 
-    if(gameStateMethod == "start_game") {
-        const gameState = globalWebSocketService.getGameState<GameStartMessage>();
-        return json({player, gameState, currentPlayerTurnId });
+    if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
+        return json({ error: "Invalid game state method" }, { status: 400 });
     }
 
-    if(gameStateMethod == "turn_order_stage") {
-        const gameState = globalWebSocketService.getGameState<TurnOrderStage>();
-        const diceResults = gameState.turns_order.find((turn) => turn.playerId === player?.id)?.dices;
-        return json({player, gameState, diceResults, currentPlayerTurnId });
-    }
-    const gameState: any = { message: "No game state found" };
-    const response: any = {player, gameState, currentPlayerTurnId }
-    return json(response);
-}
+    const gameState = gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
+    return json({ player, gameState, currentPlayerTurnId });
+};
 
 export const action = async({request}: ActionFunctionArgs) => {
     // GET THE DATA FROM THE submit called in the component
@@ -49,10 +47,17 @@ export const action = async({request}: ActionFunctionArgs) => {
 
 
 export default function Index() {
-    const loaderData = useLiveLoader<typeof loader>();
-    //const gameInitData = loaderData.gameState;
+    const loaderData: any = useLiveLoader<typeof loader>();
+    const gameStateData: TurnOrderStage | GameStartMessage = loaderData.gameState;
     const player = loaderData.player;
-    const currentPlayerTurnId = loaderData.currentPlayerTurnId;
+    const currentPlayerTurnId = gameStateData.current_turn;
+
+
+    const playerToStartNewTurn = (gameInitData as TurnOrderStage).first_player_turn;
+    const is_turn_order_stage_over = (gameInitData as TurnOrderStage).is_turn_order_stage_over;
+    const dicesResult = (gameInitData as TurnOrderStage).this_player_turn_results?.dices ?? null;
+    
+    
     const navigate = useNavigate();
     const gameCanvasRef = useRef(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
@@ -67,16 +72,33 @@ export default function Index() {
 
     const submit = useSubmit();
 
-    const [dicesResult, setDicesResult] = useState<DicesResult | null>(null);
+    
+    //const [dicesResult, setDicesResult] = useState<number[] | null>(null);
     const handleOrderTurn = () => {
-        const formData = new FormData();
-        formData.append("method", "turn_order_stage");
-        submit(
-            formData,
-            {
-                method: "post"
-            }
-        )
+        const currentPlayerOrderTurnId = loaderData.current_player_order_turn ?? currentPlayerTurnId;
+
+        // const formData = new FormData();
+        //     formData.append("method", "turn_order_stage");
+        //     submit(
+        //         formData,
+        //         {
+        //             method: "post"
+        //         }
+        //     )
+        
+        if(currentPlayerOrderTurnId === player?.id) {
+            // if(dicesResult) {
+            //     setDicesResult(loaderData.diceResults);
+            // }
+            const formData = new FormData();
+            formData.append("method", "turn_order_stage");
+            submit(
+                formData,
+                {
+                    method: "post"
+                }
+            )
+        }
     };
 
     
@@ -194,19 +216,31 @@ export default function Index() {
                     ))}
                 </div>
                 <div className="flex gap-4 justify-center">
-                    <ButtonDices onClick={handleOrderTurn}>
-                        <span className="text-white font-easvhs">
-                            {currentPlayerTurnId === player?.id 
-                                ?  (gameInitData.method == "start_game" || gameInitData.method == "turn_order_stage") 
-                                    ? "Define Tu orden de turno" 
-                                    : "Espera"
-                                : "Esperar"
-                            }
-                        </span>
-                    </ButtonDices>
+                    {
+                        !is_turn_order_stage_over ? (
+                            <ButtonsManager method={gameInitData.method} 
+                                handleOrderTurn={handleOrderTurn} 
+                                message={currentPlayerTurnId === player?.id 
+                                    ? "Lanza los dados" 
+                                    : "Esperar"
+                                }
+                            />
+                        ) 
+                        : (
+                            <ButtonsManager method={gameInitData.method} 
+                                handleOrderTurn={handleOrderTurn} 
+                                message={playerToStartNewTurn === player?.id 
+                                    ? "Comienza tu nuevo turno!" 
+                                    : "Espera tu turno"
+                                }
+                            />
+                        )
+                    }
+
+
                     {dicesResult && (
                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4">
-                            {dicesResult.result.map((dice) => (
+                            {dicesResult.map((dice: number) => (
                                 // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                 <img
                                     key={dice}
@@ -497,5 +531,51 @@ function PlayerCard({ player }: UserCardProps) {
                 </div>
             </header>
         </WhiteContainer>
+    );
+}
+
+function ButtonsManager(props: any) {
+    const { method, ...rest } = props;
+    
+    switch (method) {
+        case "start_game":
+            return <StartGameButton {...rest} />;
+        case "turn_order_stage":
+            return <TurnOrderButton {...rest} />;
+        default:
+            return null;
+    }
+}
+
+
+const StartGameButton = ({ handleOrderTurn, message }: { handleOrderTurn: () => void; message: string }) => {
+    return (
+        <ButtonDices onClick={handleOrderTurn}>
+                        <span className="text-white font-easvhs">
+                            {message}
+                            {/* {currentPlayerTurnId === player?.id 
+                                ?  (gameInitData.method == "start_game" || gameInitData.method == "turn_order_stage") 
+                                    ? "Define Tu orden de turno" 
+                                    : "Espera"
+                                : "Esperar"
+                            } */}
+                        </span>
+        </ButtonDices>
+    );
+}
+
+const TurnOrderButton = ({ handleOrderTurn, message }: { handleOrderTurn: () => void; message: string }) => {
+    return (
+        <ButtonDices onClick={handleOrderTurn}>
+                        <span className="text-white font-easvhs">
+                            {message}
+                            {/* {currentPlayerTurnId === player?.id 
+                                ?  (gameInitData.method == "start_game" || gameInitData.method == "turn_order_stage") 
+                                    ? "Define Tu orden de turno" 
+                                    : "Espera"
+                                : "Esperar"
+                            } */}
+                        </span>
+        </ButtonDices>
     );
 }
