@@ -64,15 +64,18 @@ const myProjects: MyProjectsTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/40.png",
-                    id: 40
+                    id: 40,
+                    title: "Implementacion de la solucion"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/16.png",
-                    id: 16
+                    id: 16,
+                    title: "Implementacion de la solucion"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/21.png",
-                    id: 21
+                    id: 21,
+                    title: "Implementacion de la solucion"
                 }
             ]
         }
@@ -86,15 +89,18 @@ const myProjects: MyProjectsTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/5.png",
-                    id: 5
+                    id: 5,
+                    title: "Alineacion Estrategica"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/46.png",
-                    id: 46
+                    id: 46,
+                    title: "Alineacion Estrategica"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/30.png",
-                    id: 30
+                    id: 30,
+                    title: "Alineacion Estrategica"
                 }
             ]
         }
@@ -108,15 +114,18 @@ const myProjects: MyProjectsTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/12.png",
-                    id: 12
+                    id: 12,
+                    title: "Gestion del cambio"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/24.png",
-                    id: 24
+                    id: 24,
+                    title: "Gestion del cambio"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/39.png",
-                    id: 39
+                    id: 39,
+                    title: "Gestion del cambio"
                 }
             ]
         }
@@ -130,15 +139,18 @@ const myProjects: MyProjectsTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/13.png",
-                    id: 13
+                    id: 13,
+                    title: "Reorganizacion"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/2.png",
-                    id: 2
+                    id: 2,
+                    title: "Reorganizacion"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/33.png",
-                    id: 33
+                    id: 33,
+                    title: "Reorganizacion"
                 }
             ]
         }

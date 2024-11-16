@@ -65,15 +65,18 @@ const myResources: MyResourcesTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/40.png",
-                    id: 40
+                    id: 40,
+                    title: "Oficina del proyecto"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/16.png",
-                    id: 16
+                    id: 16,
+                    title: "Oficina del proyecto"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/21.png",
-                    id: 21
+                    id: 21,
+                    title: "Oficina del proyecto"
                 }
             ]
         }
@@ -87,15 +90,18 @@ const myResources: MyResourcesTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/5.png",
-                    id: 5
+                    id: 5,
+                    title: "Comunicaciones"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/46.png",
-                    id: 46
+                    id: 46,
+                    title: "Comunicaciones"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/30.png",
-                    id: 30
+                    id: 30,
+                    title: "Comunicaciones"
                 }
             ]
         }
@@ -109,15 +115,18 @@ const myResources: MyResourcesTileData[] = [
             products: [
                 {
                     icon: "/assets/modifiersIcons/products/12.png",
-                    id: 12
+                    id: 12, 
+                    title: "Procesos"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/24.png",
-                    id: 24
+                    id: 24,
+                    title: "Procesos"
                 },
                 {
                     icon: "/assets/modifiersIcons/products/39.png",
-                    id: 39
+                    id: 39,
+                    title: "Procesos"
                 }
             ]
         }

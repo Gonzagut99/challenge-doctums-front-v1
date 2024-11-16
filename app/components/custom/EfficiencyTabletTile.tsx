@@ -1,13 +1,14 @@
 import { twMerge } from "tailwind-merge";
-import { ModifiersTabletTileData } from "~/types/modifiers";
+import { EfficiencyTableTileData } from "~/types/efficiencies";
 
 interface TabletTileProps extends React.HTMLProps<HTMLDivElement> {
-    children?: React.ReactNode;
+    // children?: React.ReactNode;
     className?: string;
-    tabletTileData: ModifiersTabletTileData;
+    tabletTileData: EfficiencyTableTileData;
 }
 
-export function ModifierTabletTile({ children,className, tabletTileData, ...rest }: TabletTileProps) {
+export function MyEfficiencyTabletTile({ className, tabletTileData, ...rest }: TabletTileProps) {
+    const maxEficciencyStrengthScore = 36;
   return (
     <div {...rest} className={twMerge("p-2 flex gap-2 bg-slate-50 rounded-md border-[3px] border-zinc-900 min-w-[372px]", className)} >
         <img src={tabletTileData.icon} alt="TabletTile" className="object-fill size-16"/>
@@ -17,25 +18,23 @@ export function ModifierTabletTile({ children,className, tabletTileData, ...rest
                     {tabletTileData.title}
                 </p>
             </header>
-            <div className="font-easvhs h-full">
-                <p className="text-[10px]">{tabletTileData.productDescription}</p>
-                <div className="grid grid-cols-2 h-full pb-3">
-                    <div className="flex gap-1 flex-wrap h-fit">
+            <div className="font-easvhs flex items-end justify-end grow">
+                {/* <div>
+                    <div className="flex gap-1 flex-wrap">
                     {
                         tabletTileData.products.map((product) => (
-                            <img className="object-fill size-5" key={product.id} src={product.icon} alt={`Producto ${product.id}`} title={product.title}/>
+                            <img className="object-fill size-4" key={product.id} src={product.icon} alt={`Producto ${product.id}`} />
                         ))
-                    }
-                    {
-                        tabletTileData.products.length === 0 && (
-                            <span className="text-[10px] font-easvhs opacity-50 pt-2">Ninguno</span>
-                        )
                     }
                     </div>
                     <div className="flex items-end justify-end">
                         {children}
                     </div>
-                </div>
+                    
+                </div> */}
+                <div className="flex w-fit">
+                        <span className=" font-dogica-bold text-lg">{tabletTileData.strength_score}/{maxEficciencyStrengthScore}</span>
+                    </div>
             </div>
         </div>
     </div>

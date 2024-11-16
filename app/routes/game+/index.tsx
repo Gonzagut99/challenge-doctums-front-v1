@@ -5,7 +5,7 @@ import { testConnectedPlayers as connectedPlayers } from "~/data/connectedPlayer
 import { twMerge } from "tailwind-merge";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useState } from "react";
-import { useNavigate } from "@remix-run/react";
+import { Outlet, useNavigate } from "@remix-run/react";
 
 export default function Index() {
     const navigate = useNavigate();
@@ -99,6 +99,7 @@ export default function Index() {
                     )}
                 </div>
             </section>
+            <Outlet></Outlet>
         </article>
     );
 }
@@ -110,7 +111,7 @@ interface DicesResult {
     total: number;
 }
 
-interface GameControlButton {
+export interface GameControlButton {
     icon: string;
     title: string;
     description: string;
@@ -145,7 +146,7 @@ const gameControlButtons: GameControlButton[] = [
         description:
             "Misiones o tareas que, al completarse, te otorgan productos.",
         control: "myProjects",
-    },
+    }
 ];
 
 interface GamePlayerData {
