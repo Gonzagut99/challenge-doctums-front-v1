@@ -101,7 +101,7 @@ export default function Index() {
         }
     };
 
-    /*
+   
     useEffect(() => {
         let isGameInitialized = false; // Variable para controlar la inicialización
 
@@ -126,12 +126,12 @@ export default function Index() {
                     },
                     
                 };
-                 // Crea la instancia del juego de Phaser y almacénala en una referencia
+                // Crea la instancia del juego de Phaser y almacénala en una referencia
                  if (!gameInstanceRef.current) {
                     gameInstanceRef.current = new Phaser.Game(config);
                     isGameInitialized = true;
                 
-                    // Iniciar la escena y pasar el avatarId
+                    //Iniciar la escena y pasar el avatarId
                     gameInstanceRef.current.scene.start("MainScene", { avatarId, diceResult });
                 }
                
@@ -140,16 +140,17 @@ export default function Index() {
                 console.error("Error loading MainScene:", error);
             });
         }
-        // return () => {
-        //     // Limpia la instancia del juego al desmontar el componente
-        //     // if (gameInstanceRef.current) {
-        //     //     gameInstanceRef.current.destroy(true);
-        //     //     gameInstanceRef.current = null;
-        //     // }
-        // };
+         /*
+        return () => {
+            Limpia la instancia del juego al desmontar el componente
+            if (gameInstanceRef.current) {
+                gameInstanceRef.current.destroy(true);
+                gameInstanceRef.current = null;
+            }
+        };*/
 
 
-    }, []);*/
+    }, []);
 
 
     return (
