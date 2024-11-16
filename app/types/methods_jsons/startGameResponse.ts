@@ -57,11 +57,11 @@ export interface GameStartMessage {
   message: string;
   current_turn: string;
   legacy_products: string[];
-  player: Player;
+  player: PlayerInitState;
   turns_order: TurnOrder[];
 }
 
-export interface Player {
+export interface PlayerInitState {
   id: string;
   name: string;
   avatarId: string;

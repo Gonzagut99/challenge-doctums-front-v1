@@ -7,28 +7,35 @@ import { useState } from "react";
 import { json, replace, useNavigate, useSubmit } from "@remix-run/react";
 import { useLiveLoader } from "~/utils/use-live-loader";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { globalWebSocketService } from "~/services/ws";
-import { GameStartMessage, Player, TurnOrder } from "~/types/methods_jsons/startGameResponse";
+import { globalWebSocketService, PlayerClientInfo } from "~/services/ws";
+import { GameStartMessage, PlayerInitState, TurnOrder } from "~/types/methods_jsons/startGameResponse";
 import { charactersData } from "~/data/characters";
 import { getFormDataFromSearchParams } from "remix-hook-form";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
+import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 
 const gameStateHandlers = {
     "start_game": () => globalWebSocketService.getGameState<GameStartMessage>(),
     "turn_order_stage": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+    "start_new_turn": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+    "submit_plan": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+    "turn_event_flow": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+    "new_turn_start": () => globalWebSocketService.getGameState<StartNewTurn>(),
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-    const player = globalWebSocketService.getCurrentPlayer();
+    const player = globalWebSocketService.getCurrentPlayerAvatarInfo();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
+    const playerClientInfo = globalWebSocketService.getPlayerClientInfo();
+    const playersTurnOrder = globalWebSocketService.getDefinedTurnsOrder();
 
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
     }
 
     const gameState = gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
-    return json({ player, gameState, currentPlayerTurnId });
+    return json({ player, gameState, currentPlayerTurnId, playerClientInfo, playersTurnOrder });
 };
 
 export const action = async({request}: ActionFunctionArgs) => {
@@ -47,13 +54,17 @@ export const action = async({request}: ActionFunctionArgs) => {
 
 export default function Index() {
     const loaderData: any = useLiveLoader<typeof loader>();
-    const gameInitData: TurnOrderStage | GameStartMessage = loaderData.gameState;
-    const player = loaderData.player;
+    const gameInitData: TurnOrderStage | GameStartMessage | StartNewTurn = loaderData.gameState;
+    const playerAvatarInfo = loaderData.player;
+    const playerClientInfo = loaderData.playerClientInfo;
+    const turnsOrder = loaderData.playersTurnOrder;
     const currentPlayerTurnId = gameInitData.current_turn;
+    console.log("gameInitData", gameInitData);
 
 
     const playerToStartNewTurn = (gameInitData as TurnOrderStage).first_player_turn;
     const is_turn_order_stage_over = (gameInitData as TurnOrderStage).is_turn_order_stage_over;
+    const has_player_roll_dices = (gameInitData as TurnOrderStage).this_player_turn_results?.has_player_rolled_dices
     const dicesResult = (gameInitData as TurnOrderStage).this_player_turn_results?.dices ?? null;
     
     
@@ -64,17 +75,8 @@ export default function Index() {
     //const [dicesResult, setDicesResult] = useState<number[] | null>(null);
     const handleOrderTurn = () => {
         const currentPlayerOrderTurnId = loaderData.current_player_order_turn ?? currentPlayerTurnId;
-
-        // const formData = new FormData();
-        //     formData.append("method", "turn_order_stage");
-        //     submit(
-        //         formData,
-        //         {
-        //             method: "post"
-        //         }
-        //     )
         
-        if(currentPlayerOrderTurnId === player?.id) {
+        if(currentPlayerOrderTurnId === playerAvatarInfo?.id) {
             // if(dicesResult) {
             //     setDicesResult(loaderData.diceResults);
             // }
@@ -89,13 +91,29 @@ export default function Index() {
         }
     };
 
+    const handleStartNewTurn = () => {
+        const formData = new FormData();
+        formData.append("method", "start_new_turn");
+        submit(
+            formData,
+            {
+                method: "post"
+            }
+        )
+            
+    };
+
 
     return (
         <article className="relative z-20 h-full w-full bg-gradient-to-b from-sky-500 to-sky-100 p-2 flex flex-col gap-2">
             <section className="flex justify-center">
                 <WhiteContainer>
                     <span className="text-sm text-zinc font-dogica-bold px-5">
-                        {gameInitData.message}
+                        {
+                            is_turn_order_stage_over 
+                                ? "Orden de turnos definido" 
+                                : gameInitData.message
+                        }
                     </span>
                 </WhiteContainer>
             </section>
@@ -104,13 +122,13 @@ export default function Index() {
 
                 </div>
                 <div className="flex flex-col gap-1">
-                    {gameInitData.turns_order.map((playerTurn: TurnOrder) => {
+                    {turnsOrder.map((playerTurn: TurnOrder) => {
                         
-                        if (playerTurn?.playerId === player?.id) {
+                        if (playerTurn?.playerId === playerAvatarInfo?.id) {
                             return (
                                 <CurrentUserCard
                                     key={playerTurn.playerId}
-                                    player={playerTurn}
+                                    player={playerClientInfo}
                                 />
                             );
                         } else {
@@ -153,7 +171,7 @@ export default function Index() {
                         !is_turn_order_stage_over ? (
                             <ButtonsManager method={gameInitData.method} 
                                 handleOrderTurn={handleOrderTurn} 
-                                message={currentPlayerTurnId === player?.id 
+                                message={currentPlayerTurnId === playerAvatarInfo?.id 
                                     ? "Lanza los dados" 
                                     : "Esperar"
                                 }
@@ -161,8 +179,8 @@ export default function Index() {
                         ) 
                         : (
                             <ButtonsManager method={gameInitData.method} 
-                                handleOrderTurn={handleOrderTurn} 
-                                message={playerToStartNewTurn === player?.id 
+                                handleOrderTurn={handleStartNewTurn} 
+                                message={playerToStartNewTurn === playerAvatarInfo?.id 
                                     ? "Comienza tu nuevo turno!" 
                                     : "Espera tu turno"
                                 }
@@ -171,7 +189,7 @@ export default function Index() {
                     }
 
 
-                    {dicesResult && (
+                    {!is_turn_order_stage_over && has_player_roll_dices && dicesResult && (
                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4">
                             {dicesResult.map((dice: number) => (
                                 // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
@@ -235,51 +253,6 @@ const gameControlButtons: GameControlButton[] = [
     },
 ];
 
-// const gamePlayerData: GameStartMessage = {
-//     method: "start_game",
-//     status: "success",
-//     message: "¡El juego ha comenzado!",
-//     current_turn: "45646e2d-178a-4c02-942c-347e352bdc76",
-//     legacy_products: ["2", "7", "22"],
-//     player: {
-//         id: "45646e2d-178a-4c02-942c-347e352bdc76",
-//         name: "Noelia",
-//         avatarId: "1",
-//         budget: 100000,
-//         score: 0,
-//         efficiencies: {
-//             1: 5,
-//             2: 0,
-//             3: 0,
-//             4: 5,
-//             5: 0,
-//             6: 0,
-//             7: 5,
-//             8: 0,
-//             9: 0,
-//             10: 0,
-//             11: 0,
-//             12: 5,
-//         },
-//     },
-//     turns_order: [
-//         {
-//             playerId: "45646e2d-178a-4c02-942c-347e352bdc76",
-//             name: "Noelia",
-//             avatarId: "1",
-//             dices: [5, 1],
-//             total: 6,
-//         },
-//         {
-//             playerId: "b4965265-9ce7-4a93-b1ed-5d48d4c652d5",
-//             avatarId: "2",
-//             name: "Aubrey",
-//             dices: [2, 1],
-//             total: 3,
-//         },
-//     ],
-// };
-
     
 
 interface PlayerCardIcons {
@@ -289,38 +262,45 @@ interface PlayerCardIcons {
     text: string;
 }
 
-const playerCardIcons = (playerData: Player): PlayerCardIcons[] => {
+interface PlayerDataToUseInCard {
+    budget: number;
+    score: number;
+    date: string;
+    activeProducts: number;
+}
+
+const playerCardIcons = ({budget, score, date, activeProducts}: PlayerDataToUseInCard): PlayerCardIcons[] => {
     return [
         {
             field: "budget",
             icon: "/assets/icons/cashIcon.png",
             tw_bg: "bg-[#99C579]",
-            text: playerData.budget.toString(),
+            text: budget.toString(),
         },
         {
             field: "score",
             icon: "/assets/icons/scoreIcon.png",
             tw_bg: "bg-[#e7c710]",
-            text: playerData.score.toString(),
+            text: score.toString(),
         },
-        // {
-        //     field: "date",
-        //     icon: "/assets/icons/dateIcon.png",
-        //     tw_bg: "bg-[#e4675c]",
-        //     text: gamePlayerData.date,
-        // },
-        // {
-        //     field: "activeProducts",
-        //     icon: "/assets/icons/objectCountIcon.png",
-        //     tw_bg: "bg-[#D9D9D9]",
-        //     text: gamePlayerData.activeProducts.toString(),
-        // },
+        {
+            field: "date",
+            icon: "/assets/icons/dateIcon.png",
+            tw_bg: "bg-[#e4675c]",
+            text: date,
+        },
+        {
+            field: "activeProducts",
+            icon: "/assets/icons/objectCountIcon.png",
+            tw_bg: "bg-[#D9D9D9]",
+            text: activeProducts.toString(),
+        },
     ];
 };
 
-interface UserCardProps {
-    player: TurnOrder;
-}
+// interface UserCardProps {
+//     player: TurnOrder;
+// }
 
 // export interface CharacterData {
 //     id: number;
@@ -331,7 +311,8 @@ interface UserCardProps {
 //     color: string;
 //     twTextColor: string;
 // }
-function CurrentUserCard({ player }: UserCardProps) {
+function CurrentUserCard({player}: {player: PlayerClientInfo} ) {
+    if(!player) return null;
     const characterData = charactersData.find(
         (character) => character.id === parseInt(player.avatarId)
     ) ?? charactersData[0];
@@ -356,7 +337,14 @@ function CurrentUserCard({ player }: UserCardProps) {
                     <div className="w-[13rem] min-w-[13rem]">
                         <p className="font-easvhs text-lg">Tú</p>
                         <div className="grid grid-cols-2 gap-1">
-                            {/* {playerCardIcons(player).map((icon) => (
+                            {playerCardIcons(
+                                { 
+                                    budget: player.budget,
+                                    score: player.score,
+                                    date: "36",
+                                    activeProducts: 0 
+                                }
+                            ).map((icon) => (
                                 <div
                                     key={icon.field}
                                     id={icon.field}
@@ -378,7 +366,7 @@ function CurrentUserCard({ player }: UserCardProps) {
                                         {icon.text}
                                     </span>
                                 </div>
-                            ))} */}
+                            ))}
                         </div>
                     </div>
                 </header>
@@ -403,7 +391,8 @@ function CurrentUserCard({ player }: UserCardProps) {
         </WhiteContainer>
     );
 }
-function PlayerCard({ player }: UserCardProps) {
+function PlayerCard({player}: {player: TurnOrder}) {
+    if(!player) return null;
     const characterData = charactersData.find(
         (character) => character.id === parseInt(player.avatarId)
     ) ?? charactersData[0];
@@ -429,7 +418,14 @@ function PlayerCard({ player }: UserCardProps) {
                         {player.name}
                     </p>
                     <div className="grid grid-cols-2 gap-1">
-                        {/* {playerCardIcons(player).map((icon) => {
+                        {playerCardIcons(
+                            { 
+                                budget: 0,
+                                score: 0,
+                                date: "36",
+                                activeProducts: 0 
+                            }
+                        ).map((icon) => {
                             if (
                                 icon.field === "date" ||
                                 icon.field === "activeProducts"
@@ -458,7 +454,7 @@ function PlayerCard({ player }: UserCardProps) {
                                     </span>
                                 </div>
                             );
-                        })} */}
+                        })}
                     </div>
                 </div>
             </header>
