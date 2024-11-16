@@ -18,7 +18,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const url = new URL(request.url);
     const sessionCode = url.searchParams.get("sessionCode");
     const connectedPlayers = globalWebSocketService.getConnectedPlayers();
-    const player = globalWebSocketService.getCurrentPlayer();
+    const player = globalWebSocketService.getCurrentPlayerAvatarInfo();
     const isGameStarted = globalWebSocketService.isGameStarted();
 
     if (!sessionCode) {
