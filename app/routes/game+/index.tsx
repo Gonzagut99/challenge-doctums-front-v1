@@ -50,22 +50,25 @@ export const action = async({request}: ActionFunctionArgs) => {
 
 export default function Index() {
     const loaderData = useLiveLoader<typeof loader>();
-    const gameInitData = loaderData.gameState;
+    //const gameInitData = loaderData.gameState;
     const player = loaderData.player;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
     const navigate = useNavigate();
     const gameCanvasRef = useRef(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
 
+    const [avatarId, setAvatarId] = useState<string | null>(player?.avatar_id || null);
+    const [gameInitData, setGameInitData] = useState({
+        turns_order: [],
+        method: "",
+        message: "",
+    });
     //const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null); // Estado para controlar la instancia del juego
 
     const submit = useSubmit();
 
     const [dicesResult, setDicesResult] = useState<DicesResult | null>(null);
     const handleOrderTurn = () => {
-        // if(loaderData.dicesResults) {
-        //     setDicesResult(loaderData.dicesResults as );
-        // }
         const formData = new FormData();
         formData.append("method", "turn_order_stage");
         submit(
@@ -99,13 +102,17 @@ export default function Index() {
                             gravity: { x: 0, y: 0 },
                         },
                     },
+                    
                 };
-
-                // Crea la instancia del juego de Phaser y almacénala en una referencia
-                if (!gameInstanceRef.current) {
+                 // Crea la instancia del juego de Phaser y almacénala en una referencia
+                 if (!gameInstanceRef.current) {
                     gameInstanceRef.current = new Phaser.Game(config);
                     isGameInitialized = true;
+                
+                    // Iniciar la escena y pasar el avatarId
+                    gameInstanceRef.current.scene.start("MainScene", { avatarId });
                 }
+               
             };
             loadMainScene().catch((error) => {
                 console.error("Error loading MainScene:", error);
@@ -132,20 +139,21 @@ export default function Index() {
                     </span>
                 </WhiteContainer>
             </section>
+
             <section className="flex">
                 <div id='GameCanvas' ref={gameCanvasRef} className="w-[800px] h-[442px]">
 
                 </div>
                 <div className="flex flex-col gap-1">
-                    {gameInitData.turns_order.map((playerTurn: TurnOrder) => {
-                        
+                {gameInitData?.turns_order?.length > 0 ? (
+                    gameInitData.turns_order.map((playerTurn: TurnOrder) => {
                         if (playerTurn?.playerId === player?.id) {
-                            return (
-                                <CurrentUserCard
-                                    key={playerTurn.playerId}
-                                    player={playerTurn}
-                                />
-                            );
+                                return (
+                                    <CurrentUserCard
+                                        key={playerTurn.playerId}
+                                        player={playerTurn}
+                                    />
+                                );
                         } else {
                             return (
                                 <PlayerCard
@@ -154,9 +162,13 @@ export default function Index() {
                                 />
                             );
                         }
-                    })}
+                    })
+                ) : (
+                    <p>No hay datos de jugadores disponibles.</p>
+                )}
                 </div>
             </section>
+
             <section className="flex flex-col gap-2">
                 <div className="grid grid-cols-4 gap-2">
                     {gameControlButtons.map((button) => (

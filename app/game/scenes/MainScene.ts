@@ -1,8 +1,11 @@
+import { globalWebSocketService } from "~/services/ws";
 import Phaser from 'phaser';
 import { EventBus } from '../EventBus';
 import { changeDirection, sameDirection, dayPositions } from '../../../public/game/tilemap/positions';
+import { emitter } from "~/utils/emitter.client";
 /* START OF COMPILED CODE */
 export class MainScene extends Phaser.Scene {
+    [key: string]: any;
     private twelve!: Phaser.Tilemaps.Tilemap;
     private character!: Phaser.Physics.Arcade.Sprite;
     private casillasGroup!: Phaser.Physics.Arcade.StaticGroup;
@@ -17,9 +20,10 @@ export class MainScene extends Phaser.Scene {
     private oppositeDirectionIds: number[] = [];
     private visitedCasillas: Set<number> = new Set();
     private direction: "up" | "horizontal" = "horizontal";
+    private turns_order: any[] = [];
     private nextExpectedId: number = 1;
     private isFirstRollGame: boolean = true;
-    private characterId: number = 1; // Default character ID
+    private avatarId: number | null = null;
 
     constructor() {
         super({ key: 'MainScene', physics: { arcade: { debug: false } } });
@@ -28,15 +32,26 @@ export class MainScene extends Phaser.Scene {
         this.sameDirection = sameDirection;
     }
 
+    init(data: { avatarId: string | number }) {
+        this.avatarId = Number(data.avatarId) || 0;
+        console.log("Cargando personaje con ID:", this.avatarId);
+    }
+
     preload() {
-        const characterId = 4;
-        this.characterId = characterId;
-        console.log('Cargando personaje con ID:', characterId);
+        //const avatarId = 0;
+        const avatarId = this.avatarId;
+        console.log('Cargando personaje con ID:', avatarId);
 
         // Generar rutas dinámicas
-        const animJsonPath = `game/animations/character_${characterId}/character_${characterId}_anim.json`;
-        const atlasPath = `game/sprites/character_${characterId}.png`;
-        const atlasJsonPath = `game/animations/character_${characterId}/character_${characterId}_atlas.json`;
+        [1, 2, 3, 4].forEach((avatarId) => {
+        const animJsonPath = `game/animations/character_${avatarId}/character_${avatarId}_anim.json`;
+        const atlasPath = `game/sprites/character_${avatarId}.png`;
+        const atlasJsonPath = `game/animations/character_${avatarId}/character_${avatarId}_atlas.json`;
+
+        // Cargar el archivo JSON de animaciones y el atlas
+        this.load.json(`character_${avatarId}_anim`, animJsonPath);
+        this.load.atlas(`character_${avatarId}`, atlasPath, atlasJsonPath);
+        });
 
         this.load.tilemapTiledJSON("twelve", "game/tilemap/twelve.json");
 
@@ -50,9 +65,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image("level-6", "game/tile-field/level-6.png");
         this.load.image("rest", "game/tile-field/rest.png");
 
-        // Character One Animations
-        this.load.json('character_map', animJsonPath);
-        this.load.atlas(`character_${characterId}`, atlasPath, atlasJsonPath);
+        
     }
 
 
@@ -63,7 +76,7 @@ export class MainScene extends Phaser.Scene {
         twelve.addTilesetImage("tileset-offices");
         twelve.addTilesetImage("tematic");
 
-        const mapOffsetX = -370; 
+        const mapOffsetX = -370;
         const mapOffsetY = 170;
         // pisos_1
         twelve.createLayer("pisos", ["tileset-offices"], mapOffsetX, mapOffsetY);
@@ -100,64 +113,91 @@ export class MainScene extends Phaser.Scene {
         let startX = 150;
         let startY = 6050;
 
-        const characterId = this.characterId;
+        const avatarId = this.avatarId;
 
-        if(characterId === 1){
+        if (avatarId === 1) {
             startX = 150;
             startY = 5950;
-        }else if(characterId === 2){
+        } else if (avatarId === 2) {
             startX = 115;
             startY = 5980;
-        }else if(characterId === 3){
+        } else if (avatarId === 3) {
             startX = 80;
             startY = 5950;
-        }else if(characterId === 4){
-            startX = 45;
+        } else if (avatarId === 4) {
+            startX = 80;
             startY = 5980;
         }
-        console.log('Personaje activo:', characterId);
+        console.log('Personaje activo:', avatarId);
 
 
-        const characterMap = this.cache.json.get('character_map');
-        if (!characterMap) {
-            console.error("No se pudo cargar el 'character_map'");
-            return;
-        }
-        const animations = characterMap.anims;
-        if (!animations) {
-            console.error("'character_map' no contiene la propiedad 'anims'");
+        const animData = this.cache.json.get(`character_${avatarId}_anim`);
+
+        if (!animData || !animData.anims) {
+            console.error(`No se encontraron datos de animación válidos para el avatarId ${avatarId}`);
             return;
         }
 
-        animations.forEach((animData: { key: string; frames: { key: string; frame: string }[]; frameRate: number; repeat: number }) => {
-            try {
-                const frames = animData.frames.map(frameData => ({
-                    key: `character_${characterId}`, // Usa el key asociado a la textura cargada
-                    frame: frameData.frame // Verifica que el frame exista en el atlas
-                }));
+        animData.anims.forEach((animation: any) => {
+            const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
+                key: `character_${avatarId}`, // Utiliza el atlas dinámico correspondiente
+                frame: frameData.frame,
+            }));
+
+            // Verificar si la animación ya existe antes de crearla
+            if (!this.anims.exists(animation.key)) {
+                console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
                 this.anims.create({
-                    key: animData.key,
-                    frames,
-                    frameRate: animData.frameRate,
-                    repeat: animData.repeat,
+                    key: animation.key,
+                    frames: frames,
+                    frameRate: animation.frameRate,
+                    repeat: animation.repeat,
                 });
-                console.log(`Animación cargada: ${animData.key}`);
-            } catch (e) {
-                console.error(`Error al cargar la animación ${animData.key}`, e);
             }
         });
+    
 
-        this.character = this.physics.add.sprite(startX, startY, `character_${characterId}`);
 
+        /*this.turns_order.forEach(player => {
+            const { avatarId } = player;
+            console.log("Cargando personaje con avatarId:", avatarId);
+            
+            // Cargar los datos de animación desde la ruta dinámica basada en el avatarId
+            const animData = this.cache.json.get(`character_${avatarId}_anim`);
+            
+            // Verificación de los datos de animación
+            if (!animData || !animData.anims) {
+                console.error(`No se encontraron datos de animación válidos para el avatarId ${avatarId}`);
+                return;
+            }
+        
+            animData.anims.forEach((animation: any) => {
+                // Mapeo de frames utilizando 'key' y 'frame' del JSON
+                const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
+                    key: frameData.key, // Se accede al 'key' de cada frame
+                    frame: frameData.frame,
+                }));
+        
+                if (!this.anims.exists(animation.key)) {
+                    console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
+                    this.anims.create({
+                        key: animation.key,
+                        frames: frames,
+                        frameRate: animation.frameRate,
+                        repeat: animation.repeat,
+                    });
+                }
+            });
+        });*/
+        
 
+        this.character = this.physics.add.sprite(startX, startY, `character_${avatarId}`);
         this.character.setOrigin(1, 0.5);
         this.character.setDepth(10);
         this.character.anims.play('idle', true);
-
         this.cameras.main.setBounds(0, 0, this.twelve.widthInPixels, this.twelve.heightInPixels);
         this.cameras.main.startFollow(this.character);
         this.cameras.main.setZoom(1);
-
         this.casillasGroup = this.physics.add.staticGroup();
         this.changeDirection = changeDirection;
         this.dayPositions = dayPositions;
@@ -184,17 +224,38 @@ export class MainScene extends Phaser.Scene {
         });
 
         this.physics.add.overlap(this.character, this.casillasGroup, this.handleCollision as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this);
-
-
-
         this.lastHorizontalDirection = "left";
         this.visitedCasillas = new Set();
         this.nextExpectedId = 1;
         this.initializeSpecialTiles();
         EventBus.emit('current-scene-ready', this);
+        emitter.emit('renderPlayersOnMap', this.turns_order);
     }
 
-    
+    renderPlayers(players: any[]) {
+        // Lógica para renderizar hasta 4 personajes
+        players.slice(0, 4).forEach((player, index) => {
+            const { playerId, avatarId, name } = player;
+            const avatarKey = `character_${avatarId}`; 
+            const xPosition = 100 + index * 100;
+            const yPosition = 200;
+
+            // Crear el sprite del personaje con física
+            const avatar = this.physics.add.sprite(xPosition, yPosition, avatarKey);
+            avatar.setData('playerId', playerId);
+            avatar.setData('avatarId', avatarId);
+
+            // Asignar animación inicial (idle)
+            if (this.anims.exists('idle')) {
+                avatar.anims.play('idle', true);
+            } else {
+                console.warn(`Animación 'idle' no encontrada para el avatar ${avatarKey}`);
+            }
+            this[`player_${playerId}`] = avatar;
+        });
+    }
+
+
 
     promptDiceRoll(): void {
         this.time.delayedCall(1000, () => {
@@ -203,10 +264,10 @@ export class MainScene extends Phaser.Scene {
                 if (!isNaN(diceRoll)) {
                     this.setDiceRoll(diceRoll);
                     this.isStopped = false;
-    
+
                     if (this.isFirstRollGame) {
                         this.isFirstRollGame = false;
-                        this.moveCharacterForward(); 
+                        this.moveCharacterForward();
                     } else {
                         this.moveCharacterToTarget();
                     }
@@ -242,16 +303,14 @@ export class MainScene extends Phaser.Scene {
             Math.abs(Math.round(this.character.y + this.character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance;
 
         if (!withinTolerance || this.visitedCasillas.has(casillaId)) return;
-
         console.log('Colisión con casilla ID:', casillaId);
 
-        // Priorizar la acción de detener el personaje si se llega a la casilla del dado
         if (casillaId === this.diceRollResult || casillaId === 360) {
             this.stopCharacter(casillaId);
-            return; // Detenemos aquí para evitar ejecutar la lógica de casilla especial
+            return;
         }
 
-        
+
         if (this.isSpecialTile(casillaId)) {
             this.handleSpecialTileMovement(casillaId);
             this.visitedCasillas.add(casillaId);
@@ -445,7 +504,7 @@ export class MainScene extends Phaser.Scene {
         this.direction = "horizontal";
     }
 
-    
+
     // Ejecuta la animación de descanso
     restCharacter() {
         const character = this.character as Phaser.Physics.Arcade.Sprite;
@@ -458,8 +517,8 @@ export class MainScene extends Phaser.Scene {
 
     moveCharacterForward(): void {
         const character = this.character as Phaser.Physics.Arcade.Sprite;
-        character.setVelocityY(200); 
-        character.anims.play('walk_forward', true); 
+        character.setVelocityY(200);
+        character.anims.play('walk_forward', true);
     }
 
 

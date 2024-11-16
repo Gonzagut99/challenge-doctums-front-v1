@@ -5,7 +5,10 @@ import ServerWebSocket from "ws";
 import { ConnectedPlayer } from "~/types/connectedPlayer";
 
 import { Player } from "../http/player";
-import { emitter } from "~/utils/emitter.server";
+const isServer = typeof window === "undefined";
+const { emitter } = isServer
+    ? await import("~/utils/emitter.server")
+    : await import("~/utils/emitter.client");
 import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 
@@ -203,10 +206,27 @@ class WebSocketService implements IWebSocketService {
             this.turnOrderStageResponse = message;
             this.gameStateMessage = message;
             console.log("Turn Stage", message);
+            //agregada
+            const players = this.getPlayersFromTurnOrder(message);
+            //agregada
+            emitter.emit('renderPlayersOnMap', players);
             emitter.emit('game', message);
         }
     }
-    
+
+    //agregado
+    getPlayersFromTurnOrder(message: any) {
+        if (message?.turns_order) {
+            return message.turns_order.map((turn: any) => ({
+                playerId: turn.player_id,
+                avatarId: turn.avatar_id,
+                name: turn.name,
+                dices: turn.dices,
+                total: turn.total,
+            }));
+        }
+        return [];
+    }
 
     // Get the current list of players
     getConnectedPlayers() {
