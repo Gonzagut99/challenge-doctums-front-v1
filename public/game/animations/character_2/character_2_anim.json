@@ -1,6 +1,19 @@
 {
     "anims": [
         {
+            "key": "idle",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 1,
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "1"
+                }
+               
+            ]
+        },
+        {
             "key": "rest",
             "type": "frames",
             "repeat": -1,

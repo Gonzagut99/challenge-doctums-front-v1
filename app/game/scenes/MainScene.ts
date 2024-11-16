@@ -14,7 +14,6 @@ export class MainScene extends Phaser.Scene {
     private dayPositions: any[];
     private sameDirection: any[];
     private upwardPointIds: number[] = [];
-    private restTileIds: number[] = [];
     private oppositeDirectionIds: number[] = [];
     private visitedCasillas: Set<number> = new Set();
     private direction: "up" | "horizontal" = "horizontal";
@@ -30,7 +29,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        const characterId = 1;
+        const characterId = 4;
         this.characterId = characterId;
         console.log('Cargando personaje con ID:', characterId);
 
@@ -64,12 +63,11 @@ export class MainScene extends Phaser.Scene {
         twelve.addTilesetImage("tileset-offices");
         twelve.addTilesetImage("tematic");
 
-
-        // Ajusta los valores para cambiar la posición del mapa
-        const mapOffsetX = -370; // Ajustar si es necesario
+        const mapOffsetX = -370; 
         const mapOffsetY = 170;
         // pisos_1
         twelve.createLayer("pisos", ["tileset-offices"], mapOffsetX, mapOffsetY);
+
         // paredes_1
         const wall = twelve.createLayer("paredes", ["tileset-offices", "tematic"], mapOffsetX, mapOffsetY);
         if (wall) {
@@ -99,24 +97,24 @@ export class MainScene extends Phaser.Scene {
         this.promptDiceRoll();
         this.editorCreate();
         this.isStopped = false;
-        let startX = 0;
-        let startY = 0;
+        let startX = 150;
+        let startY = 6050;
+
         const characterId = this.characterId;
 
         if(characterId === 1){
-            startX = 155;
+            startX = 150;
             startY = 5950;
         }else if(characterId === 2){
-            startX = 140;
+            startX = 115;
             startY = 5980;
         }else if(characterId === 3){
-            startX = 120;
+            startX = 80;
             startY = 5950;
         }else if(characterId === 4){
-            startX = 55;
+            startX = 45;
             startY = 5980;
         }
-
         console.log('Personaje activo:', characterId);
 
 
@@ -134,8 +132,8 @@ export class MainScene extends Phaser.Scene {
         animations.forEach((animData: { key: string; frames: { key: string; frame: string }[]; frameRate: number; repeat: number }) => {
             try {
                 const frames = animData.frames.map(frameData => ({
-                    key: `character_${characterId}`, 
-                    frame: frameData.frame 
+                    key: `character_${characterId}`, // Usa el key asociado a la textura cargada
+                    frame: frameData.frame // Verifica que el frame exista en el atlas
                 }));
                 this.anims.create({
                     key: animData.key,
@@ -171,19 +169,9 @@ export class MainScene extends Phaser.Scene {
             casilla.refreshBody();
         });
 
-        
-        const casillaZero = this.physics.add.sprite(110, 6090, "partida");
-        casillaZero.setSize(400, 50);
-        casillaZero.setOffset(-50, 0);
-        casillaZero.setData('id', 0);
-        this.casillasGroup.add(casillaZero);
-
         this.changeDirection.forEach((pos) => {
             const casilla = this.casillasGroup.create(pos.x, pos.y, pos.type);
             casilla.setData('id', pos.id);
-            if (casilla.id === 0 || casilla === casillaZero) {
-                casilla.id.setSize(800, 100);
-            }
             casilla.setAlpha(0);
             casilla.refreshBody();
         });
@@ -194,22 +182,20 @@ export class MainScene extends Phaser.Scene {
             casilla.setAlpha(0);
             casilla.refreshBody();
         });
-        
-
-
 
         this.physics.add.overlap(this.character, this.casillasGroup, this.handleCollision as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this);
 
 
 
-        this.lastHorizontalDirection = "right";
+        this.lastHorizontalDirection = "left";
         this.visitedCasillas = new Set();
         this.nextExpectedId = 1;
         this.initializeSpecialTiles();
         EventBus.emit('current-scene-ready', this);
     }
 
-    // Función para solicitar el valor del dado
+    
+
     promptDiceRoll(): void {
         this.time.delayedCall(1000, () => {
             this.input.keyboard?.once('keydown-RIGHT', () => {
@@ -219,10 +205,10 @@ export class MainScene extends Phaser.Scene {
                     this.isStopped = false;
     
                     if (this.isFirstRollGame) {
-                        this.isFirstRollGame = false; // Actualiza la bandera
-                        this.moveCharacterForward(); // Método para mover hacia adelante
+                        this.isFirstRollGame = false;
+                        this.moveCharacterForward(); 
                     } else {
-                        this.moveCharacterToTarget(); // Movimiento normal
+                        this.moveCharacterToTarget();
                     }
                 }
             });
@@ -262,8 +248,8 @@ export class MainScene extends Phaser.Scene {
         // Priorizar la acción de detener el personaje si se llega a la casilla del dado
         if (casillaId === this.diceRollResult || casillaId === 360) {
             this.stopCharacter(casillaId);
-            return; 
-        } 
+            return; // Detenemos aquí para evitar ejecutar la lógica de casilla especial
+        }
 
         // Si no es la casilla del dado, se verifica si es una casilla especial
         if (this.isSpecialTile(casillaId)) {
@@ -271,8 +257,8 @@ export class MainScene extends Phaser.Scene {
             this.visitedCasillas.add(casillaId);
             return;
         }
-
         this.continueCurrentDirection();
+
         this.visitedCasillas.add(casillaId);
     }
 
@@ -319,7 +305,6 @@ export class MainScene extends Phaser.Scene {
         this.sameDirection = this.sameDirection
         this.dayPositions = this.dayPositions
         // Filtra IDs de casillas especiales
-        this.restTileIds = this.dayPositions.filter(pos => pos.type === 'rest').map(pos => pos.id);
         this.upwardPointIds = this.dayPositions.filter(pos => pos.id % 7 === 0 && pos.id !== 1).map(pos => pos.id);
         this.oppositeDirectionIds = this.dayPositions.filter(pos => (pos.id - 1) % 7 === 0 && pos.id !== 1).map(pos => pos.id);
     }
@@ -332,18 +317,8 @@ export class MainScene extends Phaser.Scene {
         character.anims.play('idle', true);
         this.isStopped = true;
         this.currentCasillaId = casillaId;
-        // Verifica si la casilla es de tipo "rest" y ejecuta la animación correspondiente
-    if (this.isRestTile(casillaId)) {
-        this.restCharacter();
-    } else {
         this.promptDiceRoll();
-    }
-
-    console.log(`Personaje detenido en la casilla ID: ${casillaId}`);
-    }
-
-    isRestTile(casillaId: number): boolean {
-        return this.restTileIds.includes(casillaId); // Supongamos que restTileIds es un array de IDs de casillas "rest"
+        console.log(`Personaje detenido en la casilla ID: ${casillaId}`);
     }
 
     // Verifica si la casilla actual es especial
@@ -359,11 +334,6 @@ export class MainScene extends Phaser.Scene {
     // Manejo de movimiento en casillas especiales
     handleSpecialTileMovement(casillaId: number) {
         const character = this.character;
-
-        if(this.changeDirection.some(pos => pos.id === 0)){
-            this.moveCharacterRight();
-            return;
-        }
 
         if (this.sameDirection.some(pos => pos.id === casillaId) && casillaId !== 369) {
             // Movimiento a la izquierda
@@ -475,6 +445,8 @@ export class MainScene extends Phaser.Scene {
         this.direction = "horizontal";
     }
 
+    
+    // Ejecuta la animación de descanso
     restCharacter() {
         const character = this.character as Phaser.Physics.Arcade.Sprite;
         character.anims.play('rest', true);
@@ -488,8 +460,6 @@ export class MainScene extends Phaser.Scene {
         const character = this.character as Phaser.Physics.Arcade.Sprite;
         character.setVelocityY(200); 
         character.anims.play('walk_forward', true); 
-        this.currentCasillaId= 0
-
     }
 
 
