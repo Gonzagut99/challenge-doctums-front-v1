@@ -251,7 +251,7 @@ export class MainScene extends Phaser.Scene {
             return; // Detenemos aquí para evitar ejecutar la lógica de casilla especial
         }
 
-        // Si no es la casilla del dado, se verifica si es una casilla especial
+        
         if (this.isSpecialTile(casillaId)) {
             this.handleSpecialTileMovement(casillaId);
             this.visitedCasillas.add(casillaId);
