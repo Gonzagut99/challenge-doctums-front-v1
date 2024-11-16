@@ -48,9 +48,9 @@ export const action = async({request}: ActionFunctionArgs) => {
 
 export default function Index() {
     const loaderData: any = useLiveLoader<typeof loader>();
-    const gameStateData: TurnOrderStage | GameStartMessage = loaderData.gameState;
+    const gameInitData: TurnOrderStage | GameStartMessage = loaderData.gameState;
     const player = loaderData.player;
-    const currentPlayerTurnId = gameStateData.current_turn;
+    const currentPlayerTurnId = gameInitData.current_turn;
 
 
     const playerToStartNewTurn = (gameInitData as TurnOrderStage).first_player_turn;
@@ -63,7 +63,7 @@ export default function Index() {
     const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
 
     const [avatarId, setAvatarId] = useState<string | null>(player?.avatar_id || null);
-    const [gameInitData, setGameInitData] = useState({
+    const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
         message: "",
@@ -101,7 +101,7 @@ export default function Index() {
         }
     };
 
-    
+    /*
     useEffect(() => {
         let isGameInitialized = false; // Variable para controlar la inicialización
 
@@ -132,7 +132,7 @@ export default function Index() {
                     isGameInitialized = true;
                 
                     // Iniciar la escena y pasar el avatarId
-                    gameInstanceRef.current.scene.start("MainScene", { avatarId });
+                    gameInstanceRef.current.scene.start("MainScene", { avatarId, diceResult });
                 }
                
             };
@@ -140,42 +140,42 @@ export default function Index() {
                 console.error("Error loading MainScene:", error);
             });
         }
-        return () => {
-            // Limpia la instancia del juego al desmontar el componente
-            if (gameInstanceRef.current) {
-                gameInstanceRef.current.destroy(true);
-                gameInstanceRef.current = null;
-            }
-        };
+        // return () => {
+        //     // Limpia la instancia del juego al desmontar el componente
+        //     // if (gameInstanceRef.current) {
+        //     //     gameInstanceRef.current.destroy(true);
+        //     //     gameInstanceRef.current = null;
+        //     // }
+        // };
 
 
-    }, []);
+    }, []);*/
 
 
     return (
         <article className="relative z-20 h-full w-full bg-gradient-to-b from-sky-500 to-sky-100 p-2 flex flex-col gap-2">
-            <section className="flex justify-center">
-                <WhiteContainer>
-                    <span className="text-sm text-zinc font-dogica-bold px-5">
-                        {gameInitData.message}
-                    </span>
-                </WhiteContainer>
-            </section>
+        <section className="flex justify-center">
+            <WhiteContainer>
+                <span className="text-sm text-zinc font-dogica-bold px-5">
+                    {gameInitData.message}
+                </span>
+            </WhiteContainer>
+        </section>
 
-            <section className="flex">
+        <section className="flex">
                 <div id='GameCanvas' ref={gameCanvasRef} className="w-[800px] h-[442px]">
 
                 </div>
                 <div className="flex flex-col gap-1">
-                {gameInitData?.turns_order?.length > 0 ? (
-                    gameInitData.turns_order.map((playerTurn: TurnOrder) => {
+                    {gameInitData.turns_order.map((playerTurn: TurnOrder) => {
+                        
                         if (playerTurn?.playerId === player?.id) {
-                                return (
-                                    <CurrentUserCard
-                                        key={playerTurn.playerId}
-                                        player={playerTurn}
-                                    />
-                                );
+                            return (
+                                <CurrentUserCard
+                                    key={playerTurn.playerId}
+                                    player={playerTurn}
+                                />
+                            );
                         } else {
                             return (
                                 <PlayerCard
@@ -184,10 +184,7 @@ export default function Index() {
                                 />
                             );
                         }
-                    })
-                ) : (
-                    <p>No hay datos de jugadores disponibles.</p>
-                )}
+                    })}
                 </div>
             </section>
 
@@ -260,6 +257,7 @@ export default function Index() {
 
 interface DicesResult {
     userId: string;
+    avatarId: number;
     diceNumber: number;
     result: number[];
     total: number;
@@ -579,3 +577,21 @@ const TurnOrderButton = ({ handleOrderTurn, message }: { handleOrderTurn: () => 
         </ButtonDices>
     );
 }
+
+export const diceResult: DicesResult[] = [
+    {
+        userId: "d25df0df-b0e5-411f-bb70-217a96978a1e",
+        avatarId: 2,
+        diceNumber: 5,
+        result: [1, 1, 1, 1, 1],
+        total: 5,
+    },
+   
+    {
+        userId: "a039f866-768c-4134-aa30-02788b696a76",
+        avatarId: 1,
+        diceNumber: 5,
+        result: [6, 1, 1, 1, 1],
+        total: 10,
+    }
+];

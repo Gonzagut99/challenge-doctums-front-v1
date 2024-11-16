@@ -17,7 +17,6 @@ export interface PlayerToCreate {
     name: string;
     game_session_id: string;
     avatar_id: string;
-    // Añade otros campos según tu modelo PlayerModel
 }
 
 export const getAllPlayers = async (): Promise<ResponseModel<Player[]>> => {

@@ -1,7 +1,8 @@
-import { globalWebSocketService } from "~/services/ws";
+// import { globalWebSocketService } from "~/services/ws";
 import Phaser from 'phaser';
 import { EventBus } from '../EventBus';
 import { changeDirection, sameDirection, dayPositions } from '../../../public/game/tilemap/positions';
+import { diceResult } from '~/routes/game+';
 import { emitter } from "~/utils/emitter.client";
 /* START OF COMPILED CODE */
 export class MainScene extends Phaser.Scene {
@@ -24,6 +25,7 @@ export class MainScene extends Phaser.Scene {
     private nextExpectedId: number = 1;
     private isFirstRollGame: boolean = true;
     private avatarId: number | null = null;
+    private diceResult: number | null = null;
 
     constructor() {
         super({ key: 'MainScene', physics: { arcade: { debug: false } } });
@@ -70,49 +72,34 @@ export class MainScene extends Phaser.Scene {
 
 
     editorCreate(): void {
-
-        // twelve
         const twelve = this.add.tilemap("twelve");
         twelve.addTilesetImage("tileset-offices");
         twelve.addTilesetImage("tematic");
-
         const mapOffsetX = -370;
         const mapOffsetY = 170;
         // pisos_1
         twelve.createLayer("pisos", ["tileset-offices"], mapOffsetX, mapOffsetY);
-
         // paredes_1
         const wall = twelve.createLayer("paredes", ["tileset-offices", "tematic"], mapOffsetX, mapOffsetY);
-        if (wall) {
-            wall.setDepth(12);
-        }
+        if (wall) { wall.setDepth(12); }
         // decoracion
         const decoration = twelve.createLayer("decoracion2", ["tematic", "tileset-offices"], mapOffsetX, mapOffsetY);
-        if (decoration) {
-            decoration.setDepth(13);
-        }
+        if (decoration) { decoration.setDepth(13); }
         // decoracion_1
         const decoration2 = twelve.createLayer("decoracion", ["tileset-offices", "tematic"], mapOffsetX, mapOffsetY);
         if (decoration2) {
             decoration2.setDepth(14);
         }
-
-
         this.twelve = twelve;
-
-
     }
 
     /* START-USER-CODE */
-
-    create(): void {
-
+    create(data: { avatarId: string; diceResult: any }): void {
         this.promptDiceRoll();
         this.editorCreate();
         this.isStopped = false;
         let startX = 150;
         let startY = 6050;
-
         const avatarId = this.avatarId;
 
         if (avatarId === 1) {
@@ -129,8 +116,6 @@ export class MainScene extends Phaser.Scene {
             startY = 5980;
         }
         console.log('Personaje activo:', avatarId);
-
-
         const animData = this.cache.json.get(`character_${avatarId}_anim`);
 
         if (!animData || !animData.anims) {
@@ -140,11 +125,9 @@ export class MainScene extends Phaser.Scene {
 
         animData.anims.forEach((animation: any) => {
             const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
-                key: `character_${avatarId}`, // Utiliza el atlas dinámico correspondiente
+                key: `character_${avatarId}`, 
                 frame: frameData.frame,
             }));
-
-            // Verificar si la animación ya existe antes de crearla
             if (!this.anims.exists(animation.key)) {
                 console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
                 this.anims.create({
@@ -155,41 +138,6 @@ export class MainScene extends Phaser.Scene {
                 });
             }
         });
-    
-
-
-        /*this.turns_order.forEach(player => {
-            const { avatarId } = player;
-            console.log("Cargando personaje con avatarId:", avatarId);
-            
-            // Cargar los datos de animación desde la ruta dinámica basada en el avatarId
-            const animData = this.cache.json.get(`character_${avatarId}_anim`);
-            
-            // Verificación de los datos de animación
-            if (!animData || !animData.anims) {
-                console.error(`No se encontraron datos de animación válidos para el avatarId ${avatarId}`);
-                return;
-            }
-        
-            animData.anims.forEach((animation: any) => {
-                // Mapeo de frames utilizando 'key' y 'frame' del JSON
-                const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
-                    key: frameData.key, // Se accede al 'key' de cada frame
-                    frame: frameData.frame,
-                }));
-        
-                if (!this.anims.exists(animation.key)) {
-                    console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
-                    this.anims.create({
-                        key: animation.key,
-                        frames: frames,
-                        frameRate: animation.frameRate,
-                        repeat: animation.repeat,
-                    });
-                }
-            });
-        });*/
-        
 
         this.character = this.physics.add.sprite(startX, startY, `character_${avatarId}`);
         this.character.setOrigin(1, 0.5);
@@ -206,6 +154,9 @@ export class MainScene extends Phaser.Scene {
         this.dayPositions.forEach((pos) => {
             const casilla = this.casillasGroup.create(pos.x, pos.y, pos.type);
             casilla.setData('id', pos.id);
+            if (pos.id === 400) {
+                casilla.setAlpha(0);
+            }
             casilla.refreshBody();
         });
 
@@ -260,11 +211,17 @@ export class MainScene extends Phaser.Scene {
     promptDiceRoll(): void {
         this.time.delayedCall(1000, () => {
             this.input.keyboard?.once('keydown-RIGHT', () => {
-                const diceRoll = parseInt(prompt("Ingresa el valor del dado:") || "0", 10);
+                const avatarId = this.avatarId ?? 0; 
+                const userDiceResult = diceResult.find((res) => res.avatarId === avatarId);
+    
+                // Obtén el total del resultado encontrado o 0 si no existe
+                const diceRoll = userDiceResult ? userDiceResult.total : 0;
+    
+                console.log("Total de dados para avatarId:", avatarId, "es", diceRoll);
+    
                 if (!isNaN(diceRoll)) {
                     this.setDiceRoll(diceRoll);
                     this.isStopped = false;
-
                     if (this.isFirstRollGame) {
                         this.isFirstRollGame = false;
                         this.moveCharacterForward();
@@ -287,7 +244,7 @@ export class MainScene extends Phaser.Scene {
 
     // Función para obtener la casilla actual del personaje
     getCurrentCasillaId(character: Phaser.GameObjects.Sprite): number | null {
-        const tolerance = 16;
+        const tolerance = 14;
         const casilla = this.casillasGroup.getChildren().find(casilla =>
             Phaser.Math.Distance.Between(character.x, character.y, (casilla as Phaser.GameObjects.Sprite).x, (casilla as Phaser.GameObjects.Sprite).y) < tolerance
         ) as Phaser.GameObjects.Sprite;
@@ -298,7 +255,7 @@ export class MainScene extends Phaser.Scene {
     handleCollision(_: any, casilla: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Physics.Arcade.Body): void {
         if (this.isStopped) return;
         const casillaId = (casilla as Phaser.GameObjects.GameObject).getData('id');
-        const tolerance = 16;
+        const tolerance = 14;
         const withinTolerance = Math.abs(Math.round(this.character.x) - (casilla as Phaser.GameObjects.Sprite).x) < tolerance &&
             Math.abs(Math.round(this.character.y + this.character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance;
 
@@ -504,8 +461,6 @@ export class MainScene extends Phaser.Scene {
         this.direction = "horizontal";
     }
 
-
-    // Ejecuta la animación de descanso
     restCharacter() {
         const character = this.character as Phaser.Physics.Arcade.Sprite;
         character.anims.play('rest', true);
@@ -523,6 +478,11 @@ export class MainScene extends Phaser.Scene {
 
 
     update() {
+        const speed = 5
+        this.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: any, deltaX: number, deltaY: number, deltaZ: number) => {
+            this.cameras.main.scrollY += deltaY * 0.1;
+            this.cameras.main.scrollX += deltaX * 0.1;
+        });
     }
 
 
