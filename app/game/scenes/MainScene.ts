@@ -262,7 +262,7 @@ export class MainScene extends Phaser.Scene {
         // Priorizar la acción de detener el personaje si se llega a la casilla del dado
         if (casillaId === this.diceRollResult || casillaId === 360) {
             this.stopCharacter(casillaId);
-            return; // Detenemos aquí para evitar ejecutar la lógica de casilla especial
+            return; 
         } 
 
         // Si no es la casilla del dado, se verifica si es una casilla especial
