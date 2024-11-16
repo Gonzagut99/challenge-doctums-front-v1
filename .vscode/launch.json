@@ -9,7 +9,11 @@
       "request": "launch",
       "name": "Launch Chrome against localhost",
       "url": "http://localhost:8085",
-      "webRoot": "${workspaceFolder}"
-    }
+      "webRoot": "${workspaceFolder}",
+      //Launch ina dettached terminal
+      "runtimeArgs": [
+        "--remote-debugging-port=9222"
+      ]
+    },
   ]
 }

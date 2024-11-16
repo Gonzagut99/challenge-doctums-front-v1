@@ -33,6 +33,15 @@ class WebSocketService implements IWebSocketService {
     //     this.gameId = gameId;
     // }
 
+    getResponseWhenGameStarted() {
+        return this.startGameResponse;
+    }
+
+    getTurnOrdersResult() {
+        return this.turnOrderStageResponse;
+    }
+
+
     // Method to set playerId later
     setGameId(gameId: string) {
         this.gameId = gameId;
@@ -59,7 +68,7 @@ class WebSocketService implements IWebSocketService {
         return this.gameStateMessage?.current_turn;
     }
 
-    getStageMethod() {
+    getStageMethod(): string {
         return this.gameStateMessage?.method;
     }
 
@@ -222,7 +231,14 @@ class WebSocketService implements IWebSocketService {
 }
 
 
-export const globalWebSocketService = new WebSocketService();
+// eslint-disable-next-line no-var
+export var globalWebSocketService: WebSocketService;
+
+export function initializeWebSocket(gameId: string) {
+    globalWebSocketService = new WebSocketService();
+    globalWebSocketService.setGameId(gameId);
+    globalWebSocketService.connect();
+}
 
 //export default WebSocketService;
 
