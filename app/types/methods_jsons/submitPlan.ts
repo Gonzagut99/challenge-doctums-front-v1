@@ -22,6 +22,12 @@ export type ActionPlanPlayerState = {
     }];
 }
 
+export type PlanActions = {
+    products: string[], //Van los ids  en string "products": ["10", "11"],
+    projects: string[],
+    resources: string[],
+}
+
 // export type SubmitPlanResponse = {
 //     method: string;
 //     status: string;
