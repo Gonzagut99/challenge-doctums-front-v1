@@ -51,8 +51,6 @@ class WebSocketService implements IWebSocketService {
     private localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private isGameInitialized: boolean = false; // Control game canvas initialization
-    private isRenderedOneTime: boolean = false; 
-
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
     private turnStartInfo: StartNewTurn;
@@ -79,10 +77,6 @@ class WebSocketService implements IWebSocketService {
         return this.isGameInitialized;
     }
 
-    getIsRenderedOneTime() {
-        return this.isRenderedOneTime;
-    }
-
     // Method to set playerId later
     setGameId(gameId: string) {
         this.gameId = gameId;
@@ -94,10 +88,6 @@ class WebSocketService implements IWebSocketService {
 
     setIsGameInitialized(isInitialized: boolean) {
         this.isGameInitialized = isInitialized;
-    }
-
-    setIsRenderedOneTime(isRendered: boolean) {
-        this.isRenderedOneTime = isRendered;
     }
 
     getLocalPlayerAvatarInfo() {
