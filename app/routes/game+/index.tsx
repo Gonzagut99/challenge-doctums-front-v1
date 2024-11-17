@@ -12,9 +12,10 @@ import { globalWebSocketService, PlayerClientInfo } from "~/services/ws";
 import { GameStartMessage, PlayerInitState, TurnOrder } from "~/types/methods_jsons/startGameResponse";
 import { charactersData } from "~/data/characters";
 import { getFormDataFromSearchParams } from "remix-hook-form";
-import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
+import { TurnOrderStage, TurnPlayerOrder } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 import { TurnEventResults } from "~/types/methods_jsons";
+import { Player } from "~/services/http/player";
 
 const gameStateHandlers = {
     "start_game": () => globalWebSocketService.getGameState<GameStartMessage>(),
@@ -26,7 +27,7 @@ const gameStateHandlers = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-    const player = globalWebSocketService.getCurrentPlayerAvatarInfo();
+    const localPlayer = globalWebSocketService.getLocalPlayerAvatarInfo();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
     const playerClientInfo = globalWebSocketService.getPlayerClientInfo();
@@ -37,7 +38,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     const gameState = gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
-    return json({ player, gameState, currentPlayerTurnId, playerClientInfo, playersTurnOrder });
+    return json({ localPlayer, gameState, currentPlayerTurnId, playerClientInfo, playersTurnOrder });
 };
 
 export const action = async({request}: ActionFunctionArgs) => {
@@ -59,40 +60,40 @@ export const action = async({request}: ActionFunctionArgs) => {
 
 
 export default function Index() {
+    //charging loader data
     const loaderData: any = useLiveLoader<typeof loader>();
     const gameInitData: TurnOrderStage | GameStartMessage | StartNewTurn = loaderData.gameState;
-    const playerAvatarInfo = loaderData.player;
-    const playerClientInfo = loaderData.playerClientInfo;
-    const turnsOrder = loaderData.playersTurnOrder;
-    const currentPlayerTurnId = gameInitData.current_turn;
+    const localPlayer = loaderData.player as Player;
+    const playerClientInfo = loaderData.playerClientInfo as PlayerClientInfo;
+    const turnsOrder = loaderData.playersTurnOrder as TurnPlayerOrder[];
+    const currentPlayerTurnId = loaderData.currentPlayerTurnId ?? gameInitData.current_turn;
 
-
+    //charging turn order stage data
     const playerToStartNewTurn = (gameInitData as TurnOrderStage).first_player_turn;
     const is_turn_order_stage_over = (gameInitData as TurnOrderStage).is_turn_order_stage_over;
-    const has_player_roll_dices = (gameInitData as TurnOrderStage).this_player_turn_results?.has_player_rolled_dices
+    const has_player_roll_dices = (gameInitData as TurnOrderStage).this_player_turn_results?.has_player_rolled_dices;
     const dicesResult = (gameInitData as TurnOrderStage).this_player_turn_results?.dices ?? null;
     
-    
+    // charging react/remix hooks
     const navigate = useNavigate();
+    const submit = useSubmit();
     const gameCanvasRef = useRef(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
 
-    const [avatarId, setAvatarId] = useState<string | null>(playerAvatarInfo?.avatar_id || null);
+    const [avatarId, setAvatarId] = useState<string | null>(localPlayer?.avatar_id || null);// This data will continously change thanks to live loader
     const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
         message: "",
     });
     //const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null); // Estado para controlar la instancia del juego
-
-    const submit = useSubmit();
-
-    
     //const [dicesResult, setDicesResult] = useState<number[] | null>(null);
-    const handleOrderTurn = () => {
-        const currentPlayerOrderTurnId = loaderData.current_player_order_turn ?? currentPlayerTurnId;
+
+    //trigger turn_order_stage event from the backend
+    const triggerTurnOrderStage = () => {
+        // const currentPlayerOrderTurnId = currentPlayerTurnId;
         
-        if(currentPlayerOrderTurnId === playerAvatarInfo?.id) {
+        if(currentPlayerTurnId === localPlayer?.id) {
             // if(dicesResult) {
             //     setDicesResult(loaderData.diceResults);
             // }
@@ -107,7 +108,7 @@ export default function Index() {
         }
     };
 
-    const handleStartNewTurn = () => {
+    const triggerStartNewTurn = () => {
         const formData = new FormData();
         formData.append("method", "start_new_turn");
         submit(
@@ -118,7 +119,6 @@ export default function Index() {
         )
             
     };
-
    
     useEffect(() => {
         let isGameInitialized = false; // Variable para controlar la inicialización
@@ -158,6 +158,7 @@ export default function Index() {
                 console.error("Error loading MainScene:", error);
             });
         }
+        //Esto esta bien cuando se desmonta la vista, a menos que no lo hagamos por los modals
          /*
         return () => {
             Limpia la instancia del juego al desmontar el componente
@@ -185,13 +186,13 @@ export default function Index() {
                 </WhiteContainer>
             </section>
             <section className="flex">
-                <div id='GameCanvas' className="w-[800px] h-[442px]">
+                <div ref={gameCanvasRef} id='GameCanvas' className="w-[800px] h-[442px]">
 
                 </div>
                 <div className="flex flex-col gap-1">
                     {turnsOrder.map((playerTurn: TurnOrder) => {
                         
-                        if (playerTurn?.playerId === playerAvatarInfo?.id) {
+                        if (playerTurn?.playerId === localPlayer?.id) {
                             return (
                                 <CurrentUserCard
                                     key={playerTurn.playerId}
@@ -238,8 +239,8 @@ export default function Index() {
                     {
                         !is_turn_order_stage_over ? (
                             <ButtonsManager method={gameInitData.method} 
-                                handleOrderTurn={handleOrderTurn} 
-                                message={currentPlayerTurnId === playerAvatarInfo?.id 
+                                handleOrderTurn={triggerTurnOrderStage} 
+                                message={currentPlayerTurnId === localPlayer?.id 
                                     ? "Lanza los dados" 
                                     : "Esperar"
                                 }
@@ -247,8 +248,8 @@ export default function Index() {
                         ) 
                         : (
                             <ButtonsManager method={gameInitData.method} 
-                                handleOrderTurn={handleStartNewTurn} 
-                                message={playerToStartNewTurn === playerAvatarInfo?.id 
+                                handleOrderTurn={triggerStartNewTurn} 
+                                message={playerToStartNewTurn === localPlayer?.id 
                                     ? "Comienza tu nuevo turno!" 
                                     : "Espera tu turno"
                                 }

@@ -47,7 +47,7 @@ export interface IWebSocketService {
 class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
-    private currentPlayerAvatarInfo: Player | null = null;
+    private localPlayerAvatarInfo: Player | null = null;
     private playerClientInfo: PlayerClientInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private startGameResponse: GameStartMessage;
@@ -79,18 +79,18 @@ class WebSocketService implements IWebSocketService {
     }
 
     setPlayer(player: Player) {
-        this.currentPlayerAvatarInfo = player;
+        this.localPlayerAvatarInfo = player;
     }
 
-    getCurrentPlayerAvatarInfo() {
-        return this.currentPlayerAvatarInfo
+    getLocalPlayerAvatarInfo() {
+        return this.localPlayerAvatarInfo
     }
 
     setPlayerClientInfo() {
         this.playerClientInfo = {
-            id: this.currentPlayerAvatarInfo?.id ?? '',
-            name: this.currentPlayerAvatarInfo?.name ?? '',
-            avatarId: this.currentPlayerAvatarInfo?.avatar_id ?? '',
+            id: this.localPlayerAvatarInfo?.id ?? '',
+            name: this.localPlayerAvatarInfo?.name ?? '',
+            avatarId: this.localPlayerAvatarInfo?.avatar_id ?? '',
             budget: this.startGameResponse?.player.budget ?? 0,
             score: this.startGameResponse?.player.score ?? 0,
             //modifiers: this.turnStartInfo?. ?? {},
@@ -105,8 +105,8 @@ class WebSocketService implements IWebSocketService {
         return this.gameStateMessage?.status === 'success'
     }
 
-    isCurrentPlayerTurn() {
-        return this.gameStateMessage?.current_turn === this.currentPlayerAvatarInfo?.id;
+    isLocalPlayerTurn() {
+        return this.gameStateMessage?.current_turn === this.localPlayerAvatarInfo?.id;
     }
 
     getTurnsOrder() {
@@ -183,7 +183,7 @@ class WebSocketService implements IWebSocketService {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             const joinMessage = {
                 method: 'join',
-                player_id: this.currentPlayerAvatarInfo?.id,
+                player_id: this.localPlayerAvatarInfo?.id,
             };
 
             // Send the message to the server

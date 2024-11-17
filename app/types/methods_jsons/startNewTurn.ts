@@ -64,7 +64,7 @@ export type StartNewTurn = {
 }
 
 
-export interface TimeManager {
+export type TimeManager = {
   current_day: number;
   current_day_in_month: number;
   current_month: number;
@@ -75,7 +75,7 @@ export interface TimeManager {
 }
 
 
-export interface PlayerInitModifiers {
+export type PlayerInitModifiers = {
   id: string;
   products: [{
     product_id: number;

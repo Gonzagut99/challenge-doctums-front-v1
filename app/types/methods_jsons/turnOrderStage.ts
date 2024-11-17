@@ -31,18 +31,18 @@
 // }
 
 // CREATE THE INTERFACES FROM THE JSON ABOVE
-export interface TurnOrderStage {
+export type TurnOrderStage = {
   method: string;
   status: string;
   current_turn: string;
   first_player_turn: string;
   message: string;
   this_player_turn_results: ThisPlayerTurnResults;
-  turns_order: TurnOrder[];
+  turns_order: TurnPlayerOrder[];
   is_turn_order_stage_over: boolean;
 }
 
-export interface ThisPlayerTurnResults {
+export type ThisPlayerTurnResults = {
   playerId: string;
   name: string;
   avatarId: string;
@@ -51,7 +51,7 @@ export interface ThisPlayerTurnResults {
   has_player_rolled_dices: boolean;
 }
 
-export interface TurnOrder {
+export type TurnPlayerOrder = {
   playerId: string;
   name: string;
   avatarId: string;
