@@ -29,6 +29,7 @@ import {
 import { StartNewTurn,PlayerInitModifiers, TimeManager } from "~/types/methods_jsons/startNewTurn";
 import { TurnEventResults } from "~/types/methods_jsons";
 import { Player } from "~/services/http/player";
+import { set } from "zod";
 
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
@@ -81,6 +82,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
+    // 1st frontstage - 1st backstage
     //charging loader data | gameInitData
     const loaderData: any = useLiveLoader<typeof loader>();
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn =
@@ -93,9 +95,9 @@ export default function Index() {
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
 
+    // 2nd fronstage - 2nd backstage
     //charging turn order stage data
-    const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage)
-        .first_player_turn;
+    const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage).first_player_turn;
     const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)
         .is_turn_order_stage_over;
     const turnStage_hasPlayerRolledDices = (genericGameState as TurnOrderStage)
@@ -104,11 +106,12 @@ export default function Index() {
         (genericGameState as TurnOrderStage).this_player_turn_results?.dices ??
         null;
 
-    let preNewTurnStage_isOver = true
+    //3rd frontstage
+    const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(true)
     const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn).current_turn
 
-    //charging new turn stage data
-    let newTurnStage_isOver = true
+    // 4th frontstage - 3rd backstage
+    const [newTurnStage_isOver, setNewTurnStage_isOver] = useState(true)
     //const newTurnStage_currentTurn = (gameInitData as StartNewTurn).current_turn
     const newTurnStage_message = (genericGameState as StartNewTurn).message
     const newTurnStage_method = (genericGameState as StartNewTurn).method
@@ -117,6 +120,10 @@ export default function Index() {
     const newTurnStage_timeManager = (genericGameState as StartNewTurn).time_manager
     const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).playerM
 
+    // 5th frontstage - 4th backstage
+
+
+    
     // charging react/remix hooks
     const navigate = useNavigate();
     const submit = useSubmit();
@@ -153,7 +160,7 @@ export default function Index() {
     const triggerStartNewTurn = () => {
         const formData = new FormData();
         formData.append("method", "start_new_turn");
-        preNewTurnStage_isOver = false
+        setPreNewTurnStage_isOver(false)
         submit(formData, {
             method: "post",
         });
@@ -161,8 +168,8 @@ export default function Index() {
 
     const handleLocallyRolledDices = () => {
         if (currentPlayerTurnId === localPlayer?.id) {
-            preNewTurnStage_isOver = true
-            newTurnStage_isOver = false
+            setPreNewTurnStage_isOver(true)
+            setNewTurnStage_isOver(false)
         }
     }
 
@@ -264,6 +271,7 @@ export default function Index() {
                         <WhiteContainer
                             key={button.control}
                             onClick={() => navigate(`/game/${button.control}`)}
+                            className="cursor-pointer"
                         >
                             <div className="flex gap-2">
                                 <figure className="w-16 min-w-16">
