@@ -158,6 +158,7 @@ class WebSocketService implements IWebSocketService {
 
         this.socket.onclose = (e) => {
             console.log("WebSocket connection closed", e.reason);
+            this.stopKeepAlive();
         };
 
         this.socket.onerror = (error) => {
