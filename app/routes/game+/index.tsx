@@ -89,8 +89,9 @@ export default function Index() {
     const localPlayerDynamicInfo =
         loaderData.localPlayerDynamicInfo as LocalPlayerDynamicInfo;
     const turnsOrder = loaderData.playersTurnOrder as TurnOrderPlayer[];
-    const currentPlayerTurnId =
-        loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
+    // const currentPlayerTurnId =
+    //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
+    const currentPlayerTurnId = loaderData.currentPlayerTurnId;
 
     //charging turn order stage data
     const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage)
