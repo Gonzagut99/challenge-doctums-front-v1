@@ -3,9 +3,10 @@ import { useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Modal from "~/components/custom/Modal";
-import { GameControlButton } from "../..";
+
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { Button2 } from "~/components/custom/Button2";
+import { GameControlButton } from "../../_layout";
 
 export default function ActionPlan() {
     const [isModalOpen, setIsModalOpen] = useState(true);

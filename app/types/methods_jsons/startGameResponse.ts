@@ -51,17 +51,17 @@
 //   ]
 // }
 
-export interface GameStartMessage {
+export type GameStartMessage = {
   method: string;
   status: string;
   message: string;
   current_turn: string;
   legacy_products: string[];
   player: PlayerInitState;
-  turns_order: TurnOrder[];
+  turns_order: StartGameTurnPlayerOrder[];
 }
 
-export interface PlayerInitState {
+export type PlayerInitState = {
   id: string;
   name: string;
   avatarId: string;
@@ -70,11 +70,11 @@ export interface PlayerInitState {
   efficiencies: Efficiencies;
 }
 
-interface Efficiencies {
+type Efficiencies = {
   [key: string]: number;
 }
 
-export interface TurnOrder {
+export type StartGameTurnPlayerOrder = {
   playerId: string;
   name: string;
   avatarId: string;

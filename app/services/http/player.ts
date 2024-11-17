@@ -4,7 +4,7 @@ import { envs } from '~/env/envs';
 
 const API_BASE_URL = envs.apiHttpBaseUrl // Cambia esto a la URL de tu backend
 
-export interface Player {
+export type Player = {
     id: string;
     name: string;
     game_session_id: string;
@@ -13,7 +13,7 @@ export interface Player {
     // Añade otros campos según tu modelo PlayerModel
 }
 
-export interface PlayerToCreate {
+export type PlayerToCreate = {
     name: string;
     game_session_id: string;
     avatar_id: string;

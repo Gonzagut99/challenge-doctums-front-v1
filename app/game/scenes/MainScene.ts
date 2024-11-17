@@ -1,8 +1,6 @@
-// import { globalWebSocketService } from "~/services/ws";
 import Phaser from 'phaser';
 import { EventBus } from '../EventBus';
 import { changeDirection, sameDirection, dayPositions } from '../../../public/game/tilemap/positions';
-import { diceResult } from '~/routes/game+';
 import { emitter } from "~/utils/emitter.client";
 /* START OF COMPILED CODE */
 export class MainScene extends Phaser.Scene {
@@ -25,7 +23,6 @@ export class MainScene extends Phaser.Scene {
     private nextExpectedId: number = 1;
     private isFirstRollGame: boolean = true;
     private avatarId: number | null = null;
-    private diceResult: number | null = null;
 
     constructor() {
         super({ key: 'MainScene', physics: { arcade: { debug: false } } });
@@ -33,9 +30,10 @@ export class MainScene extends Phaser.Scene {
         this.dayPositions = dayPositions;
         this.sameDirection = sameDirection;
     }
+    
 
     init(data: { avatarId: string | number }) {
-        this.avatarId = Number(data.avatarId) || 0;
+        this.avatarId = Number(data.avatarId) || 2;
         console.log("Cargando personaje con ID:", this.avatarId);
     }
 
@@ -72,34 +70,48 @@ export class MainScene extends Phaser.Scene {
 
 
     editorCreate(): void {
+
+        // twelve
         const twelve = this.add.tilemap("twelve");
         twelve.addTilesetImage("tileset-offices");
         twelve.addTilesetImage("tematic");
+
         const mapOffsetX = -370;
         const mapOffsetY = 170;
         // pisos_1
         twelve.createLayer("pisos", ["tileset-offices"], mapOffsetX, mapOffsetY);
+
         // paredes_1
         const wall = twelve.createLayer("paredes", ["tileset-offices", "tematic"], mapOffsetX, mapOffsetY);
-        if (wall) { wall.setDepth(12); }
+        if (wall) {
+            wall.setDepth(12);
+        }
         // decoracion
         const decoration = twelve.createLayer("decoracion2", ["tematic", "tileset-offices"], mapOffsetX, mapOffsetY);
-        if (decoration) { decoration.setDepth(13); }
+        if (decoration) {
+            decoration.setDepth(13);
+        }
         // decoracion_1
         const decoration2 = twelve.createLayer("decoracion", ["tileset-offices", "tematic"], mapOffsetX, mapOffsetY);
         if (decoration2) {
             decoration2.setDepth(14);
         }
+
+
         this.twelve = twelve;
+
+
     }
 
     /* START-USER-CODE */
-    create(data: { avatarId: string; diceResult: any }): void {
+
+    create(): void {
         this.promptDiceRoll();
         this.editorCreate();
         this.isStopped = false;
         let startX = 150;
         let startY = 6050;
+
         const avatarId = this.avatarId;
 
         if (avatarId === 1) {
@@ -116,6 +128,8 @@ export class MainScene extends Phaser.Scene {
             startY = 5980;
         }
         console.log('Personaje activo:', avatarId);
+
+
         const animData = this.cache.json.get(`character_${avatarId}_anim`);
 
         if (!animData || !animData.anims) {
@@ -125,9 +139,11 @@ export class MainScene extends Phaser.Scene {
 
         animData.anims.forEach((animation: any) => {
             const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
-                key: `character_${avatarId}`, 
+                key: `character_${avatarId}`, // Utiliza el atlas dinámico correspondiente
                 frame: frameData.frame,
             }));
+
+            // Verificar si la animación ya existe antes de crearla
             if (!this.anims.exists(animation.key)) {
                 console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
                 this.anims.create({
@@ -138,7 +154,7 @@ export class MainScene extends Phaser.Scene {
                 });
             }
         });
-
+    
         this.character = this.physics.add.sprite(startX, startY, `character_${avatarId}`);
         this.character.setOrigin(1, 0.5);
         this.character.setDepth(10);
@@ -154,9 +170,6 @@ export class MainScene extends Phaser.Scene {
         this.dayPositions.forEach((pos) => {
             const casilla = this.casillasGroup.create(pos.x, pos.y, pos.type);
             casilla.setData('id', pos.id);
-            if (pos.id === 400) {
-                casilla.setAlpha(0);
-            }
             casilla.refreshBody();
         });
 
@@ -190,12 +203,9 @@ export class MainScene extends Phaser.Scene {
             const avatarKey = `character_${avatarId}`; 
             const xPosition = 100 + index * 100;
             const yPosition = 200;
-
-            // Crear el sprite del personaje con física
             const avatar = this.physics.add.sprite(xPosition, yPosition, avatarKey);
             avatar.setData('playerId', playerId);
             avatar.setData('avatarId', avatarId);
-
             // Asignar animación inicial (idle)
             if (this.anims.exists('idle')) {
                 avatar.anims.play('idle', true);
@@ -206,25 +216,16 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
-
-
     promptDiceRoll(): void {
         this.time.delayedCall(1000, () => {
             this.input.keyboard?.once('keydown-RIGHT', () => {
-                const avatarId = this.avatarId ?? 0; 
-                const userDiceResult = diceResult.find((res) => res.avatarId === avatarId);
-    
-                // Obtén el total del resultado encontrado o 0 si no existe
-                const diceRoll = userDiceResult ? userDiceResult.total : 0;
-    
-                console.log("Total de dados para avatarId:", avatarId, "es", diceRoll);
-    
+                const diceRoll = parseInt(prompt("Ingresa el valor del dado:") || "0", 10);
                 if (!isNaN(diceRoll)) {
                     this.setDiceRoll(diceRoll);
                     this.isStopped = false;
                     if (this.isFirstRollGame) {
                         this.isFirstRollGame = false;
-                        this.moveCharacterForward();
+                        this.moveCharacterDown();
                     } else {
                         this.moveCharacterToTarget();
                     }
@@ -244,50 +245,51 @@ export class MainScene extends Phaser.Scene {
 
     // Función para obtener la casilla actual del personaje
     getCurrentCasillaId(character: Phaser.GameObjects.Sprite): number | null {
-        const tolerance = 14;
         const casilla = this.casillasGroup.getChildren().find(casilla =>
-            Phaser.Math.Distance.Between(character.x, character.y, (casilla as Phaser.GameObjects.Sprite).x, (casilla as Phaser.GameObjects.Sprite).y) < tolerance
-        ) as Phaser.GameObjects.Sprite;
+            Phaser.Math.Distance.Between(
+                character.x, character.y, 
+                (casilla as Phaser.GameObjects.Sprite).x, 
+                (casilla as Phaser.GameObjects.Sprite).y) 
+                < this.tolerance
+        )as Phaser.GameObjects.Sprite;
         return casilla ? casilla.getData('id') : null;
     }
 
-    // Manejo de colisiones
-    handleCollision(_: any, casilla: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Physics.Arcade.Body): void {
-        if (this.isStopped) return;
-        const casillaId = (casilla as Phaser.GameObjects.GameObject).getData('id');
+    // Verifica la tolerancia
+    private isWithinTolerance(casilla: Phaser.GameObjects.GameObject): boolean {
         const tolerance = 14;
-        const withinTolerance = Math.abs(Math.round(this.character.x) - (casilla as Phaser.GameObjects.Sprite).x) < tolerance &&
-            Math.abs(Math.round(this.character.y + this.character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance;
+        return Math.abs(Math.round(this.character.x) - (casilla as Phaser.GameObjects.Sprite).x) < tolerance &&
+        Math.abs(Math.round(this.character.y + this.character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance;
 
-        if (!withinTolerance || this.visitedCasillas.has(casillaId)) return;
+    }
+    // Manejo de colisiones
+    handleCollision(_: any, casilla: Phaser.GameObjects.GameObject): void {
+        const casillaId = casilla.getData('id');
+        if (this.isStopped) return;
+        if (!this.isWithinTolerance(casilla)) return;
+        if (this.visitedCasillas.has(casillaId)) return;
         console.log('Colisión con casilla ID:', casillaId);
 
         if (casillaId === this.diceRollResult || casillaId === 360) {
             this.stopCharacter(casillaId);
             return;
         }
-
-
         if (this.isSpecialTile(casillaId)) {
             this.handleSpecialTileMovement(casillaId);
             this.visitedCasillas.add(casillaId);
             return;
         }
-        this.continueCurrentDirection();
-
+        this.continueCurrentDirection(); 
         this.visitedCasillas.add(casillaId);
     }
 
     // Función para mover al personaje hacia la casilla objetivo
     moveCharacterToTarget(): void {
-
         const targetId = this.diceRollResult;
-        console.log(`Buscando casilla con ID: ${targetId}`);
-
         const targetCasilla = this.casillasGroup.getChildren().find(
             casilla => casilla.getData('id') === targetId
         );
-
+        //Esta condicion luego borrar ya que con los dados esto no sucedera
         if (!targetCasilla) {
             console.error(`No se encontró la casilla con ID: ${targetId}`);
             return;
@@ -311,7 +313,6 @@ export class MainScene extends Phaser.Scene {
                 this.character.anims.play('walk_backward', true);
             }
         }
-
         console.log(`Moviendo al personaje hacia la casilla ID: ${targetId}`);
     }
 
@@ -320,8 +321,7 @@ export class MainScene extends Phaser.Scene {
         this.changeDirection = this.changeDirection
         this.sameDirection = this.sameDirection
         this.dayPositions = this.dayPositions
-        // Filtra IDs de casillas especiales
-        this.upwardPointIds = this.dayPositions.filter(pos => pos.id % 7 === 0 && pos.id !== 1).map(pos => pos.id);
+        this.upwardPointIds = this.dayPositions.filter(pos => pos.id % 7 === 0).map(pos => pos.id);
         this.oppositeDirectionIds = this.dayPositions.filter(pos => (pos.id - 1) % 7 === 0 && pos.id !== 1).map(pos => pos.id);
     }
 
@@ -347,6 +347,7 @@ export class MainScene extends Phaser.Scene {
         );
     }
 
+    private excludedCasillaIds: number[] = [92, 120, 302];
     // Manejo de movimiento en casillas especiales
     handleSpecialTileMovement(casillaId: number) {
         const character = this.character;
@@ -362,7 +363,8 @@ export class MainScene extends Phaser.Scene {
             this.moveCharacterLeft();
             return;
         }
-        if (this.oppositeDirectionIds.includes(casillaId) && casillaId !== 92 && casillaId !== 120) {
+        
+        if (this.oppositeDirectionIds.includes(casillaId) && !this.excludedCasillaIds.includes(casillaId)) {
             console.log(`Cambio de dirección opuesta detectado en casilla ID: ${casillaId}`);
             if (casillaId === 121) {
                 this.lastHorizontalDirection = "right";
@@ -383,7 +385,6 @@ export class MainScene extends Phaser.Scene {
                 character.anims.play('walk_backward', true);
             }
             else if (casillaId === 121) {
-                // Caso especial para la casilla 121: Forzar dirección a la derecha
                 console.log("Moviendo a la derecha desde casilla 121");
                 this.lastHorizontalDirection = "right";
                 this.moveCharacterRight();
@@ -401,32 +402,27 @@ export class MainScene extends Phaser.Scene {
                 this.lastHorizontalDirection = "right";
                 this.moveCharacterRight();
             }
-
             return;
         }
         this.continueCurrentDirection();
     }
-
-
-    // Función para verificar si la casilla actual es de cambio de dirección o hacia arriba
+    // Verifica si la casilla es de cambio de dirección o hacia arriba
     isUpwardOrChangeDirectionTile(casillaId: number) {
         return this.upwardPointIds.includes(casillaId) || this.changeDirection.some(pos => pos.id === casillaId);
     }
-
+    
     // Función para actualizar la dirección del personaje
     updateDirection(character: Phaser.Physics.Arcade.Sprite) {
         if (this.lastHorizontalDirection === "right") {
             this.lastHorizontalDirection = "left";
             this.moveCharacterLeft();
-        }
-        else {
+        }else {
             this.lastHorizontalDirection = "right";
             this.moveCharacterRight();
         }
         character.setVelocityY(0);
-        this.direction = "horizontal";
+        this.direction = "horizontal"; 
     }
-
 
     // Función para continuar en la dirección actual
     continueCurrentDirection() {
@@ -442,25 +438,44 @@ export class MainScene extends Phaser.Scene {
         this.direction = "horizontal";
     }
 
-    // Función para mover al personaje hacia la izquierda
-    moveCharacterLeft() {
-        console.log('Funcion Moviendo a la izquierda');
-        const character = this.character as Phaser.Physics.Arcade.Sprite;
-        character.setVelocityX(-400);
-        character.setVelocityY(0);
-        character.anims.play('walk_left', true);
-        this.direction = "horizontal";
+    private setCharacterVelocity(directionX: number, directionY: number): void {
+        const velocity = 400;
+        // Ajustamos la dirección del personaje y la animación
+        this.character.setVelocityX(velocity * directionX);
+        this.character.setVelocityY(200 * directionY);
+    
+        if (directionX !== 0) {
+            this.lastHorizontalDirection = directionX > 0 ? 'right' : 'left';
+            this.character.anims.play(directionX > 0 ? 'walk_right' : 'walk_left', true);
+        } else if (directionY !== 0) {
+            this.character.anims.play(directionY > 0 ? 'walk_forward' : 'walk_backward', true);
+        }
+        this.direction = directionX !== 0 ? 'horizontal' : this.direction;
     }
 
-    // Función para mover al personaje hacia la derecha
-    moveCharacterRight() {
-        const character = this.character as Phaser.Physics.Arcade.Sprite;
-        character.setVelocityX(400);
-        character.setVelocityY(0);
-        character.anims.play('walk_right', true);
-        this.direction = "horizontal";
+    moveCharacterLeft(): void {
+        this.setCharacterVelocity(-1, 0);
+        this.lastHorizontalDirection = 'left';
+        console.log('Moviendo a la izquierda');
+    }
+    
+    moveCharacterRight(): void {
+        this.setCharacterVelocity(1, 0);
+        this.lastHorizontalDirection = 'right';
+        console.log('Moviendo a la derecha');
     }
 
+    moveCharacterUp(): void {
+        this.character.setVelocityY(-200);
+        this.character.anims.play('walk_backward', true);
+    }
+
+    moveCharacterDown(): void {
+        this.character.setVelocityY(200);
+        this.character.anims.play('walk_forward', true);
+    }
+
+    // Ejecuta la animación de descanso
     restCharacter() {
         const character = this.character as Phaser.Physics.Arcade.Sprite;
         character.anims.play('rest', true);
@@ -470,20 +485,38 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
-    moveCharacterForward(): void {
-        const character = this.character as Phaser.Physics.Arcade.Sprite;
-        character.setVelocityY(200);
-        character.anims.play('walk_forward', true);
-    }
-
-
     update() {
-        const speed = 5
-        this.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: any, deltaX: number, deltaY: number, deltaZ: number) => {
-            this.cameras.main.scrollY += deltaY * 0.1;
-            this.cameras.main.scrollX += deltaX * 0.1;
-        });
     }
 
-
+/*this.turns_order.forEach(player => {
+            const { avatarId } = player;
+            console.log("Cargando personaje con avatarId:", avatarId);
+            
+            // Cargar los datos de animación desde la ruta dinámica basada en el avatarId
+            const animData = this.cache.json.get(`character_${avatarId}_anim`);
+            
+            // Verificación de los datos de animación
+            if (!animData || !animData.anims) {
+                console.error(`No se encontraron datos de animación válidos para el avatarId ${avatarId}`);
+                return;
+            }
+        
+            animData.anims.forEach((animation: any) => {
+                // Mapeo de frames utilizando 'key' y 'frame' del JSON
+                const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
+                    key: frameData.key, // Se accede al 'key' de cada frame
+                    frame: frameData.frame,
+                }));
+        
+                if (!this.anims.exists(animation.key)) {
+                    console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
+                    this.anims.create({
+                        key: animation.key,
+                        frames: frames,
+                        frameRate: animation.frameRate,
+                        repeat: animation.repeat,
+                    });
+                }
+            });
+        });*/
 }

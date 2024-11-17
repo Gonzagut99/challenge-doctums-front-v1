@@ -47,6 +47,21 @@
 //   }
 // }
 
+// export type StartNewTurn = {
+//   method: string;
+//   status: string;
+//   message: string;
+//   current_turn: string;
+//   thrown_dices: number[];
+//   days_advanced: number;
+//   time_manager: TimeManager;
+//   playerM: PlayerInitModifiers;
+// } | {
+//   method: string;
+//   status: string;
+//   message: string;
+//   current_turn: string;
+// }
 export type StartNewTurn = {
   method: string;
   status: string;
@@ -56,15 +71,9 @@ export type StartNewTurn = {
   days_advanced: number;
   time_manager: TimeManager;
   playerM: PlayerInitModifiers;
-} | {
-  method: string;
-  status: string;
-  message: string;
-  current_turn: string;
 }
 
-
-export interface TimeManager {
+export type TimeManager = {
   current_day: number;
   current_day_in_month: number;
   current_month: number;
@@ -75,7 +84,7 @@ export interface TimeManager {
 }
 
 
-export interface PlayerInitModifiers {
+export type PlayerInitModifiers = {
   id: string;
   products: [{
     product_id: number;
