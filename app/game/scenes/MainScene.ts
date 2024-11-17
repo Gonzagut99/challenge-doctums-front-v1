@@ -1,6 +1,8 @@
+import { globalWebSocketService } from "~/services/ws";
 import Phaser from 'phaser';
 import { EventBus } from '../EventBus';
-import { changeDirection, sameDirection, dayPositions } from '../../../public/game/tilemap/positions';
+import { changeDirection, sameDirection, dayPositions } from "~/game/resources/tilemap/positions"
+// '../../../public/game/tilemap/positions';
 import { emitter } from "~/utils/emitter.client";
 /* START OF COMPILED CODE */
 export class MainScene extends Phaser.Scene {
@@ -23,6 +25,10 @@ export class MainScene extends Phaser.Scene {
     private nextExpectedId: number = 1;
     private isFirstRollGame: boolean = true;
     private avatarId: number | null = null;
+    private mainCamera: Phaser.Cameras.Scene2D.Camera;
+    private scrollCamera: Phaser.Cameras.Scene2D.Camera;
+    private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+    
 
     constructor() {
         super({ key: 'MainScene', physics: { arcade: { debug: false } } });
@@ -31,7 +37,6 @@ export class MainScene extends Phaser.Scene {
         this.sameDirection = sameDirection;
     }
     
-
     init(data: { avatarId: string | number }) {
         this.avatarId = Number(data.avatarId) || 2;
         console.log("Cargando personaje con ID:", this.avatarId);
@@ -96,21 +101,20 @@ export class MainScene extends Phaser.Scene {
         if (decoration2) {
             decoration2.setDepth(14);
         }
-
-
         this.twelve = twelve;
-
-
     }
 
     /* START-USER-CODE */
 
     create(): void {
+        this.scrollCamera = this.scrollCamera;
         this.promptDiceRoll();
         this.editorCreate();
         this.isStopped = false;
         let startX = 150;
         let startY = 6050;
+
+        
 
         const avatarId = this.avatarId;
 
@@ -154,19 +158,22 @@ export class MainScene extends Phaser.Scene {
                 });
             }
         });
-    
+
         this.character = this.physics.add.sprite(startX, startY, `character_${avatarId}`);
         this.character.setOrigin(1, 0.5);
         this.character.setDepth(10);
-        this.character.anims.play('idle', true);
-        this.cameras.main.setBounds(0, 0, this.twelve.widthInPixels, this.twelve.heightInPixels);
-        this.cameras.main.startFollow(this.character);
-        this.cameras.main.setZoom(1);
+        this.character.anims.play('idle', true);  
+        //this.mainCamera = this.cameras.main; 
+       // this.scrollCamera.startFollow(this.character); 
+       // this.scrollCamera.setBounds(0, 0, this.twelve.widthInPixels, this.twelve.heightInPixels);
+        //this.cameras.main.startFollow(this.character, true, 1, 0.5);
+        
+        this.scrollCamera = this.cameras.add(0, 0, this.sys.game.config.width as number, this.sys.game.config.height as number);
+        this.setupPointerScroll();
         this.casillasGroup = this.physics.add.staticGroup();
         this.changeDirection = changeDirection;
         this.dayPositions = dayPositions;
         this.sameDirection = sameDirection;
-
         this.dayPositions.forEach((pos) => {
             const casilla = this.casillasGroup.create(pos.x, pos.y, pos.type);
             casilla.setData('id', pos.id);
@@ -194,6 +201,7 @@ export class MainScene extends Phaser.Scene {
         this.initializeSpecialTiles();
         EventBus.emit('current-scene-ready', this);
         emitter.emit('renderPlayersOnMap', this.turns_order);
+       // this.setupPointerScroll();
     }
 
     renderPlayers(players: any[]) {
@@ -268,8 +276,10 @@ export class MainScene extends Phaser.Scene {
         if (this.isStopped) return;
         if (!this.isWithinTolerance(casilla)) return;
         if (this.visitedCasillas.has(casillaId)) return;
+       
         console.log('Colisión con casilla ID:', casillaId);
 
+        this.smoothSetBounds(130, -40, this.twelve.widthInPixels - 130, this.twelve.heightInPixels, 1000);
         if (casillaId === this.diceRollResult || casillaId === 360) {
             this.stopCharacter(casillaId);
             return;
@@ -410,18 +420,20 @@ export class MainScene extends Phaser.Scene {
     isUpwardOrChangeDirectionTile(casillaId: number) {
         return this.upwardPointIds.includes(casillaId) || this.changeDirection.some(pos => pos.id === casillaId);
     }
-    
+
     // Función para actualizar la dirección del personaje
     updateDirection(character: Phaser.Physics.Arcade.Sprite) {
         if (this.lastHorizontalDirection === "right") {
             this.lastHorizontalDirection = "left";
             this.moveCharacterLeft();
-        }else {
+        }
+        else {
             this.lastHorizontalDirection = "right";
             this.moveCharacterRight();
         }
         character.setVelocityY(0);
-        this.direction = "horizontal"; 
+        this.direction = "horizontal";
+        
     }
 
     // Función para continuar en la dirección actual
@@ -485,38 +497,88 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
-    update() {
+    setupPointerScroll() {
+        this.scrollCamera.startFollow(this.character);
+        this.scrollCamera.setZoom(0.8);
+        this.scrollCamera.setBounds(0, 0, this.twelve.widthInPixels, this.twelve.heightInPixels);
+        let manualCameraControl = false;
+        let followTimeout: any;
+
+
+        const lerpFactor = 0.02;
+         const smoothFollow = () => {
+            if (!manualCameraControl) {
+                const targetX = this.character.x - this.scrollCamera.width / 2;
+                const targetY = this.character.y - this.scrollCamera.height / 2;
+    
+                // Interpolación lineal (lerp) para suavizar el movimiento
+                this.scrollCamera.scrollX += (targetX - this.scrollCamera.scrollX) * lerpFactor;
+                this.scrollCamera.scrollY += (targetY - this.scrollCamera.scrollY) * lerpFactor;
+    
+                if (Math.abs(targetX - this.scrollCamera.scrollX) > 1 || Math.abs(targetY - this.scrollCamera.scrollY) > 1) {
+                    requestAnimationFrame(smoothFollow);
+                } else {
+                    this.scrollCamera.startFollow(this.character);
+                }
+            }
+        };
+        //this.scrollCamera.startFollow(this.character); 
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.isDown) {
+                manualCameraControl = true;
+                this.scrollCamera.stopFollow();
+                this.scrollCamera.setBounds(130, 0, this.twelve.widthInPixels, this.twelve.heightInPixels);
+        
+                const deltaX = pointer.prevPosition.x - pointer.position.x;
+                const deltaY = pointer.prevPosition.y - pointer.position.y;
+
+                // Actualizar el desplazamiento en Y de la cámara secundaria
+                this.scrollCamera.scrollY -= deltaY * -1.2; // Ajustar la velocidad según se necesite
+                this.scrollCamera.scrollX -= deltaX * -1; 
+                // Asegurar que la cámara secundaria se mantenga dentro de los límites del mapa
+                const tilemapHeight = this.twelve.heightInPixels;
+                const tilemapWidth = this.twelve.widthInPixels;
+           
+                this.scrollCamera.scrollX = Phaser.Math.Clamp(this.scrollCamera.scrollX, 0, tilemapWidth - this.scrollCamera.width);
+                this.scrollCamera.scrollY = Phaser.Math.Clamp(this.scrollCamera.scrollY, 0, tilemapHeight - this.scrollCamera.height);
+            
+                clearTimeout(followTimeout);
+                followTimeout = setTimeout(() => {
+                    manualCameraControl = false;
+                    smoothFollow();
+                }, 2000);
+            }
+        });
+
+    }
+    smoothSetBounds(newX: number, newY: number, newWidth: number, newHeight: number, duration: number) {
+        const bounds = this.scrollCamera.getBounds();
+        const startX = bounds.x;
+        const startY = bounds.y;
+        const startWidth = bounds.width;
+        const startHeight = bounds.height;
+        const startTime = performance.now();
+    
+        const animate = (time: number) => {
+            const progress = Phaser.Math.Clamp((time - startTime) / duration, 0, 1);
+            const lerp = (start: number, end: number) => start + (end - start) * progress;
+    
+            this.scrollCamera.setBounds(
+                lerp(startX, newX),
+                lerp(startY, newY),
+                lerp(startWidth, newWidth),
+                lerp(startHeight, newHeight)
+            );
+    
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+    
+        requestAnimationFrame(animate);
     }
 
-/*this.turns_order.forEach(player => {
-            const { avatarId } = player;
-            console.log("Cargando personaje con avatarId:", avatarId);
-            
-            // Cargar los datos de animación desde la ruta dinámica basada en el avatarId
-            const animData = this.cache.json.get(`character_${avatarId}_anim`);
-            
-            // Verificación de los datos de animación
-            if (!animData || !animData.anims) {
-                console.error(`No se encontraron datos de animación válidos para el avatarId ${avatarId}`);
-                return;
-            }
-        
-            animData.anims.forEach((animation: any) => {
-                // Mapeo de frames utilizando 'key' y 'frame' del JSON
-                const frames = animation.frames.map((frameData: { key: string, frame: string }) => ({
-                    key: frameData.key, // Se accede al 'key' de cada frame
-                    frame: frameData.frame,
-                }));
-        
-                if (!this.anims.exists(animation.key)) {
-                    console.log(`Creando animación: ${animation.key} para avatarId ${avatarId}`);
-                    this.anims.create({
-                        key: animation.key,
-                        frames: frames,
-                        frameRate: animation.frameRate,
-                        repeat: animation.repeat,
-                    });
-                }
-            });
-        });*/
+    update(){
+
+    }
 }
