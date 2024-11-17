@@ -196,6 +196,17 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
+    listentoGameEvents() {
+        if(this.socket && this.socket.readyState === ServerWebSocket.OPEN){
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                this.handleJoinGame(message);
+                this.handleStartGameResponse(message);
+                this.handlerTurnOrderStage(message);
+            };
+        }
+    }
+
     // Join the game with a player name
     joinGame() {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
@@ -206,19 +217,16 @@ class WebSocketService implements IWebSocketService {
 
             // Send the message to the server
             this.sendMessage(joinMessage);
+            this.listentoGameEvents();
 
             // Optionally, listen for players' info update after joining
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                if (message.status === 'success' && message.method == "join") {
-                    this.connectedPlayers = message.game.players;
-                    console.log("Updated Players List:", this.connectedPlayers);
-                    emitter.emit('players', this.connectedPlayers);
-                }
-                this.handleNotifications(message);
-                this.handleStartGameResponse(message);
-                this.handlerTurnOrderStage(message);
-            };
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+               
+            //     // this.handleNotifications(message);
+            //     // this.handleStartGameResponse(message);
+            //     // this.handlerTurnOrderStage(message);
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
@@ -235,14 +243,14 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(send);
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                this.setIsGameInitialized(true);
-                this.handleStartGameResponse(message);
-                this.handlerTurnOrderStage(message);
-                this.handleNotifications(message);
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.setIsGameInitialized(true);
+            //     this.handleStartGameResponse(message);
+            //     this.handlerTurnOrderStage(message);
+            //     this.handleNotifications(message);
                 
-            };
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
@@ -350,6 +358,14 @@ class WebSocketService implements IWebSocketService {
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    handleJoinGame(message:any){
+        if (message.status === 'success' && message.method == "join") {
+            this.connectedPlayers = message.game.players;
+            console.log("Updated Players List:", this.connectedPlayers);
+            emitter.emit('players', this.connectedPlayers);
         }
     }
 
