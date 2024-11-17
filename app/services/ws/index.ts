@@ -12,6 +12,7 @@ const { emitter } = isServer
 import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
+import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
 
 
 // {
@@ -53,6 +54,9 @@ class WebSocketService implements IWebSocketService {
     private turnOrderStageResponse: TurnOrderStage;
     private turnStartInfo: StartNewTurn;
     private gameStateMessage: any;
+    private submitActionPlanEffects: SubmitPlanResponse
+    private currentEventResults: TurnEventResults;
+    private newTurnSettled: NextTurnResponse;
     //private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
@@ -270,6 +274,73 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
+    submitPlan(plan: PlanActions) {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const send = {
+                method: 'submit_plan',
+                actions: plan
+            };
+
+            // Send the message to the server
+            this.sendMessage(send);
+
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                this.handleActionPlanResponse(message);
+                
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    startTurnEventFlow(){
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const send = {
+                method: 'turn_event_flow'
+            };
+
+            // Send the message to the server
+            this.sendMessage(send);
+
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                this.handleTurnEvent(message);
+                
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    setNextTurn() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const send = {
+                method: 'next_turn'
+            };
+
+            // Send the message to the server
+            this.sendMessage(send);
+
+            this.socket.onmessage = (event) => {
+                const message = JSON.parse(event.data.toString());
+                this.handleSetNextTurn(message);
+                
+            };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    handleSetNextTurn(message: any) {
+        if (message.method === 'next_turn') {
+            this.gameStateMessage = message;
+
+            console.log("Next Turn", message);
+            emitter.emit('game', message);
+        }
+    }
+
     handleNewTurnStart(message: any) {
         if (message.method === 'new_turn_start') {
             this.turnStartInfo = message;
@@ -314,6 +385,24 @@ class WebSocketService implements IWebSocketService {
             }));
         }
         return [];
+    }
+
+    handleActionPlanResponse(message:SubmitPlanResponse ) {
+        if (message.method === 'submit_plan') {
+            this.gameStateMessage = message;
+            this.submitActionPlanEffects = message;
+            console.log("Action Plan", message);
+            emitter.emit('updatedModifiers', message);
+        }
+    }
+
+    handleTurnEvent(message: any) {
+        if (message.method === 'turn_event_flow') {
+            this.gameStateMessage = message;
+            this.currentEventResults = message;
+            console.log("Game Event", message);
+            emitter.emit('eventResults', message);
+        }
     }
 
     // Get the current list of players

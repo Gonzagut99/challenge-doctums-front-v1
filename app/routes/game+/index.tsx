@@ -14,13 +14,14 @@ import { charactersData } from "~/data/characters";
 import { getFormDataFromSearchParams } from "remix-hook-form";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
+import { TurnEventResults } from "~/types/methods_jsons";
 
 const gameStateHandlers = {
     "start_game": () => globalWebSocketService.getGameState<GameStartMessage>(),
     "turn_order_stage": () => globalWebSocketService.getGameState<TurnOrderStage>(),
     "start_new_turn": () => globalWebSocketService.getGameState<TurnOrderStage>(),
     "submit_plan": () => globalWebSocketService.getGameState<TurnOrderStage>(),
-    "turn_event_flow": () => globalWebSocketService.getGameState<TurnOrderStage>(),
+    "turn_event_flow": () => globalWebSocketService.getGameState<TurnEventResults>(),
     "new_turn_start": () => globalWebSocketService.getGameState<StartNewTurn>(),
 };
 
@@ -76,7 +77,7 @@ export default function Index() {
     const gameCanvasRef = useRef(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); // Mantén una referencia única para el juego
 
-    const [avatarId, setAvatarId] = useState<string | null>(player?.avatar_id || null);
+    const [avatarId, setAvatarId] = useState<string | null>(playerAvatarInfo?.avatar_id || null);
     const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
