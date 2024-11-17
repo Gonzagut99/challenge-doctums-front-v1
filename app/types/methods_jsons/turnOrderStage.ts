@@ -38,7 +38,7 @@ export type TurnOrderStage = {
   first_player_turn: string;
   message: string;
   this_player_turn_results: ThisPlayerTurnResults;
-  turns_order: TurnPlayerOrder[];
+  turns_order: TurnOrderPlayer[];
   is_turn_order_stage_over: boolean;
 }
 
@@ -51,7 +51,7 @@ export type ThisPlayerTurnResults = {
   has_player_rolled_dices: boolean;
 }
 
-export type TurnPlayerOrder = {
+export type TurnOrderPlayer = {
   playerId: string;
   name: string;
   avatarId: string;

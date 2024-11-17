@@ -26,7 +26,7 @@ import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } f
 
 // }
 
-export type PlayerClientInfo =  {
+export type LocalPlayerDynamicInfo =  {
     id: string;
     name: string;
     avatarId: string;
@@ -48,7 +48,7 @@ class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
     private localPlayerAvatarInfo: Player | null = null;
-    private playerClientInfo: PlayerClientInfo | null = null;
+    private localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
@@ -86,8 +86,8 @@ class WebSocketService implements IWebSocketService {
         return this.localPlayerAvatarInfo
     }
 
-    setPlayerClientInfo() {
-        this.playerClientInfo = {
+    setLocalPlayerDynamicInfo() {
+        this.localPlayerDynamicInfo = {
             id: this.localPlayerAvatarInfo?.id ?? '',
             name: this.localPlayerAvatarInfo?.name ?? '',
             avatarId: this.localPlayerAvatarInfo?.avatar_id ?? '',
@@ -97,8 +97,8 @@ class WebSocketService implements IWebSocketService {
         };
     }
 
-    getPlayerClientInfo() {
-        return this.playerClientInfo;
+    getLocalPlayerDynamicInfo() {
+        return this.localPlayerDynamicInfo;
     }
 
     isGameStarted() {
@@ -354,7 +354,7 @@ class WebSocketService implements IWebSocketService {
         if (message.status === 'success' && message.method == "start_game") {
             this.startGameResponse = message;
             this.gameStateMessage = message;
-            this.setPlayerClientInfo()
+            this.setLocalPlayerDynamicInfo()
             console.log("Host started game", this.startGameResponse);
             emitter.emit('players', this.connectedPlayers);
         }

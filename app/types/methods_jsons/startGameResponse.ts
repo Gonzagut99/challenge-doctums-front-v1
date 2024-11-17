@@ -58,7 +58,7 @@ export type GameStartMessage = {
   current_turn: string;
   legacy_products: string[];
   player: PlayerInitState;
-  turns_order: TurnOrder[];
+  turns_order: StartGameTurnPlayerOrder[];
 }
 
 export type PlayerInitState = {
@@ -74,7 +74,7 @@ type Efficiencies = {
   [key: string]: number;
 }
 
-export type TurnOrder = {
+export type StartGameTurnPlayerOrder = {
   playerId: string;
   name: string;
   avatarId: string;
