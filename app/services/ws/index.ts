@@ -15,6 +15,7 @@ import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
 
 
+
 // {
 //     id: this.currentPlayerAvatarInfo?.id,
 //     name: this.currentPlayerAvatarInfo?.name,
@@ -47,9 +48,11 @@ export interface IWebSocketService {
 class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
+    private keepAliveInterval: NodeJS.Timeout | null = null;
     private localPlayerAvatarInfo: Player | null = null;
     private localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
+    private isGameInitialized: boolean = false; // Control game canvas initialization
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
     private turnStartInfo: StartNewTurn;
@@ -72,6 +75,9 @@ class WebSocketService implements IWebSocketService {
         return this.turnOrderStageResponse?.turns_order ?? [];
     }
 
+    getIsGameInitialized() {
+        return this.isGameInitialized;
+    }
 
     // Method to set playerId later
     setGameId(gameId: string) {
@@ -80,6 +86,10 @@ class WebSocketService implements IWebSocketService {
 
     setPlayer(player: Player) {
         this.localPlayerAvatarInfo = player;
+    }
+
+    setIsGameInitialized(isInitialized: boolean) {
+        this.isGameInitialized = isInitialized;
     }
 
     getLocalPlayerAvatarInfo() {
@@ -139,10 +149,7 @@ class WebSocketService implements IWebSocketService {
 
         this.socket.onopen = () => {
             console.log("WebSocket connection established");
-            // Enviar mensaje al conectarse
-            // if (this.playerId && this.socket) {
-            //     this.socket.send(this.playerId);
-            // }
+            this.startKeepAlive();
         };
 
         // this.socket.onmessage = (event) => {
@@ -157,8 +164,9 @@ class WebSocketService implements IWebSocketService {
         //     }
         //   };
 
-        this.socket.onclose = () => {
-            console.log("WebSocket connection closed");
+        this.socket.onclose = (e) => {
+            console.log("WebSocket connection closed", e.reason);
+            this.stopKeepAlive();
         };
 
         this.socket.onerror = (error) => {
@@ -197,8 +205,9 @@ class WebSocketService implements IWebSocketService {
                     console.log("Updated Players List:", this.connectedPlayers);
                     emitter.emit('players', this.connectedPlayers);
                 }
-
+                this.handleNotifications(message);
                 this.handleStartGameResponse(message);
+                this.handlerTurnOrderStage(message);
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
@@ -218,6 +227,7 @@ class WebSocketService implements IWebSocketService {
 
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
+                this.setIsGameInitialized(true);
                 this.handleStartGameResponse(message);
                 this.handlerTurnOrderStage(message);
                 this.handleNotifications(message);
@@ -231,7 +241,8 @@ class WebSocketService implements IWebSocketService {
     rollDices() {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             const send = {
-                method: 'turn_order_stage'
+                method: 'turn_order_stage',
+                INFO_DEBUG: this.localPlayerAvatarInfo
             };
 
             // Send the message to the server
@@ -414,6 +425,23 @@ class WebSocketService implements IWebSocketService {
     disconnect() {
         if (this.socket) {
             this.socket.close();
+        }
+    }
+
+    // Start keepalive mechanism
+    private startKeepAlive() {
+        this.keepAliveInterval = setInterval(() => {
+            if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+                this.sendMessage({ "method": "ping" });
+            }
+        }, 30000); // Send ping every 30 seconds
+    }
+
+    // Stop keepalive mechanism
+    private stopKeepAlive() {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+            this.keepAliveInterval = null;
         }
     }
 }
