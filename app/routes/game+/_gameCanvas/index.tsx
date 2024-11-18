@@ -1,5 +1,6 @@
 import  { type LoaderFunctionArgs, type ActionFunctionArgs  } from "@remix-run/node";
-import { forwardRef, HTMLAttributes, useEffect, useImperativeHandle, useRef } from "react";
+import { forwardRef, HTMLAttributes, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import { globalWebSocketService } from "~/services/ws";
 
 // export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -19,7 +20,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-interface GameCanvasProps{
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+
+  return null;
+};
+
+interface GameCanvasProps extends HTMLAttributes<HTMLDivElement> {
     avatarId: string;
     diceResult: DicesResult[];
 }
@@ -27,6 +33,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
     const { avatarId, diceResult, ...rest } = props;
     const localDivRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); 
+    const [grabbing, setGrabbing] = useState(false);
 
     useImperativeHandle(ref, () => localDivRef.current!);
 
@@ -90,7 +97,21 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
             {...rest}
             ref={localDivRef}
             id="GameCanvas"
-            className="w-[800px] h-[442px]"
+            className={twMerge("w-[800px] h-[442px] cursor-grab", grabbing && "cursor-grabbing")}
+            role="button"
+            tabIndex={0}
+            onMouseDown={() => setGrabbing(true)}
+            onMouseUp={() => setGrabbing(false)}
+            // onKeyDown={(e) => {
+            //     if (e.key === "Enter" || e.key === " ") {
+            //         setGrabbing(true);
+            //     }
+            // }}
+            // onKeyUp={(e) => {
+            //     if (e.key === "Enter" || e.key === " ") {
+            //         setGrabbing(false);
+            //     }
+            // }}
         ></div>
     );
 })
