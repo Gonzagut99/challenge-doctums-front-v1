@@ -41,8 +41,6 @@ import {
 
 import GameCanvas from "./_gameCanvas/index";
 
-import { set } from 'zod';
-
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
     turn_order_stage: () =>
@@ -56,6 +54,7 @@ const gameStateHandlers = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const gamePlayersPositions = globalWebSocketService.getGameStateCanvas();
     const localPlayer = globalWebSocketService.getLocalPlayerAvatarInfo();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
@@ -70,6 +69,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const gameState =
         gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
     return json({
+        gamePlayersPositions,
         localPlayer,
         gameState,
         currentPlayerTurnId,
@@ -96,6 +96,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function _layout() {
+    // const fetcher = useFetcher();
+    // fetcher.load("/game/gameCanvas");
 
     // 1st frontstage - 1st backstage
     //charging loader data | gameInitData
@@ -103,6 +105,7 @@ export default function _layout() {
     const loaderData: any = useLiveLoader<typeof loader>();
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn =
         loaderData.gameState;
+    const playerPositions = loaderData.gamePlayersPositions;
     const localPlayer = loaderData.localPlayer as Player;
     const localPlayerDynamicInfo =
         loaderData.localPlayerDynamicInfo as LocalPlayerDynamicInfo;
@@ -216,6 +219,7 @@ export default function _layout() {
                         </section>
                         <section className="flex">
                             <GameCanvas
+                                canvasInitialState={playerPositions}
                                 ref={gameCanvasRef}
                                 avatarId={avatarId!}
                                 diceResult={diceResult}

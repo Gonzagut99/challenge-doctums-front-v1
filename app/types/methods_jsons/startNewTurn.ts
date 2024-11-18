@@ -47,8 +47,6 @@
 //   }
 // }
 
-import { CreateCanvasPlayer } from "../gameCanvasState";
-
 // export type StartNewTurn = {
 //   method: string;
 //   status: string;
@@ -73,7 +71,6 @@ export type StartNewTurn = {
   days_advanced: number;
   time_manager: TimeManager;
   player: PlayerInitModifiers;
-  players_position: CreateCanvasPlayer;
 }
 
 export type TimeManager = {

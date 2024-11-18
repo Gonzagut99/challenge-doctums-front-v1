@@ -294,6 +294,24 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
+    updatePlayersPositions() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const send = {
+                method: 'update_players_positions',
+            };
+
+            // Send the message to the server
+            this.sendMessage(send);
+
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handleCanvasPlayerPositions(message);
+                
+            // };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
 
     submitPlan(plan: PlanActions) {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
@@ -353,61 +371,6 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    handleNotifications(message: any) {
-        if (message.method === 'notification') {
-            this.gameStateMessage = message;
-            console.log("notification", message);
-            emitter.emit('game', message);
-        }
-    }
-
-    handleJoinGame(message:any){
-        // if (message.status === 'success' && message.method == "join") {
-        //     this.connectedPlayers = message.game.players;
-        //     console.log("Updated Players List:", this.connectedPlayers);
-        //     emitter.emit('players', this.connectedPlayers);
-        // }
-
-        if (message.status === 'success' && message.method == "join") {
-            this.connectedPlayers = message.game.players;
-            // export type ConnectedPlayer = {
-            //     name: string;
-            //     id: string; //is UUID
-            //     avatarId: string;
-            //     isHost: boolean;
-            //     // characterData: CharacterData;
-            // }
-            const canvasPlayers: PlayerCanvasState[] = this.connectedPlayers.map((player: ConnectedPlayer) => ({
-                playerId: player.id,
-                avatarId: Number(player.avatarId),
-                currentDay: 0,
-                previousPosition: 0,
-                currentPosition: 0,
-            }));
-            this.gameCanvasState = canvasPlayers;
-            console.log("Updated Players List:", this.connectedPlayers);
-            emitter.emit('players', this.connectedPlayers);
-        }
-    }
-
-    handleSetNextTurn(message: any) {
-        if (message.method === 'next_turn') {
-            this.gameStateMessage = message;
-
-            console.log("Next Turn", message);
-            emitter.emit('game', message);
-        }
-    }
-
-    handleNewTurnStart(message: any) {
-        if (message.method === 'new_turn_start') {
-            this.turnStartInfo = message;
-            this.gameStateMessage = message;
-            console.log("New Turn Start", message);
-            emitter.emit('game', message);
-        }
-    }
-
     handleStartGameResponse(message: any) {
         if (message.status === 'success' && message.method == "start_game") {
             this.startGameResponse = message;
@@ -445,6 +408,61 @@ class WebSocketService implements IWebSocketService {
         return [];
     }
 
+    handleJoinGame(message:any){
+        // if (message.status === 'success' && message.method == "join") {
+        //     this.connectedPlayers = message.game.players;
+        //     console.log("Updated Players List:", this.connectedPlayers);
+        //     emitter.emit('players', this.connectedPlayers);
+        // }
+
+        if (message.status === 'success' && message.method == "join") {
+            this.connectedPlayers = message.game.players;
+            // export type ConnectedPlayer = {
+            //     name: string;
+            //     id: string; //is UUID
+            //     avatarId: string;
+            //     isHost: boolean;
+            //     // characterData: CharacterData;
+            // }
+            const canvasPlayers: PlayerCanvasState[] = this.connectedPlayers.map((player: ConnectedPlayer) => ({
+                playerId: player.id,
+                avatarId: Number(player.avatarId),
+                currentDay: 0,
+                isLocalPlayer: player.id === this.localPlayerAvatarInfo?.id,
+                previousPosition: 0,
+                currentPosition: 0,
+            }));
+            this.gameCanvasState = canvasPlayers;
+            console.log("Updated Players List:", this.connectedPlayers);
+            emitter.emit('players', this.connectedPlayers);
+        }
+    }
+
+    handleNotifications(message: any) {
+        if (message.method === 'notification') {
+            this.gameStateMessage = message;
+            console.log("notification", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    handleNewTurnStart(message: any) {
+        if (message.method === 'new_turn_start') {
+            this.turnStartInfo = message;
+            this.gameStateMessage = message;
+            console.log("New Turn Start", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    handleCanvasPlayerPositions(message: any) {
+        if (message.method === 'updated_players_positions') {
+            this.gameCanvasState = message.players;
+            console.log("Canvas Player Positions", message);
+            emitter.emit('gameCanvas', message);
+        }   
+    }
+
     handleActionPlanResponse(message:SubmitPlanResponse ) {
         if (message.method === 'submit_plan') {
             this.gameStateMessage = message;
@@ -460,6 +478,15 @@ class WebSocketService implements IWebSocketService {
             this.currentEventResults = message;
             console.log("Game Event", message);
             emitter.emit('eventResults', message);
+        }
+    }
+
+    handleSetNextTurn(message: any) {
+        if (message.method === 'next_turn') {
+            this.gameStateMessage = message;
+
+            console.log("Next Turn", message);
+            emitter.emit('game', message);
         }
     }
 

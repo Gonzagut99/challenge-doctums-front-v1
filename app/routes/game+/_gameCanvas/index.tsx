@@ -1,12 +1,10 @@
-import  { type LoaderFunctionArgs, type ActionFunctionArgs  } from "@remix-run/node";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import  { type LoaderFunctionArgs, type ActionFunctionArgs, json  } from "@remix-run/node";
 import { forwardRef, HTMLAttributes, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { globalWebSocketService } from "~/services/ws";
-
-// export const loader = async ({ request }: LoaderFunctionArgs) => {
-//   const isGameInitialized = globalWebSocketService.getIsGameInitialized();
-//   const isRerenderedOneTime= globalWebSocketService.getIsRenderedOneTime();
-// };
+import { PlayerCanvasState } from "~/types/gameCanvasState";
+import { useLiveLoader } from "~/utils/use-live-loader";
 
 interface DicesResult {
     userId: string;
@@ -16,21 +14,30 @@ interface DicesResult {
     total: number;
 }
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  return null;
-};
+// export const loader = async ({ request }: LoaderFunctionArgs) => {
+// //   const isGameInitialized = globalWebSocketService.getIsGameInitialized();
+//     const gamePlayersPositions = globalWebSocketService.getGameStateCanvas();
+//     console.log(gamePlayersPositions)
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+//     return json({gamePlayersPositions});
+// };
 
-  return null;
-};
+// export const action = async ({ request }: ActionFunctionArgs) => {
+//   return null;
+// };
 
 interface GameCanvasProps extends HTMLAttributes<HTMLDivElement> {
     avatarId: string;
     diceResult: DicesResult[];
+    canvasInitialState: PlayerCanvasState[]
 }
 const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
-    const { avatarId, diceResult, ...rest } = props;
+
+    // const loaderdata = useLiveLoader<typeof loader>();
+    // const { gamePlayersPositions } = loaderdata;
+    
+    const { avatarId, diceResult, canvasInitialState:gamePlayersPositions, ...rest } = props;
+    console.log("gamePlayersPositions", gamePlayersPositions);
     const localDivRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); 
     const [grabbing, setGrabbing] = useState(false);
@@ -75,6 +82,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
                     gameInstanceRef.current.scene.start("MainScene", {
                         avatarId,
                         diceResult,
+                        gamePlayersPositions,
                     });
                 }
             };
