@@ -200,9 +200,11 @@ class WebSocketService implements IWebSocketService {
         if(this.socket && this.socket.readyState === ServerWebSocket.OPEN){
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
+                this.handleNotifications(message);
                 this.handleJoinGame(message);
                 this.handleStartGameResponse(message);
                 this.handlerTurnOrderStage(message);
+                this.handleNewTurnStart(message);
             };
         }
     }
@@ -266,11 +268,11 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(send);
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                this.handlerTurnOrderStage(message);
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handlerTurnOrderStage(message);
                 
-            };
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
@@ -285,23 +287,17 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(startGame);
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                this.handleNewTurnStart(message);
-                this.handleNotifications(message);
-            };
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handleNewTurnStart(message);
+            //     this.handleNotifications(message);
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
     }
 
-    handleNotifications(message: any) {
-        if (message.method === 'notification') {
-            this.gameStateMessage = message;
-            console.log("notification", message);
-            emitter.emit('game', message);
-        }
-    }
+    
 
     submitPlan(plan: PlanActions) {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
@@ -358,6 +354,14 @@ class WebSocketService implements IWebSocketService {
             };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
+    handleNotifications(message: any) {
+        if (message.method === 'notification') {
+            this.gameStateMessage = message;
+            console.log("notification", message);
+            emitter.emit('game', message);
         }
     }
 

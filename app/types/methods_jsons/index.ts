@@ -6,3 +6,4 @@ export { type SubmitPlanResponse, type ActionPlanPlayerState, type PlanActions }
 export { type GameEventPlayerState } from './turnEvent'
 export type { GameEventState, NotYourTurnResponse, TurnEventConsequences, TurnEventResults } from './turnEvent'
 export type { TurnOrderStage, ThisPlayerTurnResults, TurnOrderPlayer } from './turnOrderStage'
+export type {PlayersActionNotification} from './notification'

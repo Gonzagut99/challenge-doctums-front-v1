@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { WhiteContainer } from "~/components/custom/WhiteContainer";
-import { twMerge } from "tailwind-merge";
-import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useRef, useState, useEffect } from "react";
+import { twMerge } from "tailwind-merge";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+
+import { useLiveLoader } from "~/utils/use-live-loader";
+
+import { WhiteContainer } from "~/components/custom/WhiteContainer";
+import { ButtonDices } from "~/components/custom/ButtonDices";
+import { PageContainer } from "~/components/custom/PageContainer";
 import {
     Outlet,
     json,
@@ -12,9 +17,10 @@ import {
     useSubmit,
 } from "@remix-run/react";
 
-import { useLiveLoader } from "~/utils/use-live-loader";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Player } from "~/services/http/player";
 import { globalWebSocketService, LocalPlayerDynamicInfo } from "~/services/ws";
+
+
 import {
     GameStartMessage,
     PlayerInitState,
@@ -27,11 +33,15 @@ import {
     TurnOrderPlayer,
 } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn,PlayerInitModifiers, TimeManager } from "~/types/methods_jsons/startNewTurn";
-import { TurnEventResults } from "~/types/methods_jsons";
-import { Player } from "~/services/http/player";
-import { set } from "zod";
-import { PageContainer } from "~/components/custom/PageContainer";
+import { 
+        TurnEventResults,
+        PlayersActionNotification
+} from "~/types/methods_jsons";
+
+
 import GameCanvas from "./_gameCanvas/index";
+
+import { set } from 'zod';
 
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
@@ -42,6 +52,7 @@ const gameStateHandlers = {
     turn_event_flow: () =>
         globalWebSocketService.getGameState<TurnEventResults>(),
     new_turn_start: () => globalWebSocketService.getGameState<StartNewTurn>(),
+    notification: () => globalWebSocketService.getGameState<PlayersActionNotification>(),
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -103,6 +114,7 @@ export default function _layout() {
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
+    const is_notificaation = genericGameState.method == "notification"
 
     // 2nd fronstage - 2nd backstage
     //charging turn order stage data
@@ -116,7 +128,10 @@ export default function _layout() {
         null;
 
     //3rd frontstage
+    const [hasThisPlayer_Turn_Started, setThisPlayer_Turn ] = useState(false)
     const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(true)
+    const [advancedDaysMessage, setAdvancedDaysMessage] = useState<string | null>(null)
+    const preNewTurnStage_message = (genericGameState as StartNewTurn).message
     const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn).current_turn
 
     // 4th frontstage - 3rd backstage
@@ -141,6 +156,8 @@ export default function _layout() {
     const [avatarId, setAvatarId] = useState<string | null>(
         localPlayer?.avatar_id || null
     ); // This data will continously change thanks to live loader
+
+
     const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
@@ -174,12 +191,23 @@ export default function _layout() {
         });
     };
 
+
     const handleLocallyRolledDices = () => {
         if (currentPlayerTurnId === localPlayer?.id) {
             setPreNewTurnStage_isOver(true)
             setNewTurnStage_isOver(false)
         }
     }
+
+    const handleLocallyPreNewTurnStart = () => {
+        if (currentPlayerTurnId === localPlayer?.id) {
+            setThisPlayer_Turn(true)
+            setPreNewTurnStage_isOver(true)
+            setAdvancedDaysMessage(preNewTurnStage_message)
+        }
+    }
+
+
     return (
         <main className="min-h-dvh grid grid-cols-1 max-h-screen">
             <PageContainer className="z-0 bg-gradient-to-r from-sky-500 to-indigo-500 flex justify-center items-center">
@@ -188,9 +216,10 @@ export default function _layout() {
                         <section className="flex justify-center">
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
-                                    {turnStage_isTurnOrderStageOver
-                                        ? "Orden de turnos definido"
-                                        : genericGameState.message}
+                                    
+                                    {
+                                        genericGameState.message
+                                    }
                                 </span>
                             </WhiteContainer>
                         </section>
@@ -286,13 +315,13 @@ export default function _layout() {
                                         method="start_new_turn"
                                         wsActionTriggerer={triggerStartNewTurn}
                                         message={
-                                            currentPlayerTurnId ===
+                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  ===
                                             localPlayer?.id
                                                 ? "Iniciar nuevo turno"
                                                 : "Esperar"
                                         }
                                         disabled={
-                                            currentPlayerTurnId !==
+                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  !==
                                             localPlayer?.id
                                         }
                                     />
@@ -303,7 +332,7 @@ export default function _layout() {
                                     newTurnStage_isOver &&
                                     newTurnStage_daysAdvanced && (
                                         <LocalStateDynamicButton
-                                            onClick={handleLocallyRolledDices}
+                                            onClick={handleLocallyPreNewTurnStart}
                                             message={
                                                 currentPlayerTurnId ===
                                                 localPlayer?.id
@@ -333,6 +362,18 @@ export default function _layout() {
                                                 currentPlayerTurnId !==
                                                 localPlayer?.id
                                             }
+                                        />
+                                    )}
+                                
+                                { is_notificaation && (
+                                        <LocalStateDynamicButton
+                                            onClick={() => {}}
+                                            message={
+                                                "Espera por tu turno..."
+                                            }
+                                            disabled={true}
+                                            darkText={true}
+                                            buttonImgSrc="/assets/buttons/ButtonSecondary.png"
                                         />
                                     )}
 
@@ -371,6 +412,8 @@ export default function _layout() {
                                             )}
                                         </div>
                                     )}
+                                
+                                
                             </div>
                         </section>
                     </article>
@@ -649,6 +692,8 @@ function ActionButtonManager(props: DynamicActionButtonProps) {
             return <DynamicActionButton {...rest} name={method} />;
         case "turn_order_stage":
             return <DynamicActionButton {...rest} name={method}/>;
+        case "start_new_turn":
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
         default:
             return null;
     }
@@ -682,6 +727,7 @@ interface LocalStateDynamicButtonProps extends React.HTMLProps<HTMLButtonElement
     message?: string;
     children?: React.ReactNode;
     buttonImgSrc?: string;
+    darkText?: boolean;
     type?: "submit" | "reset" | "button";
 }
 
@@ -692,6 +738,7 @@ const LocalStateDynamicButton = ({
     className,
     children,
     buttonImgSrc="/assets/buttons/ButtonPurple.png",
+    darkText=false,
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
@@ -701,7 +748,7 @@ const LocalStateDynamicButton = ({
                 src={buttonImgSrc}
                 alt="Button"
             />
-            <p className="z-10 font-easvhs text-center text-white">
+            <p className={twMerge("z-10 font-easvhs text-center", darkText ? "text-black" : "text-white")}>
                 {message ?? children}
             </p>
         </button>
