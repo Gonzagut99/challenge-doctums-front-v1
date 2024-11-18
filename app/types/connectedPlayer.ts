@@ -1,5 +1,5 @@
 import { CharacterData } from './character'
-export interface ConnectedPlayer{
+export type ConnectedPlayer = {
     name: string;
     id: string; //is UUID
     avatarId: string;

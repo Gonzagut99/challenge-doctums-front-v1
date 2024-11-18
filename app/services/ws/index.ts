@@ -13,6 +13,7 @@ import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
+import { PlayerCanvasState } from "~/types/gameCanvasState";
 
 
 
@@ -53,8 +54,7 @@ class WebSocketService implements IWebSocketService {
     private localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private isGameInitialized: boolean = false; // Control game canvas initialization
-    private isRenderedOneTime: boolean = false; 
-
+    public gameCanvasState: PlayerCanvasState[] = [];
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
     private turnStartInfo: StartNewTurn;
@@ -69,6 +69,14 @@ class WebSocketService implements IWebSocketService {
     //     this.gameId = gameId;
     // }
 
+    getGameStateCanvas() {
+        return this.gameCanvasState;
+    }
+
+    // setGameStateCanvas(gameCanvasState: PlayerCanvasState[]) {
+    //     this.gameCanvasState = gameCanvasState;
+    // }
+
     getResponseWhenGameStarted() {
         return this.startGameResponse;
     }
@@ -81,9 +89,9 @@ class WebSocketService implements IWebSocketService {
         return this.isGameInitialized;
     }
 
-    getIsRenderedOneTime() {
-        return this.isRenderedOneTime;
-    }
+    // getIsRenderedOneTime() {
+    //     return this.isRenderedOneTime;
+    // }
 
     getNewTurnStartedResponse() {
         return this.turnStartInfo;
@@ -107,10 +115,6 @@ class WebSocketService implements IWebSocketService {
 
     setIsGameInitialized(isInitialized: boolean) {
         this.isGameInitialized = isInitialized;
-    }
-
-    setIsRenderedOneTime(isRendered: boolean) {
-        this.isRenderedOneTime = isRendered;
     }
 
     getLocalPlayerAvatarInfo() {
@@ -236,10 +240,7 @@ class WebSocketService implements IWebSocketService {
             // Optionally, listen for players' info update after joining
             // this.socket.onmessage = (event) => {
             //     const message = JSON.parse(event.data.toString());
-               
-            //     // this.handleNotifications(message);
-            //     // this.handleStartGameResponse(message);
-            //     // this.handlerTurnOrderStage(message);
+                
             // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
@@ -309,6 +310,8 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
+
+
     advanceDays() {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             const startGame = {
@@ -322,7 +325,24 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    
+    updatePlayersPositions() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const send = {
+                method: 'update_players_positions',
+            };
+
+            // Send the message to the server
+            this.sendMessage(send);
+
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handleCanvasPlayerPositions(message);
+                
+            // };
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
 
     submitPlan(plan: PlanActions) {
         if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
@@ -382,13 +402,13 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    handleNotifications(message: any) {
-        if (message.method === 'notification') {
-            this.gameStateMessage = message;
-            console.log("notification", message);
-            emitter.emit('game', message);
-        }
-    }
+    // handleNotifications(message: any) {
+    //     if (message.method === 'notification') {
+    //         this.gameStateMessage = message;
+    //         console.log("notification", message);
+    //         emitter.emit('game', message);
+    //     }
+    // }
 
     handleAdvanceDays(message: any) {
         if (message.method === 'days_advanced') {
@@ -398,31 +418,16 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    handleJoinGame(message:any){
-        if (message.status === 'success' && message.method == "join") {
-            this.connectedPlayers = message.game.players;
-            console.log("Updated Players List:", this.connectedPlayers);
-            emitter.emit('players', this.connectedPlayers);
-        }
-    }
+    // handleJoinGame(message:any){
+    //     if (message.status === 'success' && message.method == "join") {
+    //         this.connectedPlayers = message.game.players;
+    //         console.log("Updated Players List:", this.connectedPlayers);
+    //         emitter.emit('players', this.connectedPlayers);
+    //     }
+    // }
 
-    handleSetNextTurn(message: any) {
-        if (message.method === 'next_turn') {
-            this.gameStateMessage = message;
 
-            console.log("Next Turn", message);
-            emitter.emit('game', message);
-        }
-    }
 
-    handleNewTurnStart(message: any) {
-        if (message.method === 'new_turn_start') {
-            this.turnStartInfo = message;
-            this.gameStateMessage = message;
-            console.log("New Turn Start", message);
-            emitter.emit('game', message);
-        }
-    }
 
     handleStartGameResponse(message: any) {
         if (message.status === 'success' && message.method == "start_game") {
@@ -461,6 +466,61 @@ class WebSocketService implements IWebSocketService {
         return [];
     }
 
+    handleJoinGame(message:any){
+        // if (message.status === 'success' && message.method == "join") {
+        //     this.connectedPlayers = message.game.players;
+        //     console.log("Updated Players List:", this.connectedPlayers);
+        //     emitter.emit('players', this.connectedPlayers);
+        // }
+
+        if (message.status === 'success' && message.method == "join") {
+            this.connectedPlayers = message.game.players;
+            // export type ConnectedPlayer = {
+            //     name: string;
+            //     id: string; //is UUID
+            //     avatarId: string;
+            //     isHost: boolean;
+            //     // characterData: CharacterData;
+            // }
+            const canvasPlayers: PlayerCanvasState[] = this.connectedPlayers.map((player: ConnectedPlayer) => ({
+                playerId: player.id,
+                avatarId: Number(player.avatarId),
+                currentDay: 0,
+                isLocalPlayer: player.id === this.localPlayerAvatarInfo?.id,
+                previousPosition: 0,
+                currentPosition: 0,
+            }));
+            this.gameCanvasState = canvasPlayers;
+            console.log("Updated Players List:", this.connectedPlayers);
+            emitter.emit('players', this.connectedPlayers);
+        }
+    }
+
+    handleNotifications(message: any) {
+        if (message.method === 'notification') {
+            this.gameStateMessage = message;
+            console.log("notification", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    handleNewTurnStart(message: any) {
+        if (message.method === 'new_turn_start') {
+            this.turnStartInfo = message;
+            this.gameStateMessage = message;
+            console.log("New Turn Start", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    handleCanvasPlayerPositions(message: any) {
+        if (message.method === 'updated_players_positions') {
+            this.gameCanvasState = message.players;
+            console.log("Canvas Player Positions", message);
+            emitter.emit('gameCanvas', message);
+        }   
+    }
+
     handleActionPlanResponse(message:SubmitPlanResponse ) {
         if (message.method === 'submit_plan') {
             this.gameStateMessage = message;
@@ -478,6 +538,23 @@ class WebSocketService implements IWebSocketService {
             emitter.emit('eventResults', message);
         }
     }
+
+    handleSetNextTurn(message: any) {
+        if (message.method === 'next_turn') {
+            this.gameStateMessage = message;
+
+            console.log("Next Turn", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    // handleCanvasPlayerPositions(message: any) {
+    //     if (message.method === 'canvas_player_positions') {
+    //         this.gameCanvasState = message.players;
+    //         console.log("Canvas Player Positions", message);
+    //         emitter.emit('canvasPlayers', message);
+    //     }
+    // }
 
     // Get the current list of players
     getConnectedPlayers() {

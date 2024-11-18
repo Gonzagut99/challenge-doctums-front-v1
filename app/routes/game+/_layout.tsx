@@ -41,8 +41,6 @@ import {
 
 import GameCanvas from "./_gameCanvas/index";
 
-import { set } from 'zod';
-
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
     turn_order_stage: () =>
@@ -57,6 +55,7 @@ const gameStateHandlers = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const gamePlayersPositions = globalWebSocketService.getGameStateCanvas();
     const localPlayer = globalWebSocketService.getLocalPlayerAvatarInfo();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
@@ -64,8 +63,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         globalWebSocketService.getLocalPlayerDynamicInfo();
     const playersTurnOrder = globalWebSocketService.getDefinedTurnsOrder(); //0 if turnOrderStage has not started
     const localPlayerAdvancedDays = globalWebSocketService.getLocalPlayerDaysAdvanced()
-    const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
-    const isRenderedOneTime = globalWebSocketService.getIsRenderedOneTime(); //Control game canvas initialization
+    // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
     }
@@ -73,12 +71,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const gameState =
         gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
     return json({
+        gamePlayersPositions,
         localPlayer,
         gameState,
         currentPlayerTurnId,
         localPlayerDynamicInfo,
-        isGameInitialized,
-        isRenderedOneTime,
+        //isGameInitialized,
         playersTurnOrder,
         localPlayerAdvancedDays
     });
@@ -105,6 +103,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function _layout() {
+    // const fetcher = useFetcher();
+    // fetcher.load("/game/gameCanvas");
 
     // 1st frontstage - 1st backstage
     //charging loader data | gameInitData
@@ -112,16 +112,16 @@ export default function _layout() {
     const loaderData: any = useLiveLoader<typeof loader>();
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn =
         loaderData.gameState;
+    const playerPositions = loaderData.gamePlayersPositions;
     const localPlayer = loaderData.localPlayer as Player;
     const localPlayerDynamicInfo =
         loaderData.localPlayerDynamicInfo as LocalPlayerDynamicInfo;
-    const isGameInitialized:boolean = loaderData.isGameInitialized;
-    const isRenderedOneTime:boolean = loaderData.isRenderedOneTime;
+    //const isGameInitialized:boolean = loaderData.isGameInitialized;
     const turnsOrder = loaderData.playersTurnOrder as TurnOrderPlayer[];
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
-    // const is_notificaation = genericGameState.method == "notification"
+    // const is_notification = genericGameState.method == "notification"
 
     // stages states
     const is_start_game_stage = (genericGameState as GameStartMessage)?.is_start_game_stage
@@ -155,7 +155,7 @@ export default function _layout() {
     const newTurnStage_method = (genericGameState as StartNewTurn).method
     const newTurnStage_thrownDices = (genericGameState as StartNewTurn)?.thrown_dices ?? null
     const newTurnStage_timeManager = (genericGameState as StartNewTurn).time_manager
-    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).playerM
+    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).player
 
     // 5th frontstage - 4th backstage
 
@@ -176,17 +176,12 @@ export default function _layout() {
         method: "",
         message: "",
     });
-    //const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null); // Estado para controlar la instancia del juego
-    //const [dicesResult, setDicesResult] = useState<number[] | null>(null);
 
     //trigger turn_order_stage event from the backend
     const triggerTurnOrderStage = () => {
         // const currentPlayerOrderTurnId = currentPlayerTurnId;
 
         if (currentPlayerTurnId === localPlayer?.id) {
-            // if(dicesResult) {
-            //     setDicesResult(loaderData.diceResults);
-            // }
             const formData = new FormData();
             formData.append("method", "turn_order_stage");
             submit(formData, {
@@ -228,7 +223,6 @@ export default function _layout() {
                         <section className="flex justify-center">
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
-                                    
                                     {
                                         genericGameState.message
                                     }
@@ -237,6 +231,7 @@ export default function _layout() {
                         </section>
                         <section className="flex">
                             <GameCanvas
+                                canvasInitialState={playerPositions}
                                 ref={gameCanvasRef}
                                 avatarId={avatarId!}
                                 diceResult={diceResult}

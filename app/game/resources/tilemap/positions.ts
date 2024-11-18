@@ -23,9 +23,6 @@ export const changeDirection: Position[] = [
     { x: 950, y: 2160, type: "level-3", id: 270 },//septiembre
     { x: 690, y: 3330, type: "rest", id: 181 },
     { x: 750-70, y: 1100, type: "level-5", id: 331 },
-   
-    
-
 ];
 export const sameDirection : Position[]  = [
     { x: 690, y: 3330, type: "rest", id: 181 },//julio
