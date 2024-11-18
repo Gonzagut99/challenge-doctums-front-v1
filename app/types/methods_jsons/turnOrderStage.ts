@@ -39,6 +39,7 @@ export type TurnOrderStage = {
   message: string;
   this_player_turn_results: ThisPlayerTurnResults;
   turns_order: TurnOrderPlayer[];
+  is_turn_order_stage: boolean;
   is_turn_order_stage_over: boolean;
 }
 

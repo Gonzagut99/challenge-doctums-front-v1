@@ -85,6 +85,17 @@ class WebSocketService implements IWebSocketService {
         return this.isRenderedOneTime;
     }
 
+    getNewTurnStartedResponse() {
+        return this.turnStartInfo;
+    }
+
+    getLocalPlayerDaysAdvanced() {
+        return {
+            days: this.turnStartInfo?.days_advanced,
+            dices: this.turnStartInfo?.thrown_dices
+        };
+    }
+
     // Method to set playerId later
     setGameId(gameId: string) {
         this.gameId = gameId;
@@ -205,6 +216,7 @@ class WebSocketService implements IWebSocketService {
                 this.handleStartGameResponse(message);
                 this.handlerTurnOrderStage(message);
                 this.handleNewTurnStart(message);
+                this.handleAdvanceDays(message);
             };
         }
     }
@@ -297,6 +309,19 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
+    advanceDays() {
+        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+            const startGame = {
+                method: 'advance_days'
+            };
+
+            // Send the message to the server
+            this.sendMessage(startGame);
+        } else {
+            console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
+        }
+    }
+
     
 
     submitPlan(plan: PlanActions) {
@@ -361,6 +386,14 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'notification') {
             this.gameStateMessage = message;
             console.log("notification", message);
+            emitter.emit('game', message);
+        }
+    }
+
+    handleAdvanceDays(message: any) {
+        if (message.method === 'days_advanced') {
+            this.gameStateMessage = message;
+            console.log("advance days", message);
             emitter.emit('game', message);
         }
     }
