@@ -111,7 +111,7 @@ export default function _layout() {
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
-    const is_notificaation = genericGameState.method == "notification"
+    const is_notification = genericGameState.method == "notification"
 
     // 2nd fronstage - 2nd backstage
     //charging turn order stage data
@@ -208,7 +208,6 @@ export default function _layout() {
                         <section className="flex justify-center">
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
-                                    
                                     {
                                         genericGameState.message
                                     }
@@ -357,7 +356,7 @@ export default function _layout() {
                                         />
                                     )}
                                 
-                                { is_notificaation && (
+                                { is_notification && (
                                         <LocalStateDynamicButton
                                             onClick={() => {}}
                                             message={
