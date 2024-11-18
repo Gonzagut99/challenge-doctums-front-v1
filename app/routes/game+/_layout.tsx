@@ -124,7 +124,7 @@ export default function _layout() {
     const newTurnStage_daysAdvanced = (genericGameState as StartNewTurn).days_advanced
     const newTurnStage_thrownDices = (genericGameState as StartNewTurn).thrown_dices
     const newTurnStage_timeManager = (genericGameState as StartNewTurn).time_manager
-    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).playerM
+    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).player
 
     // 5th frontstage - 4th backstage
 

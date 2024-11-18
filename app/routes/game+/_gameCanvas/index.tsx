@@ -20,6 +20,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+
+  return null;
+};
+
 interface GameCanvasProps extends HTMLAttributes<HTMLDivElement> {
     avatarId: string;
     diceResult: DicesResult[];

@@ -13,6 +13,7 @@ import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
+import { PlayerCanvasState } from "~/types/gameCanvasState";
 
 
 
@@ -53,6 +54,7 @@ class WebSocketService implements IWebSocketService {
     private localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private isGameInitialized: boolean = false; // Control game canvas initialization
+    public gameCanvasState: PlayerCanvasState[] = [];
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
     private turnStartInfo: StartNewTurn;
@@ -65,6 +67,14 @@ class WebSocketService implements IWebSocketService {
     // // 'message' can be string or a JSON object
     // constructor(gameId: string) {
     //     this.gameId = gameId;
+    // }
+
+    getGameStateCanvas() {
+        return this.gameCanvasState;
+    }
+
+    // setGameStateCanvas(gameCanvasState: PlayerCanvasState[]) {
+    //     this.gameCanvasState = gameCanvasState;
     // }
 
     getResponseWhenGameStarted() {
@@ -202,6 +212,21 @@ class WebSocketService implements IWebSocketService {
                 const message = JSON.parse(event.data.toString());
                 if (message.status === 'success' && message.method == "join") {
                     this.connectedPlayers = message.game.players;
+                    // export type ConnectedPlayer = {
+                    //     name: string;
+                    //     id: string; //is UUID
+                    //     avatarId: string;
+                    //     isHost: boolean;
+                    //     // characterData: CharacterData;
+                    // }
+                    const canvasPlayers: PlayerCanvasState[] = this.connectedPlayers.map((player: ConnectedPlayer) => ({
+                        playerId: player.id,
+                        avatarId: Number(player.avatarId),
+                        currentDay: 0,
+                        previousPosition: 0,
+                        currentPosition: 0,
+                    }));
+                    this.gameCanvasState = canvasPlayers;
                     console.log("Updated Players List:", this.connectedPlayers);
                     emitter.emit('players', this.connectedPlayers);
                 }
@@ -281,6 +306,7 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'notification') {
             this.gameStateMessage = message;
             console.log("notification", message);
+            emitter.emit('gameCanvas', message);
             emitter.emit('game', message);
         }
     }
@@ -415,6 +441,14 @@ class WebSocketService implements IWebSocketService {
             emitter.emit('eventResults', message);
         }
     }
+
+    // handleCanvasPlayerPositions(message: any) {
+    //     if (message.method === 'canvas_player_positions') {
+    //         this.gameCanvasState = message.players;
+    //         console.log("Canvas Player Positions", message);
+    //         emitter.emit('canvasPlayers', message);
+    //     }
+    // }
 
     // Get the current list of players
     getConnectedPlayers() {
