@@ -13,18 +13,26 @@ export default {
         extend: {
             fontFamily: {
                 sans: ["Inter", "sans-serif"],
-                serif: ["Merriweather", "serif"],
+                serif: ["Georgia", "merriweather", "serif"],
                 mono: ["Menlo", "monospace"],
                 dogica: ["Dogica", "monospace"],
                 "dogica-bold": ["DogicaBold", "monospace"],
                 easvhs: ["Easvhs", "monospace"],
+                montserrat: ["Montserrat", "sans-serif"],
             },
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
-            colors: {},
+            colors: {
+                black: "#101010",
+                'yellowDark': "#DEA100",
+                'celeste': "#41B5C4",
+                'blackCustom': "101010"
+
+
+            },
         },
         textShadow: {
             none: "none",
