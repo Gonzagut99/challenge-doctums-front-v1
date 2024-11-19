@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { WhiteContainer } from "~/components/custom/WhiteContainer";
-import { twMerge } from "tailwind-merge";
-import { ButtonDices } from "~/components/custom/ButtonDices";
 import { useRef, useState, useEffect } from "react";
+import { twMerge } from "tailwind-merge";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+
+import { useLiveLoader } from "~/utils/use-live-loader";
+
+import { WhiteContainer } from "~/components/custom/WhiteContainer";
+import { ButtonDices } from "~/components/custom/ButtonDices";
+import { PageContainer } from "~/components/custom/PageContainer";
 import {
     Outlet,
     json,
@@ -12,9 +17,10 @@ import {
     useSubmit,
 } from "@remix-run/react";
 
-import { useLiveLoader } from "~/utils/use-live-loader";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Player } from "~/services/http/player";
 import { globalWebSocketService, LocalPlayerDynamicInfo } from "~/services/ws";
+
+
 import {
     GameStartMessage,
     PlayerInitState,
@@ -27,10 +33,12 @@ import {
     TurnOrderPlayer,
 } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn,PlayerInitModifiers, TimeManager } from "~/types/methods_jsons/startNewTurn";
-import { TurnEventResults } from "~/types/methods_jsons";
-import { Player } from "~/services/http/player";
-import { set } from "zod";
-import { PageContainer } from "~/components/custom/PageContainer";
+import { 
+        TurnEventResults,
+        PlayersActionNotification
+} from "~/types/methods_jsons";
+
+
 import GameCanvas from "./_gameCanvas/index";
 
 const gameStateHandlers = {
@@ -42,15 +50,19 @@ const gameStateHandlers = {
     turn_event_flow: () =>
         globalWebSocketService.getGameState<TurnEventResults>(),
     new_turn_start: () => globalWebSocketService.getGameState<StartNewTurn>(),
+    notification: () => globalWebSocketService.getGameState<PlayersActionNotification>(),
+    days_advanced: () => globalWebSocketService.getGameState<PlayersActionNotification>(),
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const gamePlayersPositions = globalWebSocketService.getGameStateCanvas();
     const localPlayer = globalWebSocketService.getLocalPlayerAvatarInfo();
     const gameStateMethod = globalWebSocketService.getStageMethod();
     const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
     const localPlayerDynamicInfo =
         globalWebSocketService.getLocalPlayerDynamicInfo();
     const playersTurnOrder = globalWebSocketService.getDefinedTurnsOrder(); //0 if turnOrderStage has not started
+    const localPlayerAdvancedDays = globalWebSocketService.getLocalPlayerDaysAdvanced()
     // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
@@ -59,12 +71,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const gameState =
         gameStateHandlers[gameStateMethod as keyof typeof gameStateHandlers]();
     return json({
+        gamePlayersPositions,
         localPlayer,
         gameState,
         currentPlayerTurnId,
         localPlayerDynamicInfo,
         //isGameInitialized,
         playersTurnOrder,
+        localPlayerAdvancedDays
     });
 };
 
@@ -81,10 +95,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         globalWebSocketService.startNewTurn();
     }
 
+    if (method == "advance_days") {
+        globalWebSocketService.advanceDays();
+    }
+
     return json({ message: "Dices rolled" });
 };
 
 export default function _layout() {
+    // const fetcher = useFetcher();
+    // fetcher.load("/game/gameCanvas");
 
     // 1st frontstage - 1st backstage
     //charging loader data | gameInitData
@@ -92,6 +112,7 @@ export default function _layout() {
     const loaderData: any = useLiveLoader<typeof loader>();
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn =
         loaderData.gameState;
+    const playerPositions = loaderData.gamePlayersPositions;
     const localPlayer = loaderData.localPlayer as Player;
     const localPlayerDynamicInfo =
         loaderData.localPlayerDynamicInfo as LocalPlayerDynamicInfo;
@@ -100,31 +121,41 @@ export default function _layout() {
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
+    // const is_notification = genericGameState.method == "notification"
+
+    // stages states
+    const is_start_game_stage = (genericGameState as GameStartMessage)?.is_start_game_stage
+    const is_turn_order_stage = (genericGameState as TurnOrderStage)?.is_turn_order_stage
+    const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)?.is_turn_order_stage_over;
+    const is_start_new_turn_stage = (genericGameState as StartNewTurn)?.is_new_turn_stage
+    
 
     // 2nd fronstage - 2nd backstage
     //charging turn order stage data
-    const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage).first_player_turn;
-    const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)
-        .is_turn_order_stage_over;
+    const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage)?.first_player_turn ?? null;
     const turnStage_hasPlayerRolledDices = (genericGameState as TurnOrderStage)
         .this_player_turn_results?.has_player_rolled_dices;
     const turnStage_dicesResult =
         (genericGameState as TurnOrderStage).this_player_turn_results?.dices ??
         null;
-
+        
     //3rd frontstage
-    const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(true)
+    // const [hasThisPlayer_Turn_Started, setThisPlayer_Turn ] = useState(false)
+    // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
+    const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
+    const preNewTurnStage_message = (genericGameState as StartNewTurn).message
     const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn).current_turn
+    const hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification).has_player_rolled_dices ?? false
 
     // 4th frontstage - 3rd backstage
-    const [newTurnStage_isOver, setNewTurnStage_isOver] = useState(true)
+    // const [newTurnStage_isOver, setNewTurnStage_isOver] = useState(true)
     //const newTurnStage_currentTurn = (gameInitData as StartNewTurn).current_turn
+    const newTurn_advancedDays = loaderData.localPlayerAdvancedDays
     const newTurnStage_message = (genericGameState as StartNewTurn).message
     const newTurnStage_method = (genericGameState as StartNewTurn).method
-    const newTurnStage_daysAdvanced = (genericGameState as StartNewTurn).days_advanced
-    const newTurnStage_thrownDices = (genericGameState as StartNewTurn).thrown_dices
+    const newTurnStage_thrownDices = (genericGameState as StartNewTurn)?.thrown_dices ?? null
     const newTurnStage_timeManager = (genericGameState as StartNewTurn).time_manager
-    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).playerM
+    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).player
 
     // 5th frontstage - 4th backstage
 
@@ -138,6 +169,8 @@ export default function _layout() {
     const [avatarId, setAvatarId] = useState<string | null>(
         localPlayer?.avatar_id || null
     ); // This data will continously change thanks to live loader
+
+
     const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
@@ -160,18 +193,28 @@ export default function _layout() {
     const triggerStartNewTurn = () => {
         const formData = new FormData();
         formData.append("method", "start_new_turn");
-        setPreNewTurnStage_isOver(false)
+        // setPreNewTurnStage_isOver(true)
         submit(formData, {
             method: "post",
         });
     };
 
-    const handleLocallyRolledDices = () => {
-        if (currentPlayerTurnId === localPlayer?.id) {
-            setPreNewTurnStage_isOver(true)
-            setNewTurnStage_isOver(false)
-        }
-    }
+    const triggerAdvanceDaysMessage = () => {
+        const formData = new FormData();
+        formData.append("method", "advance_days");
+        submit(formData, {
+            method: "post",
+        });
+    };
+
+    
+
+    console.log(genericGameState)
+    console.log("advance days", newTurn_advancedDays)
+    console.log("hasLocalPlayerRolledDicesToAdvanceDays", hasLocalPlayerRolledDicesToAdvanceDays)
+
+
+
     return (
         <main className="min-h-dvh grid grid-cols-1 max-h-screen">
             <PageContainer className="z-0 bg-gradient-to-r from-sky-500 to-indigo-500 flex justify-center items-center">
@@ -180,14 +223,15 @@ export default function _layout() {
                         <section className="flex justify-center">
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
-                                    {turnStage_isTurnOrderStageOver
-                                        ? "Orden de turnos definido"
-                                        : genericGameState.message}
+                                    {
+                                        genericGameState.message
+                                    }
                                 </span>
                             </WhiteContainer>
                         </section>
                         <section className="flex">
                             <GameCanvas
+                                canvasInitialState={playerPositions}
                                 ref={gameCanvasRef}
                                 avatarId={avatarId!}
                                 diceResult={diceResult}
@@ -251,7 +295,7 @@ export default function _layout() {
                                 ))}
                             </div>
                             <div className="flex gap-4 justify-center">
-                                {!turnStage_isTurnOrderStageOver && (
+                                { (is_start_game_stage || is_turn_order_stage) && !turnStage_isTurnOrderStageOver && (
                                     <ActionButtonManager
                                         method={
                                             genericGameState.method as keyof typeof gameStateHandlers
@@ -263,7 +307,7 @@ export default function _layout() {
                                             currentPlayerTurnId ===
                                             localPlayer?.id
                                                 ? "Lanza los dados"
-                                                : "Esperar"
+                                                : "Esperar..."
                                         }
                                         disabled={
                                             currentPlayerTurnId !==
@@ -273,34 +317,31 @@ export default function _layout() {
                                 )}
 
                                 {/* ready to start regular turns */}
-                                {turnStage_isTurnOrderStageOver && (
+                                {is_turn_order_stage && turnStage_isTurnOrderStageOver && (
                                     <ActionButtonManager
                                         method="start_new_turn"
                                         wsActionTriggerer={triggerStartNewTurn}
                                         message={
-                                            currentPlayerTurnId ===
+                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  ===
                                             localPlayer?.id
                                                 ? "Iniciar nuevo turno"
                                                 : "Esperar"
                                         }
                                         disabled={
-                                            currentPlayerTurnId !==
+                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  !==
                                             localPlayer?.id
                                         }
                                     />
                                 )}
 
-                                {turnStage_isTurnOrderStageOver &&
-                                    !preNewTurnStage_isOver &&
-                                    newTurnStage_isOver &&
-                                    newTurnStage_daysAdvanced && (
+                                {is_start_new_turn_stage && (
                                         <LocalStateDynamicButton
-                                            onClick={handleLocallyRolledDices}
+                                            onClick={triggerAdvanceDaysMessage}
                                             message={
                                                 currentPlayerTurnId ===
                                                 localPlayer?.id
                                                     ? "Lanzar dados"
-                                                    : "Esperar"
+                                                    : "Esperar..."
                                             }
                                             disabled={
                                                 currentPlayerTurnId !==
@@ -308,6 +349,25 @@ export default function _layout() {
                                             }
                                         />
                                     )}
+
+                                {/* {preNewTurnStage_isOver && (
+                                    <ActionButtonManager
+                                        method="days_advanced"
+                                        wsActionTriggerer={triggerAdvanceDaysMessage}
+                                        message={
+                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  ===
+                                            localPlayer?.id
+                                                ? "Avanzar dias"
+                                                : "Esperar"
+                                        }
+                                        disabled={
+                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  !==
+                                            localPlayer?.id
+                                        }
+                                    />
+                                )}
+
+                                
 
                                 {turnStage_isTurnOrderStageOver &&
                                     !preNewTurnStage_isOver &&
@@ -326,7 +386,19 @@ export default function _layout() {
                                                 localPlayer?.id
                                             }
                                         />
-                                    )}
+                                    )} */}
+                                
+                                {/* { is_notificaation && (
+                                        <LocalStateDynamicButton
+                                            onClick={() => {}}
+                                            message={
+                                                "Espera por tu turno..."
+                                            }
+                                            disabled={true}
+                                            darkText={true}
+                                            buttonImgSrc="/assets/buttons/ButtonSecondary.png"
+                                        />
+                                    )} */}
 
                                 {!turnStage_isTurnOrderStageOver &&
                                     turnStage_hasPlayerRolledDices &&
@@ -346,11 +418,12 @@ export default function _layout() {
                                         </div>
                                     )}
 
-                                {turnStage_isTurnOrderStageOver &&
-                                    preNewTurnStage_isOver &&
-                                    !newTurnStage_isOver && (
+                                {/* preNewTurnStage_isOver &&
+                                !newTurnStage_isOver && */}
+                                {hasLocalPlayerRolledDicesToAdvanceDays &&
+                                    (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4">
-                                            {newTurnStage_thrownDices.map(
+                                            {newTurn_advancedDays.dices.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
@@ -363,6 +436,8 @@ export default function _layout() {
                                             )}
                                         </div>
                                     )}
+                                
+                                
                             </div>
                         </section>
                     </article>
@@ -641,6 +716,10 @@ function ActionButtonManager(props: DynamicActionButtonProps) {
             return <DynamicActionButton {...rest} name={method} />;
         case "turn_order_stage":
             return <DynamicActionButton {...rest} name={method}/>;
+        case "start_new_turn":
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
+        case "days_advanced":
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
         default:
             return null;
     }
@@ -674,6 +753,7 @@ interface LocalStateDynamicButtonProps extends React.HTMLProps<HTMLButtonElement
     message?: string;
     children?: React.ReactNode;
     buttonImgSrc?: string;
+    darkText?: boolean;
     type?: "submit" | "reset" | "button";
 }
 
@@ -684,6 +764,7 @@ const LocalStateDynamicButton = ({
     className,
     children,
     buttonImgSrc="/assets/buttons/ButtonPurple.png",
+    darkText=false,
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
@@ -693,7 +774,7 @@ const LocalStateDynamicButton = ({
                 src={buttonImgSrc}
                 alt="Button"
             />
-            <p className="z-10 font-easvhs text-center text-white">
+            <p className={twMerge("z-10 font-easvhs text-center", darkText ? "text-black" : "text-white")}>
                 {message ?? children}
             </p>
         </button>

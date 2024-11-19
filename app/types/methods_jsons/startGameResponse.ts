@@ -59,6 +59,7 @@ export type GameStartMessage = {
   legacy_products: string[];
   player: PlayerInitState;
   turns_order: StartGameTurnPlayerOrder[];
+  is_start_game_stage:boolean;
 }
 
 export type PlayerInitState = {

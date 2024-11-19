@@ -70,7 +70,8 @@ export type StartNewTurn = {
   thrown_dices: number[];
   days_advanced: number;
   time_manager: TimeManager;
-  playerM: PlayerInitModifiers;
+  is_new_turn_stage: boolean;
+  player: PlayerInitModifiers;
 }
 
 export type TimeManager = {
