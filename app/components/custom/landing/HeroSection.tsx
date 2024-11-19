@@ -1,12 +1,12 @@
 const HeroSection = () => {
     return (
-      <div className="fixed top-0 h-96 w-full">
+      <div className="fixed top-0 w-full">
         {/* Hero Background */}
         
           <img
             src="/assets/landing/img/hero-section.png" // Sustituye con tu imagen
             alt="Hero Background"
-            className="w-full "
+            className="w-full object-cover md:h-[660px]"
           />
        
   

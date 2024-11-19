@@ -6,9 +6,9 @@ const Header = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="relative my-2 rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
+    <header className="relative my-2 w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
       <nav
-        className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
+        className="mx-auto flex max-w-7xl mx-auto items-center justify-between p-6 lg:px-8"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
@@ -45,21 +45,21 @@ const Header = () => {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-md font-regular font-montserrat text-white">
-            Product
+          <a href="#" className="text-lg font-light font-montserrat text-white">
+            Beneficios
           </a>
-          <a href="#" className="text-md font-regular font-montserrat text-white">
-            Features
+          <a href="#" className="text-lg font-light font-montserrat text-white">
+            Reglas del juego
           </a>
-          <a href="#" className="text-md font-regular font-montserrat text-white">
-            Marketplace
+          <a href="#" className="text-lg font-light font-montserrat text-white">
+            Precios
           </a>
-          <a href="#" className="text-md font-regular font-georgia text-white">
-            Company
+          <a href="#" className="text-lg font-light font-montserrat text-white">
+            Contacto
           </a>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-md font-regular font-montserrat text-white">
+          <a href="#" className="text-lg font-light font-montserrat text-white">
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
