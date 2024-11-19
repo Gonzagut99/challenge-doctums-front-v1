@@ -1,16 +1,29 @@
 import Phaser from 'phaser';
+// import { envs } from "~/env/envs";
 import { EventBus } from '../EventBus';
 import { changeDirection, sameDirection, dayPositions } from "~/game/resources/tilemap/positions";
 import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
+import { i } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
 
 type InitData = { 
     avatarId: string | number;
     gamePlayersPositions: PlayerCanvasState[]
 };
 
+type UpdatePlayersPosition = {
+    method: "updated_players_positions";
+    status: "success";
+    players_position: PlayerCanvasState[];
+}
+
+
+
 export class MainScene extends Phaser.Scene {
     [key: string]: any;
+    private socket: WebSocket | null = null; 
+    private keepAliveInterval: NodeJS.Timeout | null = null;
+
     private twelve!: Phaser.Tilemaps.Tilemap;
     private playersCharacter: Record<string, Phaser.Physics.Arcade.Sprite> = {};
     private localPlayerCharacter!: Phaser.Physics.Arcade.Sprite;
@@ -18,7 +31,7 @@ export class MainScene extends Phaser.Scene {
     private casillasGroup!: Phaser.Physics.Arcade.StaticGroup;
     private lastHorizontalDirection: Record<string, "left" | "right"> = {};
     private isStopped: Record<string, boolean> = {};
-    private diceRollResult: number = 0;
+    private diceRollResult: Record<string, number> = {};
     private currentCasillaId: Record<string, number> = {};
     private changeDirection: any[];
     private dayPositions: any[];
@@ -29,7 +42,7 @@ export class MainScene extends Phaser.Scene {
     private direction: Record<string, "up" | "horizontal"> = {};
     private turns_order: any[] = [];
     private nextExpectedId: number = 1;
-    private isFirstRollGame: boolean = true;
+    private isFirstRollGame: Record<string, boolean> = {};
     private avatarId: number | null = null;
     private playerPositions: PlayerCanvasState[] = [];
     private localPlayerPosition: PlayerCanvasState;
@@ -38,7 +51,7 @@ export class MainScene extends Phaser.Scene {
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
     constructor() {
-        super({ key: 'MainScene', physics: { arcade: { debug: true } } });
+        super({ key: 'MainScene', physics: { arcade: { debug: false } } });
         this.changeDirection = changeDirection;
         this.dayPositions = dayPositions;
         this.sameDirection = sameDirection;
@@ -71,6 +84,60 @@ export class MainScene extends Phaser.Scene {
         this.load.image("rest", "game/tile-field/rest.png"); 
     }
 
+    // WEBSOCKET BROWSER CLIENT
+    connectWebSocket() {
+        // // Replace with your WebSocket URL (make sure it's correct and reachable)
+        this.socket = new WebSocket(this.localPlayerPosition.connectedWsAddress);
+
+        this.socket.onopen = () => {
+            console.log("Canvas WebSocket connection established");
+            this.startKeepAlive();
+        };
+
+        this.socket.onmessage = (event) => {
+            try {
+              const message: UpdatePlayersPosition = JSON.parse(event.data.toString());
+              // Manejar el mensaje JSON
+              console.log("CANVAS - JSON recibido:", message);
+
+              if (message.method === "updated_players_positions") {
+                console.log("CANVAS - Actualizando posiciones de los jugadores");
+                this.updateAllPlayersPositions(message.players_position);
+            }
+
+            } catch (error) {
+              // El mensaje no es JSON válido, manejar como texto plano
+              console.log("Mensaje de texto recibido:", event.data);
+              this.messageHandler({ type: 'text', data: event.data });
+            }
+          };
+
+        this.socket.onclose = (e) => {
+            console.log("Canvas WebSocket connection closed", e.reason);
+            this.stopKeepAlive();
+        };
+
+        this.socket.onerror = (error) => {
+            console.error("Canvas WebSocket error:", error);
+        };
+    }
+
+    private startKeepAlive() {
+        this.keepAliveInterval = setInterval(() => {
+            if (this.socket && this.socket.readyState === this.socket.OPEN) {
+                this.socket.send(JSON.stringify({ "method": "ping" }));
+            }
+        }, 30000); // Send ping every 30 seconds
+    }
+
+    private stopKeepAlive() {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+            this.keepAliveInterval = null;
+        }
+    }
+    // WEBSOCKET BROWSER CLIENT
+
     editorCreate(): void {
         const twelve = this.add.tilemap("twelve");
         twelve.addTilesetImage("tileset-offices");
@@ -101,11 +168,14 @@ export class MainScene extends Phaser.Scene {
                 this.direction[player.playerId] = "horizontal";
                 this.visitedCasillas[player.playerId] = new Set();
                 this.currentCasillaId[player.playerId] = 0;
+                this.diceRollResult[player.playerId] = 0;
+                this.isFirstRollGame[player.playerId] = true;
             });
         }
     }
 
     create(): void {
+        this.connectWebSocket()
         this.promptDiceRoll();
         this.editorCreate();
         this.initializeDefaultValues();
@@ -193,8 +263,8 @@ export class MainScene extends Phaser.Scene {
                 if (!isNaN(diceRoll)) {
                     this.setDiceRoll(diceRoll, playerId);
                     this.isStopped[playerId] = false;
-                    if (this.isFirstRollGame) {
-                        this.isFirstRollGame = false;
+                    if (this.isFirstRollGame[playerId]) {
+                        this.isFirstRollGame[playerId] = false;
                         this.moveCharacterDown(playerId);
                     } else {
                         this.moveCharacterToTarget(playerId);
@@ -204,11 +274,34 @@ export class MainScene extends Phaser.Scene {
         });
     }
 
-    setDiceRoll(value: number, playerId: string): void {
+    updatePlayerPositions(currentDay: number, playerId: string) {
+        if (!isNaN(currentDay)) {
+            this.setDiceRoll(currentDay, playerId);
+            this.isStopped[playerId] = false;
+            if (this.isFirstRollGame[playerId]) {
+                this.isFirstRollGame[playerId] = false;
+                this.moveCharacterDown(playerId);
+            } else {
+                this.moveCharacterToTarget(playerId);
+            }
+        }
+    }
+
+    updateAllPlayersPositions(players_position: PlayerCanvasState[]) {
+        players_position.forEach((player) => {
+            if(player.currentDay !== this.currentCasillaId[player.playerId]) {
+                this.updatePlayerPositions(player.currentDay, player.playerId);
+            }
+        });
+    }
+
+    setDiceRoll(currentDay: number, playerId: string): void {
         // if (!this.currentCasillaId[playerId]) {
         //     return;
         // }
-        this.diceRollResult = this.currentCasillaId[playerId] + value;
+        const advancedDays = currentDay - this.diceRollResult[playerId];
+        this.diceRollResult[playerId] = this.currentCasillaId[playerId] + advancedDays;
+        //this.diceRollResult[playerId] = currentDay
     }
 
     getCurrentCasillaId(character: Phaser.GameObjects.Sprite): number | null {
@@ -233,7 +326,7 @@ export class MainScene extends Phaser.Scene {
         const casillaId = casilla.getData('id');
         if (this.visitedCasillas[playerId].has(casillaId)|| this.isStopped[playerId] || !this.isWithinTolerance(casilla, playerId)) return;
         this.smoothSetBounds(130, -40, this.twelve.widthInPixels - 130, this.twelve.heightInPixels, 1000);
-        if (casillaId === this.diceRollResult || casillaId === 360) {
+        if (casillaId === this.diceRollResult[playerId] || casillaId === 360) {
             this.stopCharacter(casillaId, playerId);
             return;
         }
@@ -279,7 +372,7 @@ export class MainScene extends Phaser.Scene {
     moveCharacterToTarget(playerId: string): void {
         const character = this.playersCharacter[playerId] as Phaser.Physics.Arcade.Sprite;
         const animationKey = this.getAnimKeyByPlayerId(playerId);
-        const targetId = this.diceRollResult;
+        const targetId = this.diceRollResult[playerId];
         const targetCasilla = this.casillasGroup.getChildren().find(casilla => casilla.getData('id') === targetId);
         if (!targetCasilla) {
             return;
@@ -341,11 +434,13 @@ export class MainScene extends Phaser.Scene {
             return;
         }
         if (this.isUpwardOrChangeDirectionTile(casillaId)) {
+
             if (this.direction[playerId] !== "up") {
                 this.direction[playerId] = "up";
                 character.setVelocityX(0);
-                character.setVelocityY(-200);
-                character.anims.play('walk_backward', true);
+                this.moveCharacterUp(playerId);
+                // character.setVelocityY(-200);
+                // character.anims.play('walk_backward_1', true);
             } else if (casillaId === 121) {
                 this.lastHorizontalDirection[playerId] = "right";
                 this.moveCharacterRight(playerId);

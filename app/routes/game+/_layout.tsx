@@ -133,8 +133,7 @@ export default function _layout() {
     // 2nd fronstage - 2nd backstage
     //charging turn order stage data
     const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage)?.first_player_turn ?? null;
-    const turnStage_hasPlayerRolledDices = (genericGameState as TurnOrderStage)
-        .this_player_turn_results?.has_player_rolled_dices;
+    const turnStage_hasPlayerRolledDices = (genericGameState as TurnOrderStage)?.this_player_turn_results?.has_player_rolled_dices;
     const turnStage_dicesResult =
         (genericGameState as TurnOrderStage).this_player_turn_results?.dices ??
         null;
@@ -143,19 +142,19 @@ export default function _layout() {
     // const [hasThisPlayer_Turn_Started, setThisPlayer_Turn ] = useState(false)
     // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
     const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
-    const preNewTurnStage_message = (genericGameState as StartNewTurn).message
-    const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn).current_turn
-    const hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification).has_player_rolled_dices ?? false
+    const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
+    const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
+    const hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false
 
     // 4th frontstage - 3rd backstage
     // const [newTurnStage_isOver, setNewTurnStage_isOver] = useState(true)
     //const newTurnStage_currentTurn = (gameInitData as StartNewTurn).current_turn
-    const newTurn_advancedDays = loaderData.localPlayerAdvancedDays
-    const newTurnStage_message = (genericGameState as StartNewTurn).message
-    const newTurnStage_method = (genericGameState as StartNewTurn).method
+    const newTurn_advancedDays = loaderData?.localPlayerAdvancedDays
+    const newTurnStage_message = (genericGameState as StartNewTurn)?.message
+    const newTurnStage_method = (genericGameState as StartNewTurn)?.method
     const newTurnStage_thrownDices = (genericGameState as StartNewTurn)?.thrown_dices ?? null
-    const newTurnStage_timeManager = (genericGameState as StartNewTurn).time_manager
-    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn).player
+    const newTurnStage_timeManager = (genericGameState as StartNewTurn)?.time_manager
+    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn)?.player
 
     // 5th frontstage - 4th backstage
 

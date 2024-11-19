@@ -1,4 +1,5 @@
 export type PlayerCanvasState = {
+    connectedWsAddress:string;
     playerId: string,
     avatarId: number,
     currentDay: number,

@@ -69,6 +69,7 @@ class WebSocketService implements IWebSocketService {
     //     this.gameId = gameId;
     // }
 
+
     getGameStateCanvas() {
         return this.gameCanvasState;
     }
@@ -169,8 +170,12 @@ class WebSocketService implements IWebSocketService {
     //     this.messageHandler = () => {};
     // }
 
+    getConnectedWsAddress() {
+        return `${envs.apiWsBaseUrl}/game/connect/${this.gameId}`
+    }
+
     connect() {
-        this.socket = new ServerWebSocket(`${envs.apiWsBaseUrl}/game/connect/${this.gameId}`);
+        this.socket = new ServerWebSocket(this.getConnectedWsAddress());
 
         this.socket.onopen = () => {
             console.log("WebSocket connection established");
@@ -227,7 +232,7 @@ class WebSocketService implements IWebSocketService {
 
     // Join the game with a player name
     joinGame() {
-        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+        if ( (this.socket && this.socket.readyState === ServerWebSocket.OPEN)) {
             const joinMessage = {
                 method: 'join',
                 player_id: this.localPlayerAvatarInfo?.id,
@@ -483,6 +488,7 @@ class WebSocketService implements IWebSocketService {
             //     // characterData: CharacterData;
             // }
             const canvasPlayers: PlayerCanvasState[] = this.connectedPlayers.map((player: ConnectedPlayer) => ({
+                connectedWsAddress: this.getConnectedWsAddress(),
                 playerId: player.id,
                 avatarId: Number(player.avatarId),
                 currentDay: 0,

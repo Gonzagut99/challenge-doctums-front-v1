@@ -36,7 +36,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
     // const loaderdata = useLiveLoader<typeof loader>();
     // const { gamePlayersPositions } = loaderdata;
     
-    const { avatarId, diceResult, canvasInitialState:gamePlayersPositions, ...rest } = props;
+    const { avatarId, diceResult, canvasInitialState: gamePlayersPositions, ...rest } = props;
     console.log("gamePlayersPositions", gamePlayersPositions);
     const localDivRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); 
