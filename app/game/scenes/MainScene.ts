@@ -38,7 +38,7 @@ export class MainScene extends Phaser.Scene {
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
     constructor() {
-        super({ key: 'MainScene', physics: { arcade: { debug: false } } });
+        super({ key: 'MainScene', physics: { arcade: { debug: true } } });
         this.changeDirection = changeDirection;
         this.dayPositions = dayPositions;
         this.sameDirection = sameDirection;
@@ -99,6 +99,8 @@ export class MainScene extends Phaser.Scene {
                 this.isStopped[player.playerId] = false;
                 this.lastHorizontalDirection[player.playerId] = "left";
                 this.direction[player.playerId] = "horizontal";
+                this.visitedCasillas[player.playerId] = new Set();
+                this.currentCasillaId[player.playerId] = 0;
             });
         }
     }
@@ -203,10 +205,9 @@ export class MainScene extends Phaser.Scene {
     }
 
     setDiceRoll(value: number, playerId: string): void {
-        if (!this.currentCasillaId[playerId]) {
-            return;
-        }
-        this.currentCasillaId[playerId] = 0;
+        // if (!this.currentCasillaId[playerId]) {
+        //     return;
+        // }
         this.diceRollResult = this.currentCasillaId[playerId] + value;
     }
 
@@ -224,12 +225,13 @@ export class MainScene extends Phaser.Scene {
     private isWithinTolerance(casilla: Phaser.GameObjects.GameObject, playerId: string): boolean {
         const character = this.getCharacterByPlayerId(playerId);
         const tolerance = 14;
-        return Math.abs(Math.round(character.y + character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance;
+        const isWithinTolerance =  Math.abs(Math.round(character.x) - (casilla as Phaser.GameObjects.Sprite).x) < tolerance && Math.abs(Math.round(character.y + character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance
+        return isWithinTolerance;
     }
 
     handleCollision(_: any, casilla: Phaser.GameObjects.GameObject, playerId: string): void {
         const casillaId = casilla.getData('id');
-        if (!casillaId || this.isStopped[playerId] || !this.isWithinTolerance(casilla, playerId)) return;
+        if (this.visitedCasillas[playerId].has(casillaId)|| this.isStopped[playerId] || !this.isWithinTolerance(casilla, playerId)) return;
         this.smoothSetBounds(130, -40, this.twelve.widthInPixels - 130, this.twelve.heightInPixels, 1000);
         if (casillaId === this.diceRollResult || casillaId === 360) {
             this.stopCharacter(casillaId, playerId);
@@ -237,9 +239,11 @@ export class MainScene extends Phaser.Scene {
         }
         if (this.isSpecialTile(casillaId)) {
             this.handleSpecialTileMovement(casillaId, playerId);
+            this.visitedCasillas[playerId].add(casillaId);
             return;
         }
         this.continueCurrentDirection(playerId);
+        this.visitedCasillas[playerId].add(casillaId);
     }
 
     getCharacterByPlayerId(playerId: string): Phaser.Physics.Arcade.Sprite {
