@@ -1,6 +1,9 @@
 import React from 'react';
 import { twMerge } from 'tailwind-merge';
-interface Props extends React.HTMLAttributes<HTMLElement> {}
+interface Props extends React.HTMLAttributes<HTMLElement> {
+  backgroundImage?: string;
+}
+
 export function PageContainer({
   children,
   className,
@@ -8,10 +11,12 @@ export function PageContainer({
 }: Props) {
   const animatedTransition =
     'animate-fade animate-once animate-duration-500 animate-ease-in animate-normal animate-fill-backwards';
-    const spacing = 'p-2';
+
+
   return (
     <article
-      className={twMerge(animatedTransition, spacing, className)}
+      className={twMerge(animatedTransition, className)}
+     
       {...props}
     >
       {children}
