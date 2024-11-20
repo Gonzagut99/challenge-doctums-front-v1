@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ButtonContact } from "./Buttons";
 
 const Header = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -6,7 +7,7 @@ const Header = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="relative my-2 w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
+    <header className="relative my-2 w-[90%] lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
       <nav
         className="mx-auto flex max-w-7xl mx-auto items-center justify-between p-6 lg:px-8"
         aria-label="Global"
@@ -59,9 +60,7 @@ const Header = () => {
           </a>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-lg font-light font-montserrat text-white">
-            Log in <span aria-hidden="true">&rarr;</span>
-          </a>
+          <ButtonContact>Contactanos</ButtonContact>
         </div>
       </nav>
     </header>
