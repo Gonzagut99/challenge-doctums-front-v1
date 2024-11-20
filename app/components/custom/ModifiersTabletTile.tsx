@@ -5,9 +5,11 @@ interface TabletTileProps extends React.HTMLProps<HTMLDivElement> {
     children?: React.ReactNode;
     className?: string;
     tabletTileData: ModifiersTabletTileData;
+    alreadyAcquiredProducts: string[];
 }
 
-export function ModifierTabletTile({ children,className, tabletTileData, ...rest }: TabletTileProps) {
+export function ModifierTabletTile({ children,className, tabletTileData, alreadyAcquiredProducts, ...rest }: TabletTileProps) {
+    // const alreadyAcquiredProductsTest = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '15', '20', '25'];
   return (
     <div {...rest} className={twMerge("p-2 flex gap-2 bg-slate-50 rounded-md border-[3px] border-zinc-900 min-w-[372px]", className)} >
         <img src={tabletTileData.icon} alt="TabletTile" className="object-fill size-16"/>
@@ -23,7 +25,15 @@ export function ModifierTabletTile({ children,className, tabletTileData, ...rest
                     <div className="flex gap-1 flex-wrap h-fit">
                     {
                         tabletTileData.products.map((product) => (
-                            <img className="object-fill size-5" key={product.id} src={product.icon} alt={`Producto ${product.id}`} title={product.title}/>
+                            <figure key={product.id} className="w-fit relative">
+                                {/* <figcaption className="text-[10px] font-easvhs">{product.title}</figcaption> */}
+                                {
+                                    (alreadyAcquiredProducts ?? []).includes(product.id.toString()) && <div className="w-fit z-10 absolute inset-0 backdrop-blur-0 bg-zinc-50/50">
+                                        <img className="size-5" src="/assets/icons/check.png" alt="Already baought" title="Producto ya adquirido"/>
+                                    </div>
+                                }
+                                <img className="object-fill size-5" src={product.icon} alt={`Producto ${product.id}`} title={product.title}/>
+                            </figure>
                         ))
                     }
                     {
@@ -32,7 +42,7 @@ export function ModifierTabletTile({ children,className, tabletTileData, ...rest
                         )
                     }
                     </div>
-                    <div className="flex items-end justify-end">
+                    <div className="flex items-end justify-end gap-2">
                         {children}
                     </div>
                 </div>

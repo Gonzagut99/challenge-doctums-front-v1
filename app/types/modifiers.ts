@@ -8,9 +8,10 @@ export interface ProductFeature extends ModifierFeature{
 }
 
 export interface ModifiersTabletTileData{
+    id: string;
     title: string;
     icon: string;
-    productDescription: 'Productos a producir:' | 'Productos a desarrollar:' | 'Requiere:';
+    productDescription: 'Productos a producir:' | 'Productos a desarrollar:' | 'Requiere para activarse:';
     products: ProductFeature[];
 }
 

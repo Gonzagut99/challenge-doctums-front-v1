@@ -1,9 +1,10 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+// import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { MyEfficiencyTabletTile } from "~/components/custom/EfficiencyTabletTile";
 import Modal from "~/components/custom/Modal";
+import { globalWebSocketService } from "~/services/ws";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { loadEfficiencies } from "~/utils/dataLoader";
 
@@ -14,24 +15,24 @@ import { loadEfficiencies } from "~/utils/dataLoader";
 //     icon: string;
 // }
 
-type StreamedEfficiencyData = {
-    [key: string]: number;
-}
+// type StreamedEfficiencyData = {
+//     [key: string]: number;
+// }
 
-const myStreamedEfficiencyData: StreamedEfficiencyData = {
-    '1': 0,
-    '2': 0,
-    '3': 0,
-    '4': 0,
-    '5': 5,
-    '6': 0,
-    '7': 0,
-    '8': 10,
-    '9': 0,
-    '10': 0,
-    '11': 0,
-    '12': 0
-  }
+// const myStreamedEfficiencyData: StreamedEfficiencyData = {
+//     '1': 0,
+//     '2': 0,
+//     '3': 0,
+//     '4': 0,
+//     '5': 5,
+//     '6': 0,
+//     '7': 0,
+//     '8': 10,
+//     '9': 0,
+//     '10': 0,
+//     '11': 0,
+//     '12': 0
+//   }
 
 // const efficiencies= await loadEfficiencies("app/data/efficiencies.csv");
 // const myEfficiencies: EfficiencyTableTileData[] = Object.values(efficiencies).map((efficiency) => ({
@@ -41,13 +42,14 @@ const myStreamedEfficiencyData: StreamedEfficiencyData = {
 //     strength_score: myStreamedEfficiencyData[efficiency.ID],
 // }));
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async () => {
     const efficiencies= await loadEfficiencies("app/data/efficiencies.csv");
+    const myEfficienciesStrengthData = globalWebSocketService.localPlayerEfficiencies;
     const myEfficiencies: EfficiencyTableTileData[] = Object.values(efficiencies).map((efficiency) => ({
         id: efficiency.ID,
         title: efficiency.name,
         icon: `/assets/icons/efficiencyIcon.png`,
-        strength_score: myStreamedEfficiencyData[efficiency.ID],
+        strength_score: myEfficienciesStrengthData[efficiency.ID],
     }));
     return json({ myEfficiencies });
 };
@@ -74,7 +76,7 @@ export default function EfficiencyModal() {
     {isModalOpen && (
         <Modal title="Tus Eficiencias" onDismiss={handleDismiss}>
             <div className="flex flex-col gap-2">
-                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">Misiones o tareas que, al pasar tres meses te otorgan productos</p>
+                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">¿Cómo va avanzando tu empresa? Los puntos de fortaleza de tus eficiencias muestran si estas preparado para enfrentar eventos de mayor dificultad.</p>
                 <div className="flex-grow max-h-[430px] overflow-y-auto scrollbar-thin">
                     <div className="grid grid-cols-2 gap-2">
                         {

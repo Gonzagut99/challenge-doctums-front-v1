@@ -24,3 +24,28 @@ export function EfficiencyPointsTile({ points, title, className, ...rest }: Effi
         </div>
     );
 }
+
+interface ChallengeEfficiencyPointsTileProps extends EfficiencyPointsTileProps {
+    chosen: boolean;
+}
+
+export function ChallengeEfficiencyPointsTile({ points, title, className, chosen, ...rest }: ChallengeEfficiencyPointsTileProps) {
+    return (
+        <div {...rest} className={twMerge("flex gap-2 items-start font-easvhs border-[3px] border-zinc-900 rounded-sm p-1 relative", className)}>
+            {!chosen&&<div className="absolute w-full h-full backdrop-grayscale bg-zinc/30"></div>}
+            <img src="/assets/icons/efficiencyIcon.png" alt="Efficiency Icon" className="size-8"/>
+            <p className="text-[13px]">
+                { title }
+            </p>
+            {
+                points && (
+                    <div className="h-full flex items-center">
+                    <p className="text-lg font-bold">
+                        { points }
+                    </p>
+                </div>
+                )
+            }
+        </div>
+    );
+}
