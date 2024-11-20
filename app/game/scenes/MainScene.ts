@@ -54,9 +54,11 @@ export class MainScene extends Phaser.Scene {
         this.changeDirection = changeDirection;
         this.dayPositions = dayPositions;
         this.sameDirection = sameDirection;
+        console.log("Building")
     }
 
     handleUpdatedPositions(playersPositions: PlayerCanvasState[]) {
+        console.log("Updated Player, ", playersPositions);
         this.updateAllPlayersPositions(playersPositions);
     }
 
@@ -240,7 +242,8 @@ export class MainScene extends Phaser.Scene {
 
     updateAllPlayersPositions(players_position: PlayerCanvasState[]) {
         players_position.forEach((player) => {
-            if(player.currentDay !== this.currentCasillaId[player.playerId]) {
+            if(player.currentDay !== this.currentCasillaId[player.playerId] 
+                && player.currentDay > this.diceRollResult[player.playerId]) {
                 this.updatePlayerPositions(player.currentDay, player.playerId);
             }
         });

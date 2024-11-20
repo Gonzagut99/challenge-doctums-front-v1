@@ -14,6 +14,7 @@ import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
+import { UpdatedPlayersPositions } from "~/types/methods_jsons/updatePlayersPositions";
 
 
 
@@ -55,6 +56,7 @@ class WebSocketService implements IWebSocketService {
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private isGameInitialized: boolean = false; // Control game canvas initialization
     public gameCanvasState: PlayerCanvasState[] = [];
+    public updatedPlayersPositions: UpdatedPlayersPositions | null;
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
     private turnStartInfo: StartNewTurn;
@@ -68,6 +70,12 @@ class WebSocketService implements IWebSocketService {
     // constructor(gameId: string) {
     //     this.gameId = gameId;
     // }
+
+    getHasPositionsUpdated() {
+        const copy = this.updatedPlayersPositions;
+        this.updatedPlayersPositions = null;
+        return copy;
+    }
 
 
     getGameStateCanvas() {
@@ -512,7 +520,9 @@ class WebSocketService implements IWebSocketService {
     handleCanvasPlayerPositions(message: any) {
         if (message.method === 'updated_players_positions') {
             console.log("Canvas Player Positions", message);
+            this.updatedPlayersPositions = message;
             this.gameCanvasState = message.players_position;
+            emitter.emit('game', message);
         }   
     }
 

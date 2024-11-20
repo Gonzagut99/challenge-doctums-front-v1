@@ -40,6 +40,8 @@ import {
 
 
 import GameCanvas from "./_gameCanvas/index";
+import { emitter } from "~/utils/emitter.client";
+const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
@@ -63,6 +65,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         globalWebSocketService.getLocalPlayerDynamicInfo();
     const playersTurnOrder = globalWebSocketService.getDefinedTurnsOrder(); //0 if turnOrderStage has not started
     const localPlayerAdvancedDays = globalWebSocketService.getLocalPlayerDaysAdvanced()
+    const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
     // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
@@ -78,7 +81,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         localPlayerDynamicInfo,
         //isGameInitialized,
         playersTurnOrder,
-        localPlayerAdvancedDays
+        localPlayerAdvancedDays,
+        hasPositionsUpdated
     });
 };
 
@@ -113,6 +117,7 @@ export default function _layout() {
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn =
         loaderData.gameState;
     const playerPositions = loaderData.gamePlayersPositions;
+    const hasPlayersPositionsUpdated = loaderData.hasPositionsUpdated;
     const localPlayer = loaderData.localPlayer as Player;
     const localPlayerDynamicInfo =
         loaderData.localPlayerDynamicInfo as LocalPlayerDynamicInfo;
@@ -135,13 +140,13 @@ export default function _layout() {
     const turnStage_playerToStartNewTurn = (genericGameState as TurnOrderStage)?.first_player_turn ?? null;
     const turnStage_hasPlayerRolledDices = (genericGameState as TurnOrderStage)?.this_player_turn_results?.has_player_rolled_dices;
     const turnStage_dicesResult =
-        (genericGameState as TurnOrderStage).this_player_turn_results?.dices ??
+        (genericGameState as TurnOrderStage)?.this_player_turn_results?.dices ??
         null;
         
     //3rd frontstage
     // const [hasThisPlayer_Turn_Started, setThisPlayer_Turn ] = useState(false)
     // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
-    const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
+    //const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
     const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
     const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
     const hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false
@@ -207,10 +212,11 @@ export default function _layout() {
     };
 
     
-
-    console.log(genericGameState)
+    console.log("isServer", isServer)
     console.log("advance days", newTurn_advancedDays)
     console.log("hasLocalPlayerRolledDicesToAdvanceDays", hasLocalPlayerRolledDicesToAdvanceDays)
+    console.log("players positions", playerPositions)
+    emitter.emit("updated_players_positions", playerPositions);
 
 
 
@@ -223,7 +229,7 @@ export default function _layout() {
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
                                     {
-                                        genericGameState.message
+                                        hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
                                     }
                                 </span>
                             </WhiteContainer>
