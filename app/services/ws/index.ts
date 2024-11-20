@@ -217,7 +217,7 @@ class WebSocketService implements IWebSocketService {
     }
 
     listentoGameEvents() {
-        if(this.socket && this.socket.readyState === ServerWebSocket.OPEN){
+        if(this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
                 this.handleNotifications(message);
@@ -226,6 +226,7 @@ class WebSocketService implements IWebSocketService {
                 this.handlerTurnOrderStage(message);
                 this.handleNewTurnStart(message);
                 this.handleAdvanceDays(message);
+                this.handleCanvasPlayerPositions(message);
             };
         }
     }
@@ -423,17 +424,6 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    // handleJoinGame(message:any){
-    //     if (message.status === 'success' && message.method == "join") {
-    //         this.connectedPlayers = message.game.players;
-    //         console.log("Updated Players List:", this.connectedPlayers);
-    //         emitter.emit('players', this.connectedPlayers);
-    //     }
-    // }
-
-
-
-
     handleStartGameResponse(message: any) {
         if (message.status === 'success' && message.method == "start_game") {
             this.startGameResponse = message;
@@ -521,9 +511,8 @@ class WebSocketService implements IWebSocketService {
 
     handleCanvasPlayerPositions(message: any) {
         if (message.method === 'updated_players_positions') {
-            this.gameCanvasState = message.players;
             console.log("Canvas Player Positions", message);
-            emitter.emit('gameCanvas', message);
+            this.gameCanvasState = message.players_position;
         }   
     }
 

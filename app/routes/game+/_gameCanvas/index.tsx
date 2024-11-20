@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import  { type LoaderFunctionArgs, type ActionFunctionArgs, json  } from "@remix-run/node";
+import { globalWebSocketService } from "~/services/ws";
+import { useLiveLoader } from "~/utils/use-live-loader";
 import { forwardRef, HTMLAttributes, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { globalWebSocketService } from "~/services/ws";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
-import { useLiveLoader } from "~/utils/use-live-loader";
+import { emitter } from "~/utils/emitter.client";
+
+const isServer = typeof window === "undefined";
 
 interface DicesResult {
     userId: string;
@@ -38,6 +41,8 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
     
     const { avatarId, diceResult, canvasInitialState: gamePlayersPositions, ...rest } = props;
     console.log("gamePlayersPositions", gamePlayersPositions);
+    console.log("isServer", isServer)
+    emitter.emit("updated_players_positions", gamePlayersPositions);
     const localDivRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); 
     const [grabbing, setGrabbing] = useState(false);
@@ -100,6 +105,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
             }
         };*/
     }, []);
+
     return (
         <div
             {...rest}

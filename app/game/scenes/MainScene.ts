@@ -4,7 +4,6 @@ import { EventBus } from '../EventBus';
 import { changeDirection, sameDirection, dayPositions } from "~/game/resources/tilemap/positions";
 import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
-import { i } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
 
 type InitData = { 
     avatarId: string | number;
@@ -57,6 +56,10 @@ export class MainScene extends Phaser.Scene {
         this.sameDirection = sameDirection;
     }
 
+    handleUpdatedPositions(playersPositions: PlayerCanvasState[]) {
+        this.updateAllPlayersPositions(playersPositions);
+    }
+
     init({ avatarId, gamePlayersPositions }: InitData) {
         this.avatarId = Number(avatarId) || 2;
         this.playerPositions = gamePlayersPositions;
@@ -83,60 +86,6 @@ export class MainScene extends Phaser.Scene {
         this.load.image("level-6", "game/tile-field/level-6.png");
         this.load.image("rest", "game/tile-field/rest.png"); 
     }
-
-    // WEBSOCKET BROWSER CLIENT
-    connectWebSocket() {
-        // // Replace with your WebSocket URL (make sure it's correct and reachable)
-        this.socket = new WebSocket(this.localPlayerPosition.connectedWsAddress);
-
-        this.socket.onopen = () => {
-            console.log("Canvas WebSocket connection established");
-            this.startKeepAlive();
-        };
-
-        this.socket.onmessage = (event) => {
-            try {
-              const message: UpdatePlayersPosition = JSON.parse(event.data.toString());
-              // Manejar el mensaje JSON
-              console.log("CANVAS - JSON recibido:", message);
-
-              if (message.method === "updated_players_positions") {
-                console.log("CANVAS - Actualizando posiciones de los jugadores");
-                this.updateAllPlayersPositions(message.players_position);
-            }
-
-            } catch (error) {
-              // El mensaje no es JSON válido, manejar como texto plano
-              console.log("Mensaje de texto recibido:", event.data);
-              this.messageHandler({ type: 'text', data: event.data });
-            }
-          };
-
-        this.socket.onclose = (e) => {
-            console.log("Canvas WebSocket connection closed", e.reason);
-            this.stopKeepAlive();
-        };
-
-        this.socket.onerror = (error) => {
-            console.error("Canvas WebSocket error:", error);
-        };
-    }
-
-    private startKeepAlive() {
-        this.keepAliveInterval = setInterval(() => {
-            if (this.socket && this.socket.readyState === this.socket.OPEN) {
-                this.socket.send(JSON.stringify({ "method": "ping" }));
-            }
-        }, 30000); // Send ping every 30 seconds
-    }
-
-    private stopKeepAlive() {
-        if (this.keepAliveInterval) {
-            clearInterval(this.keepAliveInterval);
-            this.keepAliveInterval = null;
-        }
-    }
-    // WEBSOCKET BROWSER CLIENT
 
     editorCreate(): void {
         const twelve = this.add.tilemap("twelve");
@@ -175,7 +124,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     create(): void {
-        this.connectWebSocket()
+        //this.connectWebSocket()
         this.promptDiceRoll();
         this.editorCreate();
         this.initializeDefaultValues();
@@ -251,8 +200,10 @@ export class MainScene extends Phaser.Scene {
         });
         this.nextExpectedId = 1;
         this.initializeSpecialTiles();
-        EventBus.emit('current-scene-ready', this);
-        emitter.emit('renderPlayersOnMap', this.turns_order);
+        //EventBus.on('updatedPlayersPositions', this.handleUpdatedPositions, this);
+        //EventBus.emit('current-scene-ready', this);
+        //emitter.emit('renderPlayersOnMap', this.turns_order);
+        emitter.on('updated_players_positions', this.handleUpdatedPositions.bind(this));
     }
 
     promptDiceRoll(): void {
