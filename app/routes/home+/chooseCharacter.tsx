@@ -99,7 +99,9 @@ function ChooseCharacter() {
     
 
     return (
-        <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10 py-4 px-8 flex flex-col gap-6">
+        <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10 py-4 px-8 flex flex-col gap-6"
+        
+        >
             <section>
                 <header className="flex justify-center relative">
                     <img

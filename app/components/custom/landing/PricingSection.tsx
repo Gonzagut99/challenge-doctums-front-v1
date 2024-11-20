@@ -73,7 +73,7 @@ export default function Example() {
                 : 'lg:w-[100%]',
               'rounded-2xl min-h-[350px] md:min-h-[550px] flex flex-col p-2 ring-1 ring-gray-900/10 sm:py-8 sm:px-6 lg:p-8',
             )}
-            
+
           >
             <div className="flex-grow">
               <h3
@@ -109,7 +109,7 @@ export default function Example() {
                 tier.featured
                   ? 'border-celeste border text-black font-montserrat hover:bg-celeste hover:text-white'
                   : 'text-black font-montserrat border border-black ',
-                'flex justify-center w-64 md:w-80 mx-auto mb-4 sm:mb-0 sm:w-full mt-auto block rounded-md px-3.5 py-2.5  text-center text-sm font-semibold',
+                'flex justify-center w-full lg:w-64 mx-auto mb-4 sm:mb-0  mt-auto block rounded-md py-2.5  text-center text-sm font-semibold',
               )}
             >
               Cotizar este Plan
