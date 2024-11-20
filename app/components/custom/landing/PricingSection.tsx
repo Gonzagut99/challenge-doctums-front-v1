@@ -47,8 +47,8 @@ function classNames(...classes: string[]) {
 }
 export default function Example() {
   return (
-    <div className="relative isolate mx-auto mb-16 w-[85%] bg-white px-6 py-8 md:py-24 sm:py-16 lg:px-6">
-      <div className="max-w-4xl md:max-w-6xl">
+    <div className="relative isolate mx-auto mb-16 h-auto w-[90%] md:w-[85%] bg-white py-8 md:py-24 sm:py-16 lg:px-0">
+      <div className="w-[75%] m-2 md:pb-12">
         <p className="mt-2 text-balance text-4xl md:text-5xl xl:text-6xl font-regular font-serif tracking-tight">
         Planes para <span className="text-celeste">Instituciones Educativas y Universidades</span>
         </p>
@@ -67,18 +67,19 @@ export default function Example() {
               // Efecto translate universal
               'hover:translate-y-[-10px] hover:scale-105',
               tierIdx === 0
-                ? 'lg:mr-4' // Márgen derecho para el primer contenedor
+                ? 'lg:mr-4' 
                 : tierIdx === tiers.length - 1
                 ? 'lg:ml-4' 
                 : 'lg:w-[100%]',
               'rounded-2xl min-h-[350px] md:min-h-[550px] flex flex-col p-2 ring-1 ring-gray-900/10 sm:py-8 sm:px-6 lg:p-8',
             )}
+            
           >
             <div className="flex-grow">
               <h3
                 id={tier.id}
                 className={classNames(
-                  'mx-auto text-2xl font-montserrat text-black font-semibold text-center',
+                  'mx-auto text-2xl mt-4 font-montserrat text-black font-semibold text-center',
                 )}
               >
                 {tier.name}
@@ -87,7 +88,7 @@ export default function Example() {
               <ul
                 role="list"
                 className={classNames(
-                  'mt-4 space-y-3 text-sm/6 sm:mt-8',
+                  'my-4 space-y-3 text-sm/6 sm:mt-8',
                 )}
               >
                 {tier.features.map((feature) => (
@@ -108,7 +109,7 @@ export default function Example() {
                 tier.featured
                   ? 'border-celeste border text-black font-montserrat hover:bg-celeste hover:text-white'
                   : 'text-black font-montserrat border border-black ',
-                'flex justify-center w-80 mx-auto mb-4 sm:mb-0 sm:w-full mt-auto block rounded-md px-3.5 py-2.5  text-center text-sm font-semibold',
+                'flex justify-center w-64 md:w-80 mx-auto mb-4 sm:mb-0 sm:w-full mt-auto block rounded-md px-3.5 py-2.5  text-center text-sm font-semibold',
               )}
             >
               Cotizar este Plan

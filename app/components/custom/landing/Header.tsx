@@ -7,9 +7,9 @@ const Header = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="relative my-2 w-[90%] lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
+    <header className="relative my-2 w-[84%] lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
       <nav
-        className="mx-auto flex max-w-7xl mx-auto items-center justify-between p-6 lg:px-8"
+        className="mx-auto  flex max-w-7xl mx-auto items-center justify-between px-6 py-4 lg:px-8"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">

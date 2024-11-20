@@ -1,19 +1,61 @@
 const teamMembers = [
     {
-      name: "Bonnie Green",
-      role: "CEO & Web Developer",
-      description: "Bonnie drives the technical strategy of the flowbite platform and brand.",
-      image: "https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png",
-      linkedin: "https://linkedin.com/in/bonniegreen",
-      github: "https://github.com/bonniegreen",
+      name: "Gonzalo Gutierrez",
+      role: "Diseño y Desarrollo de Software",
+      description: "Gonzalo es el encargado de la elección de tecnologías claves y del desarrollo fullstack de este proyecto",
+      image: "./assets/landing/team/4.png",
+      linkedin: "https://www.linkedin.com/in/gonzalo-guti%C3%A9rrez-castillo-5520b1196/",
+      github: "https://github.com/Gonzagut99",
       field: "TI", // Puede ser 'TI' o 'Negocios'
     },
     {
-      name: "Jese Leos",
-      role: "CTO",
-      description: "Jese drives the technical strategy of the flowbite platform and brand.",
-      image: "https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/jese-leos.png",
-      linkedin: "https://linkedin.com/in/jeseleos",
+      name: "Esclender Lugo",
+      role: "Diseño y Desarrollo de Software",
+      description: "Esclender es el encargado de diseñar la arquitectura del software y de construir un backend sólido y eficiente",
+      image: "./assets/landing/team/1.png",
+      linkedin: "https://www.linkedin.com/in/esclender-lugo/",
+      github: "https://github.com/Esclender",
+      field: "TI", // Solo tendrá LinkedIn
+    },
+    {
+      name: "Rachel Duarte",
+      role: "Diseño y Desarrollo de Software",
+      description: "Rachel es la encargada desarrollar el frontend y la creación de interfaces basadas en la experiencia de usuario en este proyecto",
+      image: "./assets/landing/team/6.png",
+      linkedin: "https://www.linkedin.com/in/rachel-duarte-nunez/",
+      github: "https://github.com/Rachelduarte11",
+      field: "TI", // Puede ser 'TI' o 'Negocios'
+    },
+    {
+      name: "Pamela Aguirre",
+      role: "Administración de Empresas",
+      description: "Pamela es la encargada del Area de administracion de este proyecto",
+      image: "./assets/landing/team/5.png",
+      linkedin: "https://www.linkedin.com/in/pamela-alexandra-aguirre-santos-663b16332/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      field: "Negocios", // Solo tendrá LinkedIn
+    },
+    {
+      name: "Junior Cienfuegos",
+      role: "Administración de Empresas",
+      description: "Junior es el encargado del area financiera de este proyecto",
+      image: "./assets/landing/team/3.png",
+      linkedin: "https://www.linkedin.com/in/junior-cienfuegos-2175ba287/?originalSubdomain=pe",
+      field: "Negocios", // Puede ser 'TI' o 'Negocios'
+    },
+    {
+      name: "Yuliana Aniceto",
+      role: "Administración de Empresas",
+      description: "Yuliana es la encargada del area comercial de este proyecto",
+      image: "./assets/landing/team/7.png",
+      linkedin: "https://www.linkedin.com/in/yuli-aniceto-narvaiza-474308311/",
+      field: "Negocios", // Solo tendrá LinkedIn
+    },
+    {
+      name: "Damaris Quispe",
+      role: "Administración de Empresas",
+      description: "Damaris es la encargada del area de marketing de este proyecto",
+      image: "./assets/landing/team/2.png",
+      linkedin: "https://www.linkedin.com/in/damaris-quispe-moreano-863598333/",
       field: "Negocios", // Solo tendrá LinkedIn
     },
     // Agrega más miembros según sea necesario
@@ -39,12 +81,12 @@ const teamMembers = [
               >
                 <a href="#">
                   <img
-                    className="w-full rounded-lg sm:rounded-none sm:rounded-l-lg"
+                    className="w-full rounded-lg h-60 w-680 object-cover sm:rounded-none sm:rounded-l-lg"
                     src={member.image}
                     alt={`${member.name} Avatar`}
                   />
                 </a>
-                <div className="p-5">
+                <div className="p-5 max-w-96 min-w-80">
                   <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                     <a href="#">{member.name}</a>
                   </h3>
