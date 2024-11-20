@@ -4,18 +4,20 @@ import { fileURLToPath } from 'url';
 import { parse } from 'csv-parse';
 import { Efficiency, Project, Resource, Product, Event } from '~/domain/entities';
 
-const fileFormat = '.csv';
+// const fileFormat = '.csv';
 // Obtener __filename y __dirname en módulos ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const dataBasePath = path.join(process.cwd(), 'app', 'data');
+
 const dataPaths = {
-    projects: path.join(__dirname, '../data/projects', fileFormat),
-    resources: path.join(__dirname, '../data/resources', fileFormat),
-    products: path.join(__dirname, '../data/products', fileFormat),
-    efficiencies: path.join(__dirname, '../data/efficiencies', fileFormat),
-    events: path.join(__dirname, '../data/events', fileFormat),
-    legacy: path.join(__dirname, '../data/legacy', fileFormat),
+    projects: path.join(dataBasePath, 'projects.csv'),
+    resources: path.join(dataBasePath, 'resources.csv'),
+    products: path.join(dataBasePath, 'products.csv'),
+    efficiencies: path.join(dataBasePath, 'efficiencies.csv'),
+    events: path.join(dataBasePath, 'events.csv'),
+    legacy: path.join(dataBasePath, 'legacy.csv'),
 }
 
 function loadCSV(filePath: string): Promise<string[][]> {
@@ -217,4 +219,13 @@ export async function loadAllData(): Promise<{ projects: Record<string, Project>
         legacy 
     };
   }
+
+export const loadAllModifiersData = async () => {
+    const [products, projects, resources] = await Promise.all([
+        loadProducts(dataPaths.products),
+        loadProjects(dataPaths.projects),
+        loadResources(dataPaths.resources)
+    ]);
+    return { products, projects, resources };
+}
 

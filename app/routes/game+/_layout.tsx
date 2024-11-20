@@ -35,7 +35,9 @@ import {
 import { StartNewTurn,PlayerInitModifiers, TimeManager } from "~/types/methods_jsons/startNewTurn";
 import { 
         TurnEventResults,
-        PlayersActionNotification
+        PlayersActionNotification,
+        SubmitPlanResponse,
+        NextTurnResponse
 } from "~/types/methods_jsons";
 
 
@@ -48,12 +50,12 @@ const gameStateHandlers = {
     turn_order_stage: () =>
         globalWebSocketService.getGameState<TurnOrderStage>(),
     start_new_turn: () => globalWebSocketService.getGameState<StartNewTurn>(),
-    submit_plan: () => globalWebSocketService.getGameState<TurnOrderStage>(),
-    turn_event_flow: () =>
-        globalWebSocketService.getGameState<TurnEventResults>(),
     new_turn_start: () => globalWebSocketService.getGameState<StartNewTurn>(),
-    notification: () => globalWebSocketService.getGameState<PlayersActionNotification>(),
     days_advanced: () => globalWebSocketService.getGameState<PlayersActionNotification>(),
+    submit_plan: () => globalWebSocketService.getGameState<SubmitPlanResponse>(),
+    turn_event_flow: () => globalWebSocketService.getGameState<TurnEventResults>(),
+    notification: () => globalWebSocketService.getGameState<PlayersActionNotification>(),
+    next_turn: () => globalWebSocketService.getGameState<NextTurnResponse>(),
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -64,7 +66,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const localPlayerDynamicInfo =
         globalWebSocketService.getLocalPlayerDynamicInfo();
     const playersTurnOrder = globalWebSocketService.getDefinedTurnsOrder(); //0 if turnOrderStage has not started
-    const localPlayerAdvancedDays = globalWebSocketService.getLocalPlayerDaysAdvanced()
+    const newTurn_localPlayerAdvancedDays = globalWebSocketService.newTurn_getStoredLocalPlayerDaysAdvanced()
+    const newTurn_localPlayerStoredData = globalWebSocketService.newTurn_getStoredLocalPlayerData()
+
     const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
     // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
@@ -81,7 +85,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         localPlayerDynamicInfo,
         //isGameInitialized,
         playersTurnOrder,
-        localPlayerAdvancedDays,
+        newTurn_localPlayerAdvancedDays,
+        newTurn_localPlayerStoredData,
         hasPositionsUpdated
     });
 };
@@ -103,6 +108,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         globalWebSocketService.advanceDays();
     }
 
+    if (method == "turn_event_flow") {
+        globalWebSocketService.startTurnEventFlow();
+    }
+
+    if (method == "next_turn") {
+        globalWebSocketService.setNextTurn();
+    }
+
     return json({ message: "Dices rolled" });
 };
 
@@ -114,7 +127,7 @@ export default function _layout() {
     //charging loader data | gameInitData
 
     const loaderData: any = useLiveLoader<typeof loader>();
-    const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn =
+    const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn | SubmitPlanResponse | TurnEventResults | NextTurnResponse =
         loaderData.gameState;
     const playerPositions = loaderData.gamePlayersPositions;
     const hasPlayersPositionsUpdated = loaderData.hasPositionsUpdated;
@@ -130,9 +143,9 @@ export default function _layout() {
 
     // stages states
     const is_start_game_stage = (genericGameState as GameStartMessage)?.is_start_game_stage
-    const is_turn_order_stage = (genericGameState as TurnOrderStage)?.is_turn_order_stage
+    const turnStage_isTurnOrderStage = (genericGameState as TurnOrderStage)?.is_turn_order_stage
     const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)?.is_turn_order_stage_over;
-    const is_start_new_turn_stage = (genericGameState as StartNewTurn)?.is_new_turn_stage
+    const newturn_isStartNewTurnStage = (genericGameState as StartNewTurn)?.is_new_turn_stage
     
 
     // 2nd fronstage - 2nd backstage
@@ -149,21 +162,32 @@ export default function _layout() {
     //const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
     const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
     const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
-    const hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false
+    const preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false //We already know the dice results, but before showing the advanced days we controll that the player has rolled the dices
 
     // 4th frontstage - 3rd backstage
     // const [newTurnStage_isOver, setNewTurnStage_isOver] = useState(true)
     //const newTurnStage_currentTurn = (gameInitData as StartNewTurn).current_turn
-    const newTurn_advancedDays = loaderData?.localPlayerAdvancedDays
+    const newTurn_advancedDays = loaderData?.newTurn_localPlayerAdvancedDays //Data saved in the websocket
+    const newTurn_localPlayerStoredData = loaderData.newTurn_localPlayerStoredData as StartNewTurn
+    //They become undefined when the days advance notification is triggered and received
     const newTurnStage_message = (genericGameState as StartNewTurn)?.message
     const newTurnStage_method = (genericGameState as StartNewTurn)?.method
     const newTurnStage_thrownDices = (genericGameState as StartNewTurn)?.thrown_dices ?? null
     const newTurnStage_timeManager = (genericGameState as StartNewTurn)?.time_manager
     const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn)?.player
+    const newTurnStage_isReadyToFaceEvent = (genericGameState as StartNewTurn)?.is_ready_to_face_event
 
+    const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event
+    const submitPlan_showModal = (genericGameState as SubmitPlanResponse)?.show_modal
     // 5th frontstage - 4th backstage
+    const eventFlow_passedFirstChallenge = (genericGameState as TurnEventResults)?.event?.pass_first_challenge
+    const eventFlow_passedSecondChallenge = (genericGameState as TurnEventResults)?.event?.pass_second_challenge
+    const eventFlow_level = (genericGameState as TurnEventResults)?.event?.level
+    const eventFlow_showEvent = (genericGameState as TurnEventResults)?.show_event
+    const eventFlow_eventId = (genericGameState as TurnEventResults)?.event?.id
 
-
+    const nextTurn_currentTurn = (genericGameState as NextTurnResponse)?.current_turn
+    const nextTurn_method = (genericGameState as NextTurnResponse)?.method
     
     // charging react/remix hooks
     const navigate = useNavigate();
@@ -173,6 +197,26 @@ export default function _layout() {
     const [avatarId, setAvatarId] = useState<string | null>(
         localPlayer?.avatar_id || null
     ); // This data will continously change thanks to live loader
+
+    //load speacial modals
+    const [submitPlan_hasNavigated, submitPlan_setHasNavigated] = useState(false);
+    
+    useEffect(() => {
+        if (submitPlan_showModal && submitPlan_isReadyToFaceEvent && !submitPlan_hasNavigated) {
+            submitPlan_setHasNavigated(true);
+            navigate(`/game/submitPlanSuccess`);
+        }
+    }, [submitPlan_showModal, submitPlan_isReadyToFaceEvent, navigate, submitPlan_hasNavigated]);
+
+    //load EventFlowModal
+    const [eventFlow_hasNavigated, eventFlow_setHasNavigated] = useState(false);
+    useEffect(() => {
+        if (eventFlow_showEvent && !eventFlow_hasNavigated) {
+            eventFlow_setHasNavigated(true);
+            navigate(`/game/challenge/${eventFlow_eventId}`);
+        }
+    }, [navigate, eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
+
 
 
     const [gameData, setGameData] = useState({
@@ -211,10 +255,26 @@ export default function _layout() {
         });
     };
 
+    const triggerStartEventFlow = () => {
+        const formData = new FormData();
+        formData.append("method", "turn_event_flow");
+        submit(formData, {
+            method: "post",
+        });
+    }
+
+    const triggerSetNextTurn = () => {
+        const formData = new FormData();
+        formData.append("method", "next_turn");
+        submit(formData, {
+            method: "post",
+        });
+    }
+
     
     console.log("isServer", isServer)
     console.log("advance days", newTurn_advancedDays)
-    console.log("hasLocalPlayerRolledDicesToAdvanceDays", hasLocalPlayerRolledDicesToAdvanceDays)
+    console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
     console.log("players positions", playerPositions)
     emitter.emit("updated_players_positions", playerPositions);
 
@@ -299,8 +359,10 @@ export default function _layout() {
                                     </WhiteContainer>
                                 ))}
                             </div>
+
+                            {/* WS actions */}
                             <div className="flex gap-4 justify-center">
-                                { (is_start_game_stage || is_turn_order_stage) && !turnStage_isTurnOrderStageOver && (
+                                { (is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
                                     <ActionButtonManager
                                         method={
                                             genericGameState.method as keyof typeof gameStateHandlers
@@ -322,7 +384,7 @@ export default function _layout() {
                                 )}
 
                                 {/* ready to start regular turns */}
-                                {is_turn_order_stage && turnStage_isTurnOrderStageOver && (
+                                {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
                                     <ActionButtonManager
                                         method="start_new_turn"
                                         wsActionTriggerer={triggerStartNewTurn}
@@ -339,7 +401,8 @@ export default function _layout() {
                                     />
                                 )}
 
-                                {is_start_new_turn_stage && (
+                                {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
+                                {newturn_isStartNewTurnStage && (
                                         <LocalStateDynamicButton
                                             onClick={triggerAdvanceDaysMessage}
                                             message={
@@ -405,10 +468,12 @@ export default function _layout() {
                                         />
                                     )} */}
 
+                                {/* Dices view */}
+                                {/* Turn Stage Dices */}
                                 {!turnStage_isTurnOrderStageOver &&
                                     turnStage_hasPlayerRolledDices &&
                                     turnStage_dicesResult && (
-                                        <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4">
+                                        <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
                                             {turnStage_dicesResult.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
@@ -423,11 +488,10 @@ export default function _layout() {
                                         </div>
                                     )}
 
-                                {/* preNewTurnStage_isOver &&
-                                !newTurnStage_isOver && */}
-                                {hasLocalPlayerRolledDicesToAdvanceDays &&
+                                {/* New Turn Stage Dices */}
+                                {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
                                     (
-                                        <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4">
+                                        <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
                                             {newTurn_advancedDays.dices.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
@@ -441,8 +505,150 @@ export default function _layout() {
                                             )}
                                         </div>
                                     )}
+
+                                {
+                                    preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
+                                    newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
+                                    !newTurn_localPlayerStoredData.is_ready_to_face_event &&
+                                    (
+                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out cursor-pointer max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                            {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                                {
+                                                    "¡Es hora de planificar!"
+                                                }
+                                            </span> */}
+                                            <div className="flex gap-2">
+                                                <figure className="size-12">
+                                                    <img
+                                                        src={'/assets/icons/cashIcon.png'}
+                                                        alt="Icon"
+                                                        className="object-contain aspect-square size-12"
+                                                    />
+                                                </figure>
+                                                <div className="grow">
+                                                    <h4 className="text-sm font-easvhs">
+                                                        Plan de acción
+                                                    </h4>
+                                                    <p className="text-[0.60rem] font-easvhs">
+                                                        ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </WhiteContainer>
+                                    )
+                                }
+                                {
+                                    (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && !newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                    (
+                                        <>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                                {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                                    {
+                                                        "¡Es hora de planificar!"
+                                                    }
+                                                </span> */}
+                                                <div className="flex gap-2">
+                                                    <figure className="size-12">
+                                                        <img
+                                                            src={'/assets/icons/efficiencyIcon.png'}
+                                                            alt="Icon"
+                                                            className="object-contain aspect-square size-12"
+                                                        />
+                                                    </figure>
+                                                    <div className="grow">
+                                                        <h4 className="text-sm font-easvhs">
+                                                            ¡Es hora de enfrentar el evento!
+                                                        </h4>
+                                                        <p className="text-[0.60rem] font-easvhs">
+                                                            ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
+                                                            Da CLICK en el botón para ver el resultado.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </WhiteContainer>
+                                            <ActionButtonManager
+                                                method="turn_event_flow"
+                                                wsActionTriggerer={triggerStartEventFlow}
+                                                message={
+                                                    currentPlayerTurnId ===
+                                                    localPlayer?.id
+                                                        ? "Enfrentar evento"
+                                                        : "Esperar..."
+                                                }
+                                                disabled={
+                                                    currentPlayerTurnId !==
+                                                    localPlayer?.id
+                                                }
+                                            />
+                                        </>
+                                    )
+                                }
                                 
-                                
+                                {
+                                    (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                    (
+                                        <>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                                {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                                    {
+                                                        "¡Es hora de planificar!"
+                                                    }
+                                                </span> */}
+                                                <div className="flex gap-2">
+                                                    <figure className="size-12">
+                                                        <img
+                                                            src={'/assets/icons/efficiencyIcon.png'}
+                                                            alt="Icon"
+                                                            className="object-contain aspect-square size-12"
+                                                        />
+                                                    </figure>
+                                                    <div className="grow">
+                                                        <h4 className="text-sm font-easvhs">
+                                                            ¡Es fin de semana!
+                                                        </h4>
+                                                        <p className="text-[0.60rem] font-easvhs">
+                                                            ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </WhiteContainer>
+                                            <ActionButtonManager
+                                                method="next_turn"
+                                                wsActionTriggerer={triggerSetNextTurn}
+                                                message={
+                                                    currentPlayerTurnId ===
+                                                    localPlayer?.id
+                                                        ? "Pasar al siguiente turno"
+                                                        : "Esperar..."
+                                                }
+                                                disabled={
+                                                    currentPlayerTurnId !==
+                                                    localPlayer?.id
+                                                }
+                                            />
+                                        </>
+                                    )
+                                }
+
+                                {
+                                    nextTurn_currentTurn && nextTurn_method == "next_turn" && 
+                                    (
+                                        <ActionButtonManager
+                                            method="start_new_turn"
+                                            wsActionTriggerer={triggerStartNewTurn}
+                                            message={
+                                                currentPlayerTurnId ===
+                                                localPlayer?.id
+                                                    ? "Es tu turno. Comenzar"
+                                                    : "Esperar..."
+                                            }
+                                            disabled={
+                                                currentPlayerTurnId !==
+                                                localPlayer?.id
+                                            }
+                                        />
+                                    )
+                                }
                             </div>
                         </section>
                     </article>
@@ -714,7 +920,7 @@ interface DynamicActionButtonProps extends React.HTMLProps<HTMLButtonElement> {
     type?: "submit" | "reset" | "button";
 }
 
-function ActionButtonManager(props: DynamicActionButtonProps) {
+export function ActionButtonManager(props: DynamicActionButtonProps) {
     const { method, ...rest } = props;
     switch (method) {
         case "start_game":
@@ -725,6 +931,12 @@ function ActionButtonManager(props: DynamicActionButtonProps) {
                 return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
         case "days_advanced":
                 return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
+        case "submit_plan":
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
+        case "turn_event_flow":
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
+        case "next_turn":
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
         default:
             return null;
     }
@@ -740,7 +952,7 @@ const DynamicActionButton = ({
     ...rest
 }: Omit<DynamicActionButtonProps, 'method'>) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center", className)} type={type} onClick={wsActionTriggerer}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={wsActionTriggerer}>
             <img
                 className="w-full absolute inset-0 h-full"
                 src={buttonImgSrc}
@@ -773,7 +985,7 @@ const LocalStateDynamicButton = ({
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center", className)} type={type} onClick={onClick}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={onClick}>
             <img
                 className="w-full absolute inset-0 h-full"
                 src={buttonImgSrc}

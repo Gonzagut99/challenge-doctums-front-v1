@@ -15,6 +15,7 @@ import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
 import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { UpdatedPlayersPositions } from "~/types/methods_jsons/updatePlayersPositions";
+import { LocalPlayerModifiers } from "~/types/methods_jsons/submitPlan";
 
 
 
@@ -52,18 +53,45 @@ class WebSocketService implements IWebSocketService {
     private gameId: string;
     private keepAliveInterval: NodeJS.Timeout | null = null;
     private localPlayerAvatarInfo: Player | null = null;
-    private localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
+    public localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
+    public localPlayerEfficiencies: Record<string, number> = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0
+    };
     private connectedPlayers: ConnectedPlayer[] = []; // Store the list of players-explicit-any
     private isGameInitialized: boolean = false; // Control game canvas initialization
     public gameCanvasState: PlayerCanvasState[] = [];
     public updatedPlayersPositions: UpdatedPlayersPositions | null;
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
-    private turnStartInfo: StartNewTurn;
+    private newTurn_storedData: StartNewTurn;
+    public submitPlan_localPlayerPlan: PlanActions = {
+        products: [],
+        projects: [],
+        resources: []
+    };
+    public submitPlan_potentialRemainingBudget: number = 0;
+    public localPlayerModifiers: LocalPlayerModifiers | Record<string, { id: string; is_enabled?: boolean; was_bought?: boolean; purchased_requirements?: string[]; remaining_time?:number }[]> = {
+        products: [],
+        projects: [],
+        resources: []
+    };
+    private submitActionPlanEffects: SubmitPlanResponse;
+    public eventFlow_results: TurnEventResults;
+
+    private nextTurn_newTurnSettledInfo: NextTurnResponse;
+
     private gameStateMessage: any;
-    private submitActionPlanEffects: SubmitPlanResponse
-    private currentEventResults: TurnEventResults;
-    private newTurnSettled: NextTurnResponse;
     //private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
@@ -80,6 +108,10 @@ class WebSocketService implements IWebSocketService {
 
     getGameStateCanvas() {
         return this.gameCanvasState;
+    }
+
+    getLocalPlayerActionPlanState(){
+        return this.submitPlan_localPlayerPlan;
     }
 
     // setGameStateCanvas(gameCanvasState: PlayerCanvasState[]) {
@@ -102,15 +134,19 @@ class WebSocketService implements IWebSocketService {
     //     return this.isRenderedOneTime;
     // }
 
-    getNewTurnStartedResponse() {
-        return this.turnStartInfo;
+    // getNewTurnStartedResponse() {
+    //     return this.newTurn_storedData;
+    // }
+
+    newTurn_getStoredLocalPlayerDaysAdvanced() {
+        return {
+            days: this.newTurn_storedData?.days_advanced,
+            dices: this.newTurn_storedData?.thrown_dices
+        };
     }
 
-    getLocalPlayerDaysAdvanced() {
-        return {
-            days: this.turnStartInfo?.days_advanced,
-            dices: this.turnStartInfo?.thrown_dices
-        };
+    newTurn_getStoredLocalPlayerData() {
+        return this.newTurn_storedData
     }
 
     // Method to set playerId later
@@ -167,6 +203,10 @@ class WebSocketService implements IWebSocketService {
 
     getGameState<T>() {
         return this.gameStateMessage as T;
+    }
+
+    getSubmitPlanEffects() {
+        return this.submitActionPlanEffects;
     }
 
     // Method to set messageHandler later
@@ -435,7 +475,17 @@ class WebSocketService implements IWebSocketService {
     handleStartGameResponse(message: any) {
         if (message.status === 'success' && message.method == "start_game") {
             this.startGameResponse = message;
+            this.localPlayerModifiers.products = message.legacy_products.map((product: string) => {
+                return ({
+                    id: product,
+                    is_enabled: false,
+                    was_bought: false,
+                    purchased_requirements: []
+                });
+            });
+            // this.localPlayerModifiers.products = message.legacy_products;
             this.gameStateMessage = message;
+            this.localPlayerEfficiencies= message.player.efficiencies;
             this.setLocalPlayerDynamicInfo()
             console.log("Host started game", this.startGameResponse);
             emitter.emit('players', this.connectedPlayers);
@@ -510,7 +560,7 @@ class WebSocketService implements IWebSocketService {
 
     handleNewTurnStart(message: any) {
         if (message.method === 'new_turn_start') {
-            this.turnStartInfo = message;
+            this.newTurn_storedData = message;
             this.gameStateMessage = message;
             console.log("New Turn Start", message);
             emitter.emit('game', message);
@@ -530,23 +580,61 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'submit_plan') {
             this.gameStateMessage = message;
             this.submitActionPlanEffects = message;
+            if (this.localPlayerDynamicInfo) {
+                this.localPlayerDynamicInfo.budget = message.player.budget;
+            }
+            const noBaughtProducts = this.localPlayerModifiers.products.filter(product => !product.was_bought);
+            const noBoughtProductsIds = noBaughtProducts.map(product => product.id);
+            const localPlayerProducts = message.player.products.map(product => {
+                if(noBoughtProductsIds.includes(product.product_id)){
+                    return ({
+                        id: product.product_id,
+                        is_enabled: product.is_enabled,
+                        was_bought: false,
+                        purchased_requirements: product.purchased_requirements,
+                    });
+                }
+                return {
+                    id: product.product_id,
+                    is_enabled: product.is_enabled,
+                    was_bought: true,
+                    purchased_requirements: product.purchased_requirements,
+                };
+            }
+            );
+
+            this.localPlayerModifiers.products = localPlayerProducts.length > 0 ? localPlayerProducts : this.localPlayerModifiers.products;
+            this.localPlayerModifiers.projects = message.player.projects.map(project => ({
+                id: project.project_id,
+                remaining_time: project.remaining_time,
+            }));
+            this.localPlayerModifiers.resources = message.player.resources.map(resource => ({
+                id: resource.resource_id,
+                remaining_time: resource.remaining_time,
+            }));
             console.log("Action Plan", message);
-            emitter.emit('updatedModifiers', message);
+            emitter.emit('game', message);
         }
     }
 
     handleTurnEvent(message: any) {
         if (message.method === 'turn_event_flow') {
             this.gameStateMessage = message;
-            this.currentEventResults = message;
+            this.eventFlow_results = message;
+            if (this.localPlayerDynamicInfo) {
+                this.localPlayerDynamicInfo.budget = message.player.budget;
+                this.localPlayerDynamicInfo.score = message.player.score;
+            }
+            this.localPlayerEfficiencies = message.player.effiencies;
             console.log("Game Event", message);
-            emitter.emit('eventResults', message);
+            emitter.emit('game', message);
         }
     }
 
-    handleSetNextTurn(message: any) {
+    handleSetNextTurn(message: NextTurnResponse) {
         if (message.method === 'next_turn') {
             this.gameStateMessage = message;
+            this.nextTurn_newTurnSettledInfo = message;
 
             console.log("Next Turn", message);
             emitter.emit('game', message);
