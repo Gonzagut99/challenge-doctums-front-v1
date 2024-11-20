@@ -210,20 +210,11 @@ export class MainScene extends Phaser.Scene {
 
     promptDiceRoll(): void {
         this.time.delayedCall(1000, () => {
-            this.input.keyboard?.once('keydown-RIGHT', () => {
-                const playerId = prompt("Ingresa el ID del jugador:") || "0";
-                const diceRoll = parseInt(prompt("Ingresa el valor del dado:") || "0", 10);
-                if (!isNaN(diceRoll)) {
-                    this.setDiceRoll(diceRoll, playerId);
-                    this.isStopped[playerId] = false;
-                    if (this.isFirstRollGame[playerId]) {
-                        this.isFirstRollGame[playerId] = false;
-                        this.moveCharacterDown(playerId);
-                    } else {
-                        this.moveCharacterToTarget(playerId);
-                    }
-                }
-            });
+            // this.input.keyboard?.once('keydown-RIGHT', () => {
+            //     const playerId = prompt("Ingresa el ID del jugador:") || "0";
+            //     const diceRoll = parseInt(prompt("Ingresa el valor del dado:") || "0", 10);
+                
+            // });
         });
     }
 
@@ -255,6 +246,7 @@ export class MainScene extends Phaser.Scene {
         // }
         const advancedDays = currentDay - this.diceRollResult[playerId];
         this.diceRollResult[playerId] = this.currentCasillaId[playerId] + advancedDays;
+        console.log({advancedDays, diceRollResult: this.diceRollResult[playerId], casillaId: this.currentCasillaId});
         //this.diceRollResult[playerId] = currentDay
     }
 
