@@ -282,6 +282,9 @@ export class MainScene extends Phaser.Scene {
         this.dayPositions.forEach((pos) => {
             const casilla = this.casillasGroup.create(pos.x, pos.y, pos.type);
             casilla.setData('id', pos.id);
+            if(pos.id === 400){
+                casilla.setAlpha(0);
+            }
             casilla.refreshBody();
         });
 
