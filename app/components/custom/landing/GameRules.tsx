@@ -1,5 +1,6 @@
 import { CloudArrowUpIcon, LockClosedIcon, ServerIcon } from '@heroicons/react/20/solid'
 import { AccordionRules } from './Accordion'
+import { CompetenciaIcon, EstrategiaIcon, ProblemaIcon } from './Icons'
 
 
 export default function Example() {
@@ -37,19 +38,19 @@ export default function Example() {
               </p>
               <ul role="list" className="mt-8 space-y-8 text-gray-600">
                 <li className="flex gap-x-3">
-                  <CloudArrowUpIcon aria-hidden="true" className="mt-1 size-5 flex-none text-celeste" />
+                  <CompetenciaIcon className=' stroke-2 text-celeste' aria-hidden="true" />
                   <span className='text-gray-200'>
                     <strong className="font-semibold text-white">Objetivo.</strong> Enfrentar con éxito los eventos que se presenten a lo largo del año, haciendo uso de las "eficiencias" de tu área de Gestión del Cambio (GC), que representan habilidades clave.
                   </span>
                 </li>
                 <li className="flex gap-x-3">
-                  <LockClosedIcon aria-hidden="true" className="mt-1 size-5 flex-none text-celeste" />
+                  <ProblemaIcon aria-hidden="true" className="mt-1 size-5 flex-none text-celeste" />
                   <span className='text-gray-200'>
-                    <strong className="font-semibold text-white">Las eficiencias</strong>Se desarrollan adquiriendo productos, contratando recursos, y ejecutando subproyectos, cada uno de los cuales tiene un costo.
+                    <strong className="font-semibold text-white">Las eficiencias</strong> Se desarrollan adquiriendo productos, contratando recursos, y ejecutando subproyectos, cada uno de los cuales tiene un costo.
                   </span>
                 </li>
                 <li className="flex gap-x-3">
-                  <ServerIcon aria-hidden="true" className="mt-1 size-5 flex-none text-celeste" />
+                  <EstrategiaIcon aria-hidden="true" className="mt-1 size-5 flex-none text-celeste" />
                   <span className='text-gray-200'>
                     <strong className="font-semibold text-white"> Líder de Proyecto</strong> Tendrás que gestionar el presupuesto mensual asignado al inicio del año, decidiendo cómo invertir en el fortalecimiento de tu área y prepararla para enfrentar los eventos de cada mes. 
                   </span>

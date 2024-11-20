@@ -10,7 +10,7 @@ const tiers = [
     features: [
       'Talleres de grupos pequeños de estudiantes',
       'Enfoque en habilidades estratégicas y toma de decisiones.', 
-      'Hasta 3 salas de juego simultáneas', 
+      'Hasta 5 salas de juego simultáneas', 
       'Guía básica para una experiencia estructurada.'],
     featured: false,
   },
