@@ -40,6 +40,7 @@ import {
 
 
 import GameCanvas from "./_gameCanvas/index";
+import { Header } from "~/components/custom/landing/Header";
 import { emitter } from "~/utils/emitter.client";
 const isServer = typeof window === "undefined";
 
@@ -221,10 +222,13 @@ export default function _layout() {
 
 
     return (
+        <div>
+            <Header/>
+        
         <main className="min-h-dvh grid grid-cols-1 max-h-screen">
-            <PageContainer className="z-0 bg-gradient-to-r from-sky-500 to-indigo-500 flex justify-center items-center">
+            <PageContainer className="z-0 bg-white flex justify-center items-center">
                 <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
-                    <article className="relative z-20 h-full w-full bg-gradient-to-b from-sky-500 to-sky-100 p-2 flex flex-col gap-2">
+                    <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                         <section className="flex justify-center">
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
@@ -450,6 +454,7 @@ export default function _layout() {
                 </section>
             </PageContainer>
         </main>
+        </div>
     );
 }
 
