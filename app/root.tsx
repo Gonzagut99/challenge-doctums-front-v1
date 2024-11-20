@@ -26,14 +26,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-    const { toast } = useLoaderData<typeof loader>();
+    // const { toast } = useLoaderData<typeof loader>();
 
-    useEffect(() => {
-        if (toast) {
-            // notify on a toast message
-      notify(toast.message, { type: toast.type });
-        }
-    }, [toast]);
+    // useEffect(() => {
+    //     if (toast) {
+    //         // notify on a toast message
+    //   notify(toast.message, { type: toast.type });
+    //     }
+    // }, [toast]);
 
     return (
         <html lang="en">
@@ -48,7 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </head>
             <body className="!m-0">
                 {children}
-                <ToastContainer
+                {/* <ToastContainer
                     position="top-right"
                     autoClose={3000}
                     hideProgressBar={false}
@@ -59,7 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     draggable
                     pauseOnHover
                     theme="dark"
-                ></ToastContainer>
+                ></ToastContainer> */}
                 <div id="modal-container" />    
                 <ScrollRestoration />
                 <Scripts />
