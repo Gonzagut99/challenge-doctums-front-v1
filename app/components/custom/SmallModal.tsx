@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { registerHotkey, setHotkeysScope } from "~/utils/hotkeysHelpers";
 import { WhiteContainer } from "./WhiteContainer";
 import { Button2 } from "./Button2";
+import { twMerge } from "tailwind-merge";
 
 export function useOutsideRefsClick(refs: React.RefObject<HTMLElement>[], callback: () => void) {
     useEffect(() => {
@@ -33,6 +34,7 @@ export default function Modal(
     props: React.PropsWithChildren<{
         isDisabled?: boolean;
         onDismiss: () => void;
+        className?: string;
     }>
 ) {
     const [isInitialized, setIsInitialized] = useState(false);
@@ -129,7 +131,7 @@ export default function Modal(
                                     </div>
                                 </section>
                             </article> */}
-                            <WhiteContainer ref={modalRef} className="min-w-60">
+                            <WhiteContainer ref={modalRef} className={twMerge("min-w-60",props.className )}>
                                 <div className="flex flex-col gap-2 items-center py-4">
                                     {
                                         props.children

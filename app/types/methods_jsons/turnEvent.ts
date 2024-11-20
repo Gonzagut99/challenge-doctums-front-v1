@@ -2,14 +2,18 @@ export type TurnEventResults={
     method: string;
     status: string;
     message: string;
+    current_turn: string;
     event:GameEventState;
     player:GameEventPlayerState 
-} | NotYourTurnResponse
+    show_event:boolean;
+    is_ready_to_set_next_turn:boolean;
+} 
+//| NotYourTurnResponse
 
 export type GameEventState = {
-    id: number;
+    id: string;
     level: number;
-    efficiency_chosen: number;
+    efficiency_chosen: string;
     pass_first_challenge: boolean;
     risk_challenge_dices: number[];
     risk_points: number;

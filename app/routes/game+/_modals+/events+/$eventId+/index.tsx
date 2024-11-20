@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, Link, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { json, redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -8,7 +8,7 @@ import { EfficiencyPointsTile } from "~/components/custom/EfficienyTile";
 import Modal from "~/components/custom/Modal";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { ModifierFeature } from "~/types/modifiers";
-import { loadEfficiencies, loadEvents, loadProducts } from "~/utils/dataLoader";
+import { loadAllModifiersData, loadEfficiencies, loadEvents } from "~/utils/dataLoader";
 
 
 export type consequenceResult = {
@@ -27,7 +27,7 @@ export interface EventData {
     resultFailure: consequenceResult;
 }
 
-export const loader = async ({ request,params }: LoaderFunctionArgs) => {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
     const eventId = params.eventId;
     if (!eventId) {
         return redirect("/game");
@@ -35,9 +35,10 @@ export const loader = async ({ request,params }: LoaderFunctionArgs) => {
     const domainEvents = await loadEvents("app/data/events.csv");
     const selectedEvent = domainEvents[eventId];
     const efficiencies = await loadEfficiencies("app/data/efficiencies.csv");
-    const products = await loadProducts("app/data/products.csv");
-    const projects = await loadProducts("app/data/projects.csv");
-    const resources = await loadProducts("app/data/resources.csv");
+    // const products = await loadProducts("app/data/products.csv");
+    // const projects = await loadProducts("app/data/projects.csv");
+    // const resources = await loadProducts("app/data/resources.csv");
+    const { products, projects, resources } = await loadAllModifiersData();
     const requiredEficciencies = selectedEvent.required_efficiencies.map((efficiency) => efficiencies[efficiency]);
     const modifiableProducts = selectedEvent.modifiable_products.map((product) => products[product]);
     const modifiableProjects = selectedEvent.modifiable_projects.map((project) => projects[project]);
