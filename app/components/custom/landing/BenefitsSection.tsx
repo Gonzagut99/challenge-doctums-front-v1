@@ -1,6 +1,7 @@
 
 import { ButtonCeleste, ButtonYellow } from "~/components/custom/landing/Buttons";
 import { BentoBenefits } from "./BentoGrid";
+import { Link } from "@remix-run/react";
 
 const BenefitsSection = async () => {
     return (
@@ -16,7 +17,9 @@ const BenefitsSection = async () => {
             <ButtonYellow>Solicitar demo personalizada</ButtonYellow>
             </a>
             <a href="" className="mr-3">
+            <Link to={"/home/"}>
             <ButtonCeleste>Probar juego</ButtonCeleste>
+            </Link>
             </a>
 
         <div className="mt-12 h-auto">
