@@ -266,14 +266,25 @@ export class MainScene extends Phaser.Scene {
 
     private isWithinTolerance(casilla: Phaser.GameObjects.GameObject, playerId: string): boolean {
         const character = this.getCharacterByPlayerId(playerId);
-        const tolerance = 14;
+        const tolerance = 21;
         const isWithinTolerance =  Math.abs(Math.round(character.x) - (casilla as Phaser.GameObjects.Sprite).x) < tolerance && Math.abs(Math.round(character.y + character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance
+        console.log("isWithinTolerance", {
+            character,
+            casilla: casilla.getData('id'),
+            isWithinTolerance,
+            diceResult: this.diceRollResult,
+            casillas: this.visitedCasillas,
+            isStopped: this.isStopped,
+            chracter_x_position: character.x,
+            character_y_position: character.y,
+        });
         return isWithinTolerance;
     }
 
     handleCollision(_: any, casilla: Phaser.GameObjects.GameObject, playerId: string): void {
         const casillaId = casilla.getData('id');
         if (this.visitedCasillas[playerId].has(casillaId)|| this.isStopped[playerId] || !this.isWithinTolerance(casilla, playerId)) return;
+        
         this.smoothSetBounds(130, -40, this.twelve.widthInPixels - 130, this.twelve.heightInPixels, 1000);
         if (casillaId === this.diceRollResult[playerId] || casillaId === 360) {
             this.stopCharacter(casillaId, playerId);
@@ -287,6 +298,7 @@ export class MainScene extends Phaser.Scene {
         this.continueCurrentDirection(playerId);
         this.visitedCasillas[playerId].add(casillaId);
     }
+
 
     getCharacterByPlayerId(playerId: string): Phaser.Physics.Arcade.Sprite {
         return this.playersCharacter[playerId];

@@ -44,6 +44,8 @@ import {
 import GameCanvas from "./_gameCanvas/index";
 import { Header } from "~/components/custom/landing/Header";
 import { emitter } from "~/utils/emitter.client";
+import { PlayerCanvasState } from "~/types/gameCanvasState";
+import { set } from "zod";
 const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
@@ -225,6 +227,7 @@ export default function _layout() {
         method: "",
         message: "",
     });
+    const [actual_playersPositions, setPositions] = useState<PlayerCanvasState[]>([])
 
     //trigger turn_order_stage event from the backend
     const triggerTurnOrderStage = () => {
@@ -273,10 +276,10 @@ export default function _layout() {
     }
 
     
-    console.log("isServer", isServer)
-    console.log("advance days", newTurn_advancedDays)
-    console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
-    console.log("players positions", playerPositions)
+    // console.log("isServer", isServer)
+    // console.log("advance days", newTurn_advancedDays)
+    // console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
+    // console.log("players positions", playerPositions)
     emitter.emit("updated_players_positions", playerPositions);
 
 
