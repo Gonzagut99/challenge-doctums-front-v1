@@ -655,6 +655,8 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'next_turn') {
             this.gameStateMessage = message;
             this.nextTurn_newTurnSettledInfo = message;
+            //Here we can make it possible to show the previous player results' summary            this.eventFlow_results = {};
+            this.newTurn_storedData = {}
 
             console.log("Next Turn", message);
             emitter.emit('game', message);
