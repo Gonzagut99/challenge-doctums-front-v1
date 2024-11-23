@@ -206,7 +206,7 @@ export const CharacterCard = ({
             id={id.toString()}
             type="button"            
         >
-            <header className="px-4 py-1 border-zinc-900 border-[3px] rounded-sm bg-white">
+            <header className="px-4 py-1 w-full border-zinc-900 border-[3px] rounded-sm bg-white">
                 <h3 className="font-easvhs text-base text-center">
                 {profession.toUpperCase()}
                 </h3>
