@@ -230,12 +230,12 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             ),
         })),
         resultSuccess: {
-            budget: selectedEvent.result_success[0],
-            score: selectedEvent.result_success[1],
+            budget: selectedEvent.result_success[1],
+            score: selectedEvent.result_success[0],
         },
         resultFailure: {
-            budget: selectedEvent.result_failure[0],
-            score: selectedEvent.result_failure[1],
+            budget: selectedEvent.result_failure[1],
+            score: selectedEvent.result_failure[0],
         },
     };
 
@@ -1123,9 +1123,9 @@ export default function ChallengingEvent() {
                                                         .
                                                         </p>
                                                     </div>
-                                        <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
+                                        {/* <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
                                             Aceptar
-                                        </Button2>
+                                        </Button2> */}
                                     </>
                                     
                                                 <div className="flex justify-center">
