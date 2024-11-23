@@ -54,6 +54,20 @@ class WebSocketService implements IWebSocketService {
     private keepAliveInterval: NodeJS.Timeout | null = null;
     private localPlayerAvatarInfo: Player | null = null;
     public localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
+    public localPlayerPreviosEfficiencies: Record<string, number> = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0
+    };
     public localPlayerEfficiencies: Record<string, number> = {
         "1": 0,
         "2": 0,
@@ -442,6 +456,7 @@ class WebSocketService implements IWebSocketService {
             const send = {
                 method: 'next_turn'
             };
+            //Here, we can update the previous effciecies property
 
             // Send the message to the server
             this.sendMessage(send);
@@ -612,7 +627,7 @@ class WebSocketService implements IWebSocketService {
                 id: resource.resource_id,
                 remaining_time: resource.remaining_time,
             }));
-            console.log("Action Plan", message);
+            console.log("Action Plan", JSON.stringify(message));
             emitter.emit('game', message);
         }
     }
@@ -625,6 +640,7 @@ class WebSocketService implements IWebSocketService {
                 this.localPlayerDynamicInfo.budget = message.player.budget;
                 this.localPlayerDynamicInfo.score = message.player.score;
             }
+            this.localPlayerPreviosEfficiencies = this.localPlayerEfficiencies;
             this.localPlayerEfficiencies = message.player.effiencies;
             console.log("Game Event", message);
             emitter.emit('game', message);
@@ -635,7 +651,7 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'next_turn') {
             this.gameStateMessage = message;
             this.nextTurn_newTurnSettledInfo = message;
-
+            //Here we can make it possible to show the previous player results' summary
             console.log("Next Turn", message);
             emitter.emit('game', message);
         }

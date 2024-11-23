@@ -14,6 +14,7 @@ import {
     json,
     replace,
     useNavigate,
+    useNavigation,
     useSubmit,
 } from "@remix-run/react";
 
@@ -193,6 +194,7 @@ export default function _layout() {
     // charging react/remix hooks
     const navigate = useNavigate();
     const submit = useSubmit();
+    const navigation = useNavigation();
     const gameCanvasRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
 
     const [avatarId, setAvatarId] = useState<string | null>(
@@ -290,13 +292,13 @@ export default function _layout() {
             backgroundPosition: 'center',
           }}
         >
-            <Header/>
+        <Header/>
         
         <main className="min-h-dvh grid grid-cols-1 max-h-screen">
             <PageContainer className="z-0 bg-transparent flex justify-center items-center">
                 <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
                     <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
-                        <section className="flex justify-center">
+                        <section className="flex justify-center relative">
                             <WhiteContainer>
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
                                     {
@@ -304,6 +306,16 @@ export default function _layout() {
                                     }
                                 </span>
                             </WhiteContainer>
+                            <div className="absolute right-0 w-fit">
+                                <button className="aspect-square min-h-10 relative rounded-full" onClick={()=>navigate('/game/events')}>
+                                    <img
+                                        src="/assets/icons/efficiencyIcon.png"
+                                        alt="Back Button"
+                                        className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
+                                        title="Ver catálogo de Eventos"
+                                    />
+                                </button>
+                            </div>
                         </section>
                         <section className="flex">
                             <GameCanvas
@@ -552,7 +564,7 @@ export default function _layout() {
                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && !newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                     (
                                         <>
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                     {
                                                         "¡Es hora de planificar!"
@@ -583,12 +595,12 @@ export default function _layout() {
                                                 message={
                                                     currentPlayerTurnId ===
                                                     localPlayer?.id
-                                                        ? "Enfrentar evento"
+                                                        ? (navigation.state==="submitting"?"Enviando...":"Enfrentar evento")
                                                         : "Esperar..."
                                                 }
                                                 disabled={
-                                                    currentPlayerTurnId !==
-                                                    localPlayer?.id
+                                                    (currentPlayerTurnId !==
+                                                    localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
                                                 }
                                             />
                                         </>
@@ -599,7 +611,7 @@ export default function _layout() {
                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                     (
                                         <>
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                     {
                                                         "¡Es hora de planificar!"

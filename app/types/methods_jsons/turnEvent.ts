@@ -31,7 +31,7 @@ export type TurnEventConsequences = {
 export type GameEventPlayerState = {
     score: number;
     number: number;
-    effiencies: {[key:number]:number}; //the name in the back is like that
+    effiencies: {[key:string]:number}; //the name in the back is like that
 }
 
 export type NotYourTurnResponse = {

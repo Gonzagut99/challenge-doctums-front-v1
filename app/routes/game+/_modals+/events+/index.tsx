@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+// import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -11,7 +11,7 @@ export interface EventTableTileData {
     icon: string;
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async () => {
     const domainEvents = await loadEvents("app/data/events.csv");
     const events: EventTableTileData[] = Object.values(domainEvents).map((efficiency) => ({
         id: efficiency.ID,

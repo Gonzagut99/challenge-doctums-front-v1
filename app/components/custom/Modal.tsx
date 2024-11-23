@@ -35,6 +35,7 @@ export default function Modal(
         isDisabled?: boolean;
         type?: 'close' | 'back';
         onDismiss: () => void;
+        className?: string;
     }>
 ) {
     const [isInitialized, setIsInitialized] = useState(false);
@@ -109,7 +110,7 @@ export default function Modal(
                             >
                                 <img src="/assets/frames/GameTabletFrame.png" alt="Tablet" className="w-[900px] min-w-[900px] absolute"/>
                                 <section className="min-w-[900px] w-[900px] min-h-[660px] h-[660px] px-14 pt-8 pb-[3.6rem] shadow-md relative">
-                                    <div className="py-4 px-2">
+                                    <div className="py-4 px-2 h-full">
                                         <header className="flex justify-center ">
                                             <div className="w-full relative py-2 px-4 flex bg-zinc-50 rounded-md border-[3px] border-zinc-900">
                                                 <p id="modal-title" className="text-center w-full font-dogica-bold">{props.title}</p>
@@ -127,7 +128,7 @@ export default function Modal(
                                                 
                                             </div>
                                         </header>
-                                        <div>{props.children}</div>
+                                        <div className={props.className}>{props.children}</div>
                                     </div>
                                 </section>
                             </article>

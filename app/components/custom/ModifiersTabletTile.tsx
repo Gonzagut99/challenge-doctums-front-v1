@@ -5,7 +5,7 @@ interface TabletTileProps extends React.HTMLProps<HTMLDivElement> {
     children?: React.ReactNode;
     className?: string;
     tabletTileData: ModifiersTabletTileData;
-    alreadyAcquiredProducts: string[];
+    alreadyAcquiredProducts?: string[];
 }
 
 export function ModifierTabletTile({ children,className, tabletTileData, alreadyAcquiredProducts, ...rest }: TabletTileProps) {
