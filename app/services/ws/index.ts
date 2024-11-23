@@ -100,7 +100,7 @@ class WebSocketService implements IWebSocketService {
         projects: [],
         resources: []
     };
-    private submitActionPlanEffects: SubmitPlanResponse;
+    private submitActionPlanEffects: SubmitPlanResponse | Record<string, any>;
     public eventFlow_results: TurnEventResults | Record<string, any> ;
 
     private nextTurn_newTurnSettledInfo: NextTurnResponse;
@@ -657,6 +657,8 @@ class WebSocketService implements IWebSocketService {
             this.nextTurn_newTurnSettledInfo = message;
             //Here we can make it possible to show the previous player results' summary            this.eventFlow_results = {};
             this.newTurn_storedData = {}
+            this.submitActionPlanEffects = {};
+            this.eventFlow_results = {};
 
             console.log("Next Turn", message);
             emitter.emit('game', message);
