@@ -284,6 +284,13 @@ export default function _layout() {
     // console.log("advance days", newTurn_advancedDays)
     // console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
     // console.log("players positions", playerPositions)
+    console.log({
+        genericGameState,
+        is_ready_to_face_event: newTurn_localPlayerStoredData?.is_ready_to_face_event,
+        submitPlan_isReadyToFaceEvent,
+        newTurnStage_isReadyToFaceEvent,
+        is_not_weekend: !newTurn_localPlayerStoredData?.time_manager?.is_weekend
+    });
     emitter.emit("updated_players_positions", playerPositions);
 
 
