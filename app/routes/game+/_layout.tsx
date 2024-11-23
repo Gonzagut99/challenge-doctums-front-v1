@@ -938,7 +938,7 @@ function PlayerCard({ player }: { player: TurnOrderPlayer }) {
                             activeProducts: 0,
                         }).map((icon) => {
                             if (
-                                icon.field === "date" ||
+                                icon.field === "budget" ||
                                 icon.field === "activeProducts"
                             )
                                 return;
