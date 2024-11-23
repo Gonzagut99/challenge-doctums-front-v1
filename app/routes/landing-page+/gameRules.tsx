@@ -1,12 +1,12 @@
-import { Header } from "@radix-ui/react-accordion";
+
 import GameRules from "~/components/custom/landing/GameRules";
+import { Header } from "~/components/custom/landing/Header";
 
 function SectionRules() {
   return (
     
     <>
       <Header/>
-      <h1>Game Rules</h1>
       <GameRules />
     </>
   );
