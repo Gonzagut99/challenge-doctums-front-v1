@@ -18,7 +18,9 @@ import { globalWebSocketService } from "~/services/ws";
 //Form validation and configuration
 const schema = z.object({
     playerName: z.string().min(3, "El nombre debe tener al menos 3 caractéres"),
-    characterId: z.number().max(4).int("El id del personaje debe ser un número entero"),
+    characterId: z.number({
+        required_error: "Debes seleccionar un personaje"
+    }).max(4).int("El id del personaje debe ser un número entero"),
     sessionCode: z.string().min(36, "El codigo debe tener 36 caractéres").max(36).uuid("No es un código válido")
 });
 

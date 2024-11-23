@@ -2,9 +2,16 @@ import { twMerge } from "tailwind-merge";
 
 export type ProductTileData = {
     product_id: string;
+    src:string
     title: string;
     is_enabled: boolean;
-    purchased_requirements: {
+    // purchased_requirements: {
+    //     id: string;
+    //     title: string;
+    //     src:string
+    // }[];
+    purchased_requirements: string[];
+    all_requirements: {
         id: string;
         title: string;
         src:string
@@ -34,11 +41,11 @@ export const ModifiersSmallTile = ({
      ...rest
 }:ProductTileProps) => {
     if (type === "product") {
-        const {is_enabled, purchased_requirements, title} = modifierTileData as ProductTileData;
+        const {is_enabled, purchased_requirements, title, all_requirements, src} = modifierTileData as ProductTileData;
         return (
             <div className={twMerge("flex gap-2 items-start font-easvhs border-[3px] border-zinc-900 rounded-sm p-1 justify-between", rest.className)} {...rest}>
                 <div className="flex gap-2 items-start">
-                    <img src="/assets/icons/productsIcon.png" alt="Efficiency Icon" className="size-8"/>
+                    <img src={src} alt="Efficiency Icon" className="size-8"/>
                     <p className="text-[13px]">
                         { title }
                     </p>
@@ -47,7 +54,7 @@ export const ModifiersSmallTile = ({
                     {
                         is_enabled && (
                         <div className="flex items-end">
-                            <p className="text-lg font-bold">
+                            <p className="text-lg font-bold text-green-600">
                                 { "Activado" }
                             </p>
                         </div>
@@ -55,9 +62,11 @@ export const ModifiersSmallTile = ({
                     }
                     {
                         <div className="flex items-end gap-1 flex-wrap">
-                            {purchased_requirements.map((requirement) => (
+                            {all_requirements.map((requirement) => (
                                 <div key={requirement.id} className="relative">
-                                    <div className="size-4 w-fit absolute inset-0 backdrop-blur-0 bg-white/70 z-10"><img src="/assets/icons/check.png" alt="Adquirido" className="size-4 object-contain"/></div>
+                                    {
+                                        purchased_requirements.includes(requirement.id)&&<div className="size-4 w-fit absolute inset-0 backdrop-blur-0 bg-white/70 z-10"><img src="/assets/icons/check.png" alt="Adquirido" className="size-4 object-contain"/></div>
+                                    }
                                     <img src={requirement.src} alt="Requirement Icon" className="size-4" title={requirement.title}/>
                                 </div>
                             ))}

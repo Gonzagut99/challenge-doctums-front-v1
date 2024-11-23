@@ -61,20 +61,29 @@ export const loader = async () => {
     const productTileData: ProductTileData[] =
         submitPlanResponse.player.products.map((product) => {
             const { product_id, is_enabled, purchased_requirements } = product;
+            const productInfo = products[product_id];
+            const allRequirements = productInfo.requirements
             return {
                 product_id,
+                src: `/assets/modifiersIcons/products/${product_id}.png`,
                 is_enabled,
-                purchased_requirements: purchased_requirements.map((requirement) => {
-                    const reqObject = Object.values(products).find(
-                        (product) => product.ID === requirement
-                    );
-                    return {
-                        id:requirement,
-                        title: reqObject?.name || "",
-                        src: `/assets/modifiersIcons/products/${requirement}.png`,
-                    };
-                }
-                ),
+                // purchased_requirements: purchased_requirements.map((requirement) => {
+                //     const reqObject = Object.values(products).find(
+                //         (product) => product.ID === requirement
+                //     );
+                //     return {
+                //         id:requirement,
+                //         title: reqObject?.name || "",
+                //         src: `/assets/modifiersIcons/products/${requirement}.png`,
+                //     };
+                // }
+                // ),
+                purchased_requirements: purchased_requirements,
+                all_requirements: allRequirements.map((product) => ({
+                    id: products[product].ID,
+                    title: products[product].name,
+                    src: `/assets/modifiersIcons/products/${product}.png`,
+                })),
                 title:
                     Object.values(products).find(
                         (product) => product.ID === product_id

@@ -39,7 +39,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
     // const loaderdata = useLiveLoader<typeof loader>();
     // const { gamePlayersPositions } = loaderdata;
     
-    const { avatarId, diceResult, canvasInitialState: gamePlayersPositions, ...rest } = props;
+    const { avatarId, diceResult, canvasInitialState: gamePlayersPositions, className, ...rest } = props;
 
     const localDivRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
     const gameInstanceRef = useRef<Phaser.Game | null>(null); 
@@ -102,6 +102,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
                 gameInstanceRef.current = null;
             }
         };*/
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -109,7 +110,7 @@ const GameCanvas = forwardRef<HTMLDivElement, GameCanvasProps>((props, ref) => {
             {...rest}
             ref={localDivRef}
             id="GameCanvas"
-            className={twMerge("w-[800px] h-[442px] cursor-grab", grabbing && "cursor-grabbing")}
+            className={twMerge("w-[800px] h-[442px] cursor-grab",className,  grabbing && "cursor-grabbing")}
             role="button"
             tabIndex={0}
             onMouseDown={() => setGrabbing(true)}

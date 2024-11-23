@@ -163,7 +163,7 @@ function Index() {
                 </section>
 
                 {isHost && (
-                    <Button2 className="w-48"
+                    <Button2 className="w-48 disabled:opacity-50" disabled={connectedPlayers.length < 2}
                      onClick={
                         (e) => {
                             e.preventDefault();

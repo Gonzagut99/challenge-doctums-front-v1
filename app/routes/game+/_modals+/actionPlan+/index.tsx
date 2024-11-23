@@ -167,7 +167,7 @@ export default function ActionPlan() {
                                     <div>
                                         <h5 className="font-easvhs text-md mb-2">Productos</h5>
                                         <div className="flex flex-col gap-1">
-                                            {modifiersCheckout.products.map(
+                                            {modifiersCheckout.products.length>0 && modifiersCheckout.products.map(
                                                 (product) => (
                                                     <div
                                                         key={product.id}
@@ -181,17 +181,24 @@ export default function ActionPlan() {
                                                             />
                                                         </figure>
                                                         <div>
-                                                            <p>{product.title}</p>
+                                                            <p className="line-clamp-1">{product.title}</p>
                                                         </div>
                                                     </div>
                                                 )
                                             )}
+                                            {
+                                                modifiersCheckout.products.length === 0 && (
+                                                    <p className="text-center font-easvhs text-sm text-gray-500">
+                                                        No se han seleccionado productos
+                                                    </p>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                     <div>
                                         <h5 className="font-easvhs text-md mb-2">Recursos</h5>
                                         <div className="flex flex-col gap-1">
-                                            {modifiersCheckout.resources.map(
+                                            {modifiersCheckout.resources.length>0 && modifiersCheckout.resources.map(
                                                 (resource) => (
                                                     <div
                                                         key={resource.id}
@@ -205,17 +212,24 @@ export default function ActionPlan() {
                                                             />
                                                         </figure>
                                                         <div>
-                                                            <p>{resource.title}</p>
+                                                            <p className="line-clamp-1">{resource.title}</p>
                                                         </div>
                                                     </div>
                                                 )
                                             )}
+                                            {
+                                                modifiersCheckout.resources.length === 0 && (
+                                                    <p className="text-center font-easvhs text-sm text-gray-500">
+                                                        No se han seleccionado recursos
+                                                    </p>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                     <div>
                                         <h5 className="font-easvhs text-md mb-2">Proyectos</h5>
                                         <div className="flex flex-col gap-1">
-                                            {modifiersCheckout.projects.map(
+                                            {modifiersCheckout.projects.length > 0 && modifiersCheckout.projects.map(
                                                 (project) => (
                                                     <div
                                                         key={project.id}
@@ -229,11 +243,18 @@ export default function ActionPlan() {
                                                             />
                                                         </figure>
                                                         <div>
-                                                            <p>{project.title}</p>
+                                                            <p className="line-clamp-1">{project.title}</p>
                                                         </div>
                                                     </div>
                                                 )
                                             )}
+                                            {
+                                                modifiersCheckout.projects.length === 0 && (
+                                                    <p className="text-center font-easvhs text-sm text-gray-500">
+                                                        No se han seleccionado proyectos
+                                                    </p>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -252,7 +273,7 @@ export default function ActionPlan() {
                                                 <img
                                                     src="/assets/icons/cashIcon.png"
                                                     alt="Icon"
-                                                    className="size-10 object-contain"
+                                                    className="size-8 min-w-8 object-contain"
                                                 />
                                             </figure>
                                             <span className="font-easvhs text-lg">

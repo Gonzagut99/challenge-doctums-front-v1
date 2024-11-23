@@ -14,6 +14,7 @@ import {
     json,
     replace,
     useNavigate,
+    useNavigation,
     useSubmit,
 } from "@remix-run/react";
 
@@ -195,6 +196,7 @@ export default function _layout() {
     // charging react/remix hooks
     const navigate = useNavigate();
     const submit = useSubmit();
+    const navigation = useNavigation();
     const gameCanvasRef = useRef<HTMLDivElement | null>(null); // Referencia para el contenedor del canvas de Phaser
 
     const [avatarId, setAvatarId] = useState<string | null>(
@@ -304,23 +306,34 @@ export default function _layout() {
             backgroundPosition: 'center',
           }}
         >
-            <Header/>
+        <Header/>
         
         <main className="min-h-dvh grid grid-cols-1 max-h-screen">
             <PageContainer className="z-0 bg-transparent flex justify-center items-center">
                 <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
                     <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
-                        <section className="flex justify-center">
-                            <WhiteContainer>
+                        <section className="flex justify-center relative">
+                            <WhiteContainer className="animate-jump-in ">
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
                                     {
                                         hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
                                     }
                                 </span>
                             </WhiteContainer>
+                            <div className="absolute right-0 w-fit">
+                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out" onClick={()=>navigate('/game/events')}>
+                                    <img
+                                        src="/assets/icons/efficiencyIcon.png"
+                                        alt="Back Button"
+                                        className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
+                                        title="Ver catálogo de Eventos"
+                                    />
+                                </button>
+                            </div>
                         </section>
                         <section className="flex">
                             <GameCanvas
+                                className="animate-fade animate-once"
                                 canvasInitialState={playerPositions}
                                 ref={gameCanvasRef}
                                 avatarId={avatarId!}
@@ -362,7 +375,7 @@ export default function _layout() {
                                         onClick={() =>
                                             navigate(`/game/${button.control}`)
                                         }
-                                        className="cursor-pointer"
+                                        className="cursor-pointer animate-fade animate-once"
                                     >
                                         <div className="flex gap-2">
                                             <figure className="w-16 min-w-16">
@@ -566,7 +579,7 @@ export default function _layout() {
                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && !newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                     (
                                         <>
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                     {
                                                         "¡Es hora de planificar!"
@@ -597,12 +610,12 @@ export default function _layout() {
                                                 message={
                                                     currentPlayerTurnId ===
                                                     localPlayer?.id
-                                                        ? "Enfrentar evento"
+                                                        ? (navigation.state==="submitting"?"Enviando...":"Enfrentar evento")
                                                         : "Esperar..."
                                                 }
                                                 disabled={
-                                                    currentPlayerTurnId !==
-                                                    localPlayer?.id
+                                                    (currentPlayerTurnId !==
+                                                    localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
                                                 }
                                             />
                                         </>
@@ -613,7 +626,7 @@ export default function _layout() {
                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                     (
                                         <>
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                     {
                                                         "¡Es hora de planificar!"
@@ -823,7 +836,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
         ) ?? charactersData[0];
 
     return (
-        <WhiteContainer className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 ">
+        <WhiteContainer className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 animate-fade-down animate-once">
             <div className="grid grid-cols-1 grid-rows-[1fr_1fr] max-h-full">
                 <header className="flex gap-2 mb-1">
                     <figure
@@ -901,7 +914,7 @@ function PlayerCard({ player }: { player: TurnOrderPlayer }) {
         ) ?? charactersData[0];
 
     return (
-        <WhiteContainer className="max-w-[19rem] min-w-[19rem]">
+        <WhiteContainer className="max-w-[19rem] min-w-[19rem] animate-fade-down animate-once">
             <header className="flex gap-2">
                 <figure
                     className={twMerge(
@@ -1001,7 +1014,7 @@ const DynamicActionButton = ({
     ...rest
 }: Omit<DynamicActionButtonProps, 'method'>) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={wsActionTriggerer}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center animate-jump-in disabled:opacity-60", className)} type={type} onClick={wsActionTriggerer}>
             <img
                 className="w-full absolute inset-0 h-full"
                 src={buttonImgSrc}
@@ -1034,7 +1047,7 @@ const LocalStateDynamicButton = ({
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={onClick}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center animate-jump-in disabled:opacity-60", className)} type={type} onClick={onClick}>
             <img
                 className="w-full absolute inset-0 h-full"
                 src={buttonImgSrc}
