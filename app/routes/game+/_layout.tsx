@@ -307,7 +307,7 @@ export default function _layout() {
                                 </span>
                             </WhiteContainer>
                             <div className="absolute right-0 w-fit">
-                                <button className="aspect-square min-h-10 relative rounded-full" onClick={()=>navigate('/game/events')}>
+                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-thrice animate-duration-[3000ms] animate-ease-in-out shadow-sm" onClick={()=>navigate('/game/events')}>
                                     <img
                                         src="/assets/icons/efficiencyIcon.png"
                                         alt="Back Button"
@@ -319,6 +319,7 @@ export default function _layout() {
                         </section>
                         <section className="flex">
                             <GameCanvas
+                                className="animate-fade animate-once"
                                 canvasInitialState={playerPositions}
                                 ref={gameCanvasRef}
                                 avatarId={avatarId!}
@@ -360,7 +361,7 @@ export default function _layout() {
                                         onClick={() =>
                                             navigate(`/game/${button.control}`)
                                         }
-                                        className="cursor-pointer"
+                                        className="cursor-pointer animate-fade animate-once"
                                     >
                                         <div className="flex gap-2">
                                             <figure className="w-16 min-w-16">
@@ -798,7 +799,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
         ) ?? charactersData[0];
 
     return (
-        <WhiteContainer className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 ">
+        <WhiteContainer className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 animate-fade-down animate-once">
             <div className="grid grid-cols-1 grid-rows-[1fr_1fr] max-h-full">
                 <header className="flex gap-2 mb-1">
                     <figure
@@ -876,7 +877,7 @@ function PlayerCard({ player }: { player: TurnOrderPlayer }) {
         ) ?? charactersData[0];
 
     return (
-        <WhiteContainer className="max-w-[19rem] min-w-[19rem]">
+        <WhiteContainer className="max-w-[19rem] min-w-[19rem] animate-fade-down animate-once">
             <header className="flex gap-2">
                 <figure
                     className={twMerge(
@@ -976,7 +977,7 @@ const DynamicActionButton = ({
     ...rest
 }: Omit<DynamicActionButtonProps, 'method'>) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={wsActionTriggerer}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center animate-jump-in disabled:opacity-60", className)} type={type} onClick={wsActionTriggerer}>
             <img
                 className="w-full absolute inset-0 h-full"
                 src={buttonImgSrc}
@@ -1009,7 +1010,7 @@ const LocalStateDynamicButton = ({
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={onClick}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center animate-jump-in disabled:opacity-60", className)} type={type} onClick={onClick}>
             <img
                 className="w-full absolute inset-0 h-full"
                 src={buttonImgSrc}

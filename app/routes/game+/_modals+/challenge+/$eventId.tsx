@@ -816,7 +816,7 @@ export default function ChallengingEvent() {
                                                             )
                                                         )}
                                                     </div>
-                                                    <div className="grid grid-cols-3">
+                                                    <div className="grid grid-cols-3 w-full">
                                                         <CalculusColumnTable
                                                             type="Productos"
                                                             numberOfEnabledModifiers={
