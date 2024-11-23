@@ -30,6 +30,9 @@ export interface EventData {
     id: string;
     description: string;
     requiredEficciencies: EfficiencyTableTileData[];
+    requiredUpdatedEficciencies: EfficiencyTableTileData[];
+    previousChosenEfficiencyData:EfficiencyTableTileData;
+    updatedChosenEfficiencyData:EfficiencyTableTileData;
     modifiableProducts: {
         icon: string;
         id: number;
@@ -123,8 +126,8 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     // const resources = await loadProducts("app/data/resources.csv");
     const { products, projects, resources } = await loadAllModifiersData();
     const myPreviousEfficiencies =
-        globalWebSocketService.localPlayerPreviosEfficiencies;
-    //const myEfficiencies = globalWebSocketService.localPlayerEfficiencies;
+        globalWebSocketService.localPlayerPreviousEfficiencies;
+    const myEfficiencies = globalWebSocketService.localPlayerEfficiencies;
     // console.log('my eFFICIENCIES',myEfficiencies);
     // console.log('DOMAIN EFFICIENCIES',domainEfficiencies)
     const myProducts = globalWebSocketService.localPlayerModifiers.products;
@@ -145,6 +148,15 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             };
         }
     );
+
+    const requiredUpdatedEficciencies = selectedEvent.required_efficiencies.map(
+        (efficiency) => {
+            return {
+                ...domainEfficiencies[efficiency],
+                strength_score: myEfficiencies[efficiency] ?? 0,
+            };
+        }
+    )
 
     // const modifiableProducts = selectedEvent.modifiable_products.map((product) => products[product]);
     // const modifiableProjects = selectedEvent.modifiable_projects.map((project) => projects[project]);
@@ -167,9 +179,28 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             id: efficiency.ID,
             title: efficiency.name,
             icon: `/assets/icons/efficiencyIcon.png`,
-            strength_score: myPreviousEfficiencies[efficiency.ID] ?? 0,
+            strength_score: efficiency.strength_score ?? 0,
             //strength_score: eventResults.player.effiencies[efficiency.ID],//later here we will asign the true strength points
         })),
+        requiredUpdatedEficciencies: requiredUpdatedEficciencies.map((efficiency) => ({
+            id: efficiency.ID,
+            title: efficiency.name,
+            icon: `/assets/icons/efficiencyIcon.png`,
+            strength_score: efficiency.strength_score ?? 0,
+            //strength_score: eventResults.player.effiencies[efficiency.ID],//later here we will asign the true strength points
+        })),
+        previousChosenEfficiencyData: {
+            id: selectedEfficiency,
+            title: domainEfficiencies[selectedEfficiency].name,
+            icon: `/assets/icons/efficiencyIcon.png`,
+            strength_score: myPreviousEfficiencies[selectedEfficiency] ?? 0,
+        },
+        updatedChosenEfficiencyData: {
+            id: selectedEfficiency,
+            title: domainEfficiencies[selectedEfficiency].name,
+            icon: `/assets/icons/efficiencyIcon.png`,
+            strength_score: myEfficiencies[selectedEfficiency] ?? 0,
+        },
         modifiableProducts: modifiableProducts.map((product) => ({
             icon: `/assets/modifiersIcons/products/${product.ID}.png`,
             id: Number(product.ID),
@@ -242,6 +273,13 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
         ).length,
     };
 
+    const chosenEfficiencyPoints = {
+        products: profittableEffiencyModifiers.products * pointSystem.products,
+        projects: profittableEffiencyModifiers.projects * pointSystem.projects,
+        resources:
+            profittableEffiencyModifiers.resources * pointSystem.resources,
+    };
+
     const efficiencyPointsCalculus = {
         selectedEfficiency: eventResults.event.efficiency_chosen,
         previousStrengthPoints:
@@ -255,14 +293,11 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             eventResults.event.rewards.obtained_efficiencies_points,
         riskPoints: eventResults.event.risk_points,
         profitableEfficiencyModifiers: profittableEffiencyModifiers,
-        chosenEfficiencyPoints: {
-            products:
-                profittableEffiencyModifiers.products * pointSystem.products,
-            projects:
-                profittableEffiencyModifiers.projects * pointSystem.projects,
-            resources:
-                profittableEffiencyModifiers.resources * pointSystem.resources,
-        },
+        chosenEfficiencyPoints: chosenEfficiencyPoints,
+        totalModifiersPoints: Object.values(chosenEfficiencyPoints).reduce(
+            (acc, curr) => acc + curr,
+            0
+        ),
     };
 
     console.log(eventData);
@@ -274,18 +309,18 @@ export default function ChallengingEvent() {
 
     const { eventData, eventId, eventResults, efficiencyPointsCalculus } =
         useLoaderData<typeof loader>();
-    const productsEfficiencyPoints =
+    const pointsSystemPerEfficiencyProducts =
         efficiencyPointsCalculus.pointSystem.products;
-    const resourcesEfficiencyPoints =
+    const pointsSystemPerEfficiencyResources =
         efficiencyPointsCalculus.pointSystem.resources;
-    const projectsEfficiencyPoints =
+    const pointsSystemPerEffficiencyProjects =
         efficiencyPointsCalculus.pointSystem.projects;
 
     console.log("EVENT DATA", eventData);
-    const chosenEfficiency = eventData.requiredEficciencies.filter(
-        (eff) => eff.id === eventResults.event.efficiency_chosen
-    )[0];
-    console.log("CHOSEN EFFICIENCY", chosenEfficiency);
+    const prevChosenEfficiency = eventData.previousChosenEfficiencyData
+    const updatedChosenEfficiency = eventData.updatedChosenEfficiencyData;
+    console.log("Prev CHOSEN EFFICIENCY", prevChosenEfficiency);
+    console.log("UPDATED CHOSEN EFFICIENCY", updatedChosenEfficiency);
     const navigate = useNavigate();
 
     const [showFirstChallengeResults, setShowFirstChallengeResults] =
@@ -391,7 +426,7 @@ export default function ChallengingEvent() {
                                                         key={product.id}
                                                         featureData={product}
                                                         profitablePoints={
-                                                            productsEfficiencyPoints
+                                                            pointsSystemPerEfficiencyProducts
                                                         }
                                                         alreadyAcquired={
                                                             product.alreadyAcquired
@@ -431,7 +466,7 @@ export default function ChallengingEvent() {
                                                         key={project.id}
                                                         featureData={project}
                                                         profitablePoints={
-                                                            projectsEfficiencyPoints
+                                                            pointsSystemPerEffficiencyProjects
                                                         }
                                                         alreadyAcquired={
                                                             project.alreadyAcquired
@@ -471,7 +506,7 @@ export default function ChallengingEvent() {
                                                         key={resource.id}
                                                         featureData={resource}
                                                         profitablePoints={
-                                                            resourcesEfficiencyPoints
+                                                            pointsSystemPerEfficiencyResources
                                                         }
                                                         type="resource"
                                                     ></ChallengeModifierEventFeature>
@@ -502,8 +537,8 @@ export default function ChallengingEvent() {
                                         La eficiencia con más puntos es:
                                     </h4>
                                     <EfficiencyPointsTile
-                                        title={chosenEfficiency.title}
-                                        points={chosenEfficiency.strength_score}
+                                        title={prevChosenEfficiency.title}
+                                        points={prevChosenEfficiency.strength_score}
                                         className="max-w-96"
                                     ></EfficiencyPointsTile>
                                     <p className="text-center text-sm">
@@ -511,7 +546,7 @@ export default function ChallengingEvent() {
                                         eficiencia random entre las requeridas
                                     </p>
                                 </div>
-                                <div className="flex flex-col gap-1 items-center">
+                                <div className="flex flex-col gap-2 items-center">
                                     <p className="text-base">
                                         Los eventos de{" "}
                                         <span className="font-black">{`Nivel ${eventResults.event.level}`}</span>{" "}
@@ -547,7 +582,7 @@ export default function ChallengingEvent() {
                                                         prueba. 😪
                                                     </p>
                                                     <div className="grid grid-cols-3">
-                                                        <div className="flex flex-col gap-1 items-center">
+                                                        {/* <div className="flex flex-col gap-1 items-center">
                                                             <p className="text-center">
                                                                 Productos:
                                                             </p>
@@ -607,17 +642,107 @@ export default function ChallengingEvent() {
                                                                         .resources
                                                                 }
                                                             </p>
-                                                        </div>
+                                                        </div> */}
+                                                        <CalculusColumnTable
+                                                            type="Productos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .products
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyProducts
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .products
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Proyectos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .projects
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEffficiencyProjects
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .projects
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Recursos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .resources
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyResources
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .resources
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                    </div>
+                                                    <div>
+                                                        {/* <table className="max-h-[400px]">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        Total
+                                                                        Modificadores
+                                                                    </th>
+                                                                    <th>
+                                                                        Total
+                                                                        Eficiencia
+                                                                    </th>
+                                                                    <th>
+                                                                        Total
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>
+                                                                        {
+                                                                            efficiencyPointsCalculus.totalModifiersPoints
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        {
+                                                                            efficiencyPointsCalculus.previousStrengthPoints
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        {efficiencyPointsCalculus.totalModifiersPoints +
+                                                                            efficiencyPointsCalculus.previousStrengthPoints}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table> */}
+                                                        <TotalPointsTable
+                                                            previousStrengthPoints={efficiencyPointsCalculus.previousStrengthPoints}
+                                                            totalModifiersPoints={efficiencyPointsCalculus.totalModifiersPoints}
+                                                            type="failure"
+                                                        ></TotalPointsTable>
                                                     </div>
                                                     <p className="text-center">
-                                                        Tienes{" "}
+                                                        Tendrías{" "}
                                                         <span className="font-black">
                                                             {
-                                                                chosenEfficiency.strength_score
+                                                                updatedChosenEfficiency.strength_score
                                                             }
                                                         </span>{" "}
                                                         puntos en la eficiencia{" "}
-                                                        <span className="italic">{`"${chosenEfficiency.title}"`}</span>
+                                                        <span className="italic">{`"${updatedChosenEfficiency.title}"`}</span>
                                                         .
                                                     </p>
                                                     <p className="text-center">
@@ -691,17 +816,75 @@ export default function ChallengingEvent() {
                                                             )
                                                         )}
                                                     </div>
+                                                    <div className="grid grid-cols-3">
+                                                        <CalculusColumnTable
+                                                            type="Productos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .products
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyProducts
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .products
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Proyectos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .projects
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEffficiencyProjects
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .projects
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Recursos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .resources
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyResources
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .resources
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                    </div>
+                                                    <div>
+                                                        <TotalPointsTable
+                                                            previousStrengthPoints={efficiencyPointsCalculus.previousStrengthPoints}
+                                                            totalModifiersPoints={efficiencyPointsCalculus.totalModifiersPoints}
+                                                            type="success"
+                                                        ></TotalPointsTable>
+                                                    </div>
                                                     <p className="text-center">
-                                                        Recuerda que tienes{" "}
+                                                        De modo que tendrías{" "}
                                                         <span className="font-black">
                                                             {
-                                                                chosenEfficiency.strength_score
+                                                                updatedChosenEfficiency.strength_score
                                                             }
                                                         </span>{" "}
                                                         puntos en la eficiencia{" "}
-                                                        <span className="italic">{`"${chosenEfficiency.title}"`}</span>
+                                                        <span className="italic">{`"${updatedChosenEfficiency.title}"`}</span>
                                                         .
                                                     </p>
+
                                                 </div>
                                                 <Button2
                                                     className="text-zinc-50 h-10"
@@ -730,15 +913,72 @@ export default function ChallengingEvent() {
                                                         No pasaste la 2da
                                                         prueba. 😪
                                                     </p>
+                                                    <div className="grid grid-cols-3">
+                                                        <CalculusColumnTable
+                                                            type="Productos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .products
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyProducts
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .products
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Proyectos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .projects
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEffficiencyProjects
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .projects
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Recursos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .resources
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyResources
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .resources
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                    </div>
+                                                    <div>
+                                                        <TotalPointsTable
+                                                            previousStrengthPoints={efficiencyPointsCalculus.previousStrengthPoints}
+                                                            totalModifiersPoints={efficiencyPointsCalculus.totalModifiersPoints}
+                                                            type="failure"
+                                                        ></TotalPointsTable>
+                                                    </div>
                                                     <p className="text-center">
-                                                        Tienes{" "}
+                                                        Así que tendrias{" "}
                                                         <span className="font-bold">
                                                             {
-                                                                chosenEfficiency.strength_score
+                                                                updatedChosenEfficiency.strength_score
                                                             }
                                                         </span>{" "}
                                                         puntos en la eficiencia{" "}
-                                                        <span className="italic">{`"${chosenEfficiency.title}"`}</span>
+                                                        <span className="italic">{`"${updatedChosenEfficiency.title}"`}</span>
                                                         .
                                                     </p>
                                                     <p className="text-center">
@@ -786,15 +1026,72 @@ export default function ChallengingEvent() {
                                                         Pasaste la 2da prueba.
                                                         🎉
                                                     </p>
+                                                    <div className="grid grid-cols-3">
+                                                        <CalculusColumnTable
+                                                            type="Productos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .products
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyProducts
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .products
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Proyectos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .projects
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEffficiencyProjects
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .projects
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Recursos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .resources
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyResources
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .resources
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                    </div>
+                                                    <div>
+                                                        <TotalPointsTable
+                                                            previousStrengthPoints={efficiencyPointsCalculus.previousStrengthPoints}
+                                                            totalModifiersPoints={efficiencyPointsCalculus.totalModifiersPoints}
+                                                            type="success"
+                                                        ></TotalPointsTable>
+                                                    </div>
                                                     <p className="text-center">
                                                         Tienes{" "}
                                                         <span className="font-black">
                                                             {
-                                                                chosenEfficiency.strength_score
+                                                                updatedChosenEfficiency.strength_score
                                                             }
                                                         </span>{" "}
                                                         puntos en la eficiencia{" "}
-                                                        <span className="italic">{`"${chosenEfficiency.title}"`}</span>
+                                                        <span className="italic">{`"${updatedChosenEfficiency.title}"`}</span>
                                                         .
                                                     </p>
                                                     <p className="text-center">
@@ -844,15 +1141,72 @@ export default function ChallengingEvent() {
                                                         Pasaste la 1era prueba.
                                                         🎉
                                                     </p>
+                                                    <div className="grid grid-cols-3">
+                                                        <CalculusColumnTable
+                                                            type="Productos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .products
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyProducts
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .products
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Proyectos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .projects
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEffficiencyProjects
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .projects
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                        <CalculusColumnTable
+                                                            type="Recursos"
+                                                            numberOfEnabledModifiers={
+                                                                efficiencyPointsCalculus
+                                                                    .profitableEfficiencyModifiers
+                                                                    .resources
+                                                            }
+                                                            pointSystem={
+                                                                pointsSystemPerEfficiencyResources
+                                                            }
+                                                            totalPoints={
+                                                                efficiencyPointsCalculus
+                                                                    .chosenEfficiencyPoints
+                                                                    .resources
+                                                            }
+                                                        ></CalculusColumnTable>
+                                                    </div>
+                                                    <div>
+                                                        <TotalPointsTable
+                                                            previousStrengthPoints={efficiencyPointsCalculus.previousStrengthPoints}
+                                                            totalModifiersPoints={efficiencyPointsCalculus.totalModifiersPoints}
+                                                            type="success"
+                                                        ></TotalPointsTable>
+                                                    </div>
                                                     <p className="text-center">
                                                         Tienes{" "}
                                                         <span className="font-bold">
                                                             {
-                                                                chosenEfficiency.strength_score
+                                                                updatedChosenEfficiency.strength_score
                                                             }
                                                         </span>{" "}
                                                         puntos en la eficiencia{" "}
-                                                        <span className="italic">{`"${chosenEfficiency.title}"`}</span>
+                                                        <span className="italic">{`"${updatedChosenEfficiency.title}"`}</span>
                                                         .
                                                     </p>
                                                     <p className="text-center">
@@ -1107,44 +1461,92 @@ export function FinalResultsTile({
     );
 }
 
-// interface CalculusColumnTableProps extends React.HTMLProps<HTMLDivElement> {
-//     type: 'Productos' | 'Proyectos' | 'Recursos';
-//     numberOfEnabledModifiers: number;
-//     className?: string;
-// }
+interface CalculusColumnTableProps extends React.HTMLProps<HTMLDivElement> {
+    type: "Productos" | "Proyectos" | "Recursos";
+    numberOfEnabledModifiers: number;
+    pointSystem: number;
+    totalPoints: number;
+    className?: string;
+}
 
-// function CalculusColumnTable() {
-//     return (
-//         <div className="flex flex-col gap-1 items-center">
-//             <p className="text-center">Recursos:</p>
-//             <div className="flex space-x-2">
-//                 <div className="flex space-x-1">
-//                     <span>
-//                         {
-//                             efficiencyPointsCalculus
-//                                 .profitableEfficiencyModifiers.resources
-//                         }
-//                     </span>
-//                     <img
-//                         src="/public/assets/icons/check.png"
-//                         alt="Check"
-//                         title="Número de productos activados"
-//                         className="size-3 min-w-3 aspect-square"
-//                     />
-//                 </div>
-//                 <p>
-//                     x{" "}
-//                     <span className="text-green-600">
-//                         {resourcesEfficiencyPoints}
-//                     </span>
-//                 </p>
-//             </div>
-//             <p className="text-center font-black">
-//                 {efficiencyPointsCalculus.chosenEfficiencyPoints.resources}
-//             </p>
-//         </div>
-//     );
-// }
+function CalculusColumnTable({
+    type,
+    pointSystem,
+    numberOfEnabledModifiers,
+    totalPoints,
+    ...rest
+}: CalculusColumnTableProps) {
+    return (
+        <div {...rest} className="flex flex-col gap-1 items-center">
+            <p className="text-center">{type}</p>
+            <div className="flex space-x-2">
+                <div className="flex space-x-1">
+                    <span>{numberOfEnabledModifiers}</span>
+                    <img
+                        src="/assets/icons/check.png"
+                        alt="Check"
+                        title={`Número de ${type} activados`}
+                        className="size-3 min-w-3 aspect-square"
+                    />
+                </div>
+                <p>
+                    x <span className="text-green-600">{pointSystem}</span>
+                </p>
+            </div>
+            <p className="text-center font-black">{totalPoints}</p>
+        </div>
+    );
+}
+
+interface TotalPointsTableProps extends React.HTMLProps<HTMLDivElement> {
+    totalModifiersPoints: number;
+    previousStrengthPoints: number;
+    type:"success" | "failure";
+    className?: string;
+}
+
+function TotalPointsTable({
+    totalModifiersPoints,
+    previousStrengthPoints,
+    type,
+    ...rest
+}: TotalPointsTableProps) {
+    const TotalTwColor = type === "success" ? "text-green-600" : "text-red-600";
+    return (
+        // <table className="max-w-[500px] min-w-[450px] table-auto" {...rest}>
+        //     <thead>
+        //         <tr>
+        //             <th className="text-center">Total Modificadores</th>
+        //             <th className="text-center">Total Eficiencia</th>
+        //             <th className="text-center">Total</th>
+        //         </tr>
+        //     </thead>
+        //     <tbody>
+        //         <tr>
+        //             <td className="text-center">{totalModifiersPoints}</td>
+        //             <td className="text-center">{previousStrengthPoints}</td>
+        //             <td className="text-center">{totalModifiersPoints + previousStrengthPoints}</td>
+        //         </tr>
+        //     </tbody>
+        // </table>
+        <div className="grid grid-cols-3" {...rest}>
+            <div className="flex flex-col gap-1 items-center">
+                <p className="text-center">Total Modificadores</p>
+                <p className="text-center font-black">{totalModifiersPoints}</p>
+            </div>
+            <div className="flex flex-col gap-1 items-center">
+                <p className="text-center">Total Eficiencia</p>
+                <p className="text-center font-black">{previousStrengthPoints}</p>
+            </div>
+            <div className="flex flex-col gap-1 items-center">
+                <p className="text-center">Total</p>
+                <p className={twMerge("text-center font-black", TotalTwColor)}>
+                    {totalModifiersPoints + previousStrengthPoints}
+                </p>
+            </div>
+        </div>
+    );
+}
 
 // type StreamedEfficiencyData = {
 //     [key: string]: number;

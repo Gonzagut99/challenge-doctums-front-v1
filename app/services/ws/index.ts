@@ -54,7 +54,7 @@ class WebSocketService implements IWebSocketService {
     private keepAliveInterval: NodeJS.Timeout | null = null;
     private localPlayerAvatarInfo: Player | null = null;
     public localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
-    public localPlayerPreviosEfficiencies: Record<string, number> = {
+    public localPlayerPreviousEfficiencies: Record<string, number> = {
         "1": 0,
         "2": 0,
         "3": 0,
@@ -640,7 +640,7 @@ class WebSocketService implements IWebSocketService {
                 this.localPlayerDynamicInfo.budget = message.player.budget;
                 this.localPlayerDynamicInfo.score = message.player.score;
             }
-            this.localPlayerPreviosEfficiencies = this.localPlayerEfficiencies;
+            this.localPlayerPreviousEfficiencies = this.localPlayerEfficiencies;
             this.localPlayerEfficiencies = message.player.effiencies;
             console.log("Game Event", message);
             emitter.emit('game', message);
