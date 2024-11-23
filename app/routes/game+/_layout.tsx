@@ -376,7 +376,7 @@ export default function _layout() {
                                                 <h4 className="text-sm font-easvhs">
                                                     {button.title}
                                                 </h4>
-                                                <p className="text-[0.60rem] font-easvhs">
+                                                <p className="text-[12px] font-rajdhani font-semibold">
                                                     {button.description}
                                                 </p>
                                             </div>
@@ -537,7 +537,7 @@ export default function _layout() {
                                     newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
                                     !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                     (
-                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out cursor-pointer max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md" onClick={() => navigate(`/game/actionPlan`)}>
                                             {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
@@ -546,16 +546,16 @@ export default function _layout() {
                                             <div className="flex gap-2">
                                                 <figure className="size-12">
                                                     <img
-                                                        src={'/assets/icons/cashIcon.png'}
+                                                        src={'/assets/icons/action-plan.png'}
                                                         alt="Icon"
-                                                        className="object-contain aspect-square size-12"
+                                                        className="object-contain aspect-square h-full w-full size-12"
                                                     />
                                                 </figure>
-                                                <div className="grow">
+                                                <div className="grow max-w-64">
                                                     <h4 className="text-sm font-easvhs">
                                                         Plan de acción
                                                     </h4>
-                                                    <p className="text-[0.60rem] font-easvhs">
+                                                    <p className="text-[0.60rem] font-rajdhani">
                                                         ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                     </p>
                                                 </div>
@@ -729,7 +729,7 @@ const gameControlButtons: GameControlButton[] = [
         icon: "/assets/icons/efficiencyIcon.png",
         title: "Ver mis Eficiencias",
         description:
-            "Habilidades especiales que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
+            "Habilidades que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
         control: "myEfficiencies",
     },
     {

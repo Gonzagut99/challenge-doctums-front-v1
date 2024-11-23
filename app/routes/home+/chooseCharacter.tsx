@@ -116,8 +116,8 @@ function ChooseCharacter() {
             </section>
             <section>
                 <RemixFormProvider {...form}>
-                    <Form className="flex flex-col gap-4 items-center" method="post" action="/home/chooseCharacter" onSubmit={handleSubmit}>
-                        <div className="flex gap-4 items-center justify-center">
+                    <Form className="flex flex-col gap-3 items-center" method="post" action="/home/chooseCharacter" onSubmit={handleSubmit}>
+                        <div className="flex gap-2 items-center justify-center">
                             <label htmlFor="name" className="text-2xl font-easvhs">
                                 Ingresa tu nombre:
                             </label>
@@ -219,8 +219,8 @@ export const CharacterCard = ({
                     className="object-contain"
                 />
                 </figure>
-                <div className="p-2 border-zinc-900 border-[3px] rounded-sm bg-white border-t-0 h-full">
-                <p className="font-easvhs text-[10px] text-pretty">
+                <div className="p-1 border-zinc-900 border-[3px] rounded-sm bg-white border-t-0 h-full">
+                <p className="font-rajdhani font-semibold text-[12px] text-pretty">
                     {description}
                 </p>
                 </div>
