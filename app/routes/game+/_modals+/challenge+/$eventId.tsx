@@ -174,6 +174,12 @@ export default function ChallengingEvent() {
     function handleExitComplete() {
         navigate(-1);
     }
+
+    function handleEventComplete() {
+        navigate(-1);
+
+    }
+
   return (
     <AnimatePresence onExitComplete={handleExitComplete}>
     {isModalOpen && (
@@ -355,39 +361,50 @@ export default function ChallengingEvent() {
                                         
                                         </div>
                                         <Button2 className="text-zinc-50 h-10" onClick={() => handleShowSecondChallengeResults()}>
-                                        Enfrentar la 2da prueba
+                                            Enfrentar la 2da prueba
                                         </Button2>
                                     </>
                                 )
                             }
                             {
                                 showFirstChallengeResults && !eventResults.event.pass_first_challenge && showDiceResults && showSecondChallengeResults && !eventResults.event.pass_second_challenge && (
-                                    <div className="flex flex-col gap-1 py-4 px-44">
-                                        <p className="text-center text-2xl font-medium">
-                                            No pasaste la 2da prueba. 😪
-                                        </p>
-                                        <p className="text-center">
-                                            Tienes <span className="font-bold">{chosenEfficiency.strength_score}</span> puntos en la eficiencia {chosenEfficiency.title}.
-                                        </p>
-                                        <p className="text-center">
-                                            Necesitabas superar los <span className="font-bold">{eventResults.event.risk_points}</span> puntos para pasar.
-                                        </p>
-                                    </div>
+                                    <>
+                                        <div className="flex flex-col gap-1 py-4 px-44">
+                                            <p className="text-center text-2xl font-medium">
+                                                No pasaste la 2da prueba. 😪
+                                            </p>
+                                            <p className="text-center">
+                                                Tienes <span className="font-bold">{chosenEfficiency.strength_score}</span> puntos en la eficiencia {chosenEfficiency.title}.
+                                            </p>
+                                            <p className="text-center">
+                                                Necesitabas superar los <span className="font-bold">{eventResults.event.risk_points}</span> puntos para pasar.
+                                            </p>
+                                        </div>
+                                        <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
+                                            Aceptar
+                                        </Button2>
+                                    </>
                                 )
                             }
                             {
                                 showFirstChallengeResults && !eventResults.event.pass_first_challenge && showDiceResults && showSecondChallengeResults && eventResults.event.pass_second_challenge && (
-                                    <div className="flex flex-col gap-2 py-4 px-44">
-                                        <p className="text-center text-2xl font-medium">
-                                            Pasaste la 2da prueba. 🎉
-                                        </p>
-                                        <p className="text-center">
-                                            Tienes <span className="font-black">{chosenEfficiency.strength_score}</span> puntos en la eficiencia {chosenEfficiency.title}.
-                                        </p>
-                                        <p className="text-center">
-                                            Necesitabas superar los <span className="font-black">{eventResults.event.risk_points}</span> puntos de riesgo para pasar y lo lograste.
-                                        </p>
-                                    </div>
+                                    <>
+                                        <div className="flex flex-col gap-2 py-4 px-44">
+                                            <p className="text-center text-2xl font-medium">
+                                                Pasaste la 2da prueba. 🎉
+                                            </p>
+                                            <p className="text-center">
+                                                Tienes <span className="font-black">{chosenEfficiency.strength_score}</span> puntos en la eficiencia {chosenEfficiency.title}.
+                                            </p>
+                                            <p className="text-center">
+                                                Necesitabas superar los <span className="font-black">{eventResults.event.risk_points}</span> puntos de riesgo para pasar y lo lograste.
+                                            </p>
+                                        </div>
+                                        <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
+                                            Aceptar
+                                        </Button2>
+                                    </>
+                                    
                                 )
                             }
                             {
@@ -404,7 +421,7 @@ export default function ChallengingEvent() {
                                                 Necesitabas <span className="font-bold">{strengthEfficiencyPointsRequiredPerEventTable[eventResults.event.level]}</span> puntos para pasar y cumpliste.
                                             </p>
                                         </div>
-                                        <Button2 className="text-zinc-50 h-10" onClick={() => navigate(-1)}>
+                                        <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
                                             Aceptar
                                         </Button2>
                                     </>

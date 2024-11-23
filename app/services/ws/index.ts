@@ -74,7 +74,7 @@ class WebSocketService implements IWebSocketService {
     public updatedPlayersPositions: UpdatedPlayersPositions | null;
     private startGameResponse: GameStartMessage;
     private turnOrderStageResponse: TurnOrderStage;
-    private newTurn_storedData: StartNewTurn;
+    private newTurn_storedData: StartNewTurn | Record<string, any>;
     public submitPlan_localPlayerPlan: PlanActions = {
         products: [],
         projects: [],
@@ -87,7 +87,7 @@ class WebSocketService implements IWebSocketService {
         resources: []
     };
     private submitActionPlanEffects: SubmitPlanResponse;
-    public eventFlow_results: TurnEventResults;
+    public eventFlow_results: TurnEventResults | Record<string, any> ;
 
     private nextTurn_newTurnSettledInfo: NextTurnResponse;
 
@@ -268,6 +268,7 @@ class WebSocketService implements IWebSocketService {
         if(this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
             this.socket.onmessage = (event) => {
                 const message = JSON.parse(event.data.toString());
+                console.log("Message received", message);
                 this.handleNotifications(message);
                 this.handleJoinGame(message);
                 this.handleStartGameResponse(message);
@@ -275,6 +276,9 @@ class WebSocketService implements IWebSocketService {
                 this.handleNewTurnStart(message);
                 this.handleAdvanceDays(message);
                 this.handleCanvasPlayerPositions(message);
+                this.handleActionPlanResponse(message);
+                this.handleSetNextTurn(message);
+                this.handleTurnEvent(message);
             };
         }
     }
@@ -408,11 +412,11 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(send);
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                this.handleActionPlanResponse(message);
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handleActionPlanResponse(message);
                 
-            };
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
@@ -427,11 +431,11 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(send);
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                this.handleTurnEvent(message);
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handleTurnEvent(message);
                 
-            };
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
@@ -446,11 +450,11 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(send);
 
-            this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data.toString());
-                this.handleSetNextTurn(message);
+            // this.socket.onmessage = (event) => {
+            //     const message = JSON.parse(event.data.toString());
+            //     this.handleSetNextTurn(message);
                 
-            };
+            // };
         } else {
             console.error("WebSocket is not open. Ready state:", this.socket?.readyState);
         }
@@ -635,6 +639,8 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'next_turn') {
             this.gameStateMessage = message;
             this.nextTurn_newTurnSettledInfo = message;
+            this.eventFlow_results = {};
+            this.newTurn_storedData = {}
 
             console.log("Next Turn", message);
             emitter.emit('game', message);

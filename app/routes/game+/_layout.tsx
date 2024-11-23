@@ -218,7 +218,12 @@ export default function _layout() {
             eventFlow_setHasNavigated(true);
             navigate(`/game/challenge/${eventFlow_eventId}`);
         }
+
+        if(eventFlow_hasNavigated && nextTurn_currentTurn != localPlayer?.id) {
+            eventFlow_setHasNavigated(false)
+        }
     }, [navigate, eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
+
 
 
 
@@ -227,7 +232,6 @@ export default function _layout() {
         method: "",
         message: "",
     });
-    const [actual_playersPositions, setPositions] = useState<PlayerCanvasState[]>([])
 
     //trigger turn_order_stage event from the backend
     const triggerTurnOrderStage = () => {
@@ -422,7 +426,7 @@ export default function _layout() {
                                             message={
                                                 currentPlayerTurnId ===
                                                 localPlayer?.id
-                                                    ? "Lanzar dados"
+                                                    ? "Lanzar dados y avanza"
                                                     : "Esperar..."
                                             }
                                             disabled={
@@ -648,7 +652,7 @@ export default function _layout() {
                                     nextTurn_currentTurn && nextTurn_method == "next_turn" && 
                                     (
                                         <ActionButtonManager
-                                            method="start_new_turn"
+                                            method="next_turn"
                                             wsActionTriggerer={triggerStartNewTurn}
                                             message={
                                                 currentPlayerTurnId ===
@@ -663,6 +667,29 @@ export default function _layout() {
                                         />
                                     )
                                 }
+
+                                {
+                                    eventFlow_hasNavigated && 
+                                    nextTurn_currentTurn == localPlayer?.id &&
+                                    (
+                                        <ActionButtonManager
+                                            method="next_turn"
+                                            wsActionTriggerer={triggerSetNextTurn}
+                                            message={
+                                                currentPlayerTurnId ===
+                                                localPlayer?.id
+                                                    ? "Terminar tu turno."
+                                                    : "Esperar..."
+                                            }
+                                            disabled={
+                                                currentPlayerTurnId !==
+                                                localPlayer?.id
+                                            }
+                                         />
+                                    )
+                                }
+
+
                             </div>
                         </section>
                     </article>
