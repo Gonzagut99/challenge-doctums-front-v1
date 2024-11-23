@@ -154,7 +154,7 @@ class WebSocketService implements IWebSocketService {
 
     newTurn_getStoredLocalPlayerDaysAdvanced() {
         return {
-            days: this.newTurn_storedData?.thrown_dices.reduce((acc: number, dice: number) => acc + dice, 0),
+            days: this.newTurn_storedData?.days_advanced,
             dices: this.newTurn_storedData?.thrown_dices
         };
     }
@@ -657,8 +657,8 @@ class WebSocketService implements IWebSocketService {
             this.nextTurn_newTurnSettledInfo = message;
             //Here we can make it possible to show the previous player results' summary            this.eventFlow_results = {};
             this.newTurn_storedData = {}
-            this.submitActionPlanEffects = {};
             this.eventFlow_results = {};
+            this.submitActionPlanEffects = {};
 
             console.log("Next Turn", message);
             emitter.emit('game', message);
