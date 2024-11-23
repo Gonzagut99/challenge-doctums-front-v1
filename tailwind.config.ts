@@ -18,7 +18,8 @@ export default {
     			dogica: ["Dogica", "monospace"],
     			'dogica-bold': ["DogicaBold", "monospace"],
     			easvhs: ["Easvhs", "monospace"],
-    			montserrat: ["Montserrat", "sans-serif"]
+    			montserrat: ["Montserrat", "sans-serif"],
+				rajdhani: ["Rajdhani", "sans-serif"]
     		},
     		borderRadius: {
     			lg: 'var(--radius)',
