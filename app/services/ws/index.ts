@@ -154,7 +154,7 @@ class WebSocketService implements IWebSocketService {
 
     newTurn_getStoredLocalPlayerDaysAdvanced() {
         return {
-            days: this.newTurn_storedData?.days_advanced,
+            days: this.newTurn_storedData?.thrown_dices.reduce((acc: number, dice: number) => acc + dice, 0),
             dices: this.newTurn_storedData?.thrown_dices
         };
     }
