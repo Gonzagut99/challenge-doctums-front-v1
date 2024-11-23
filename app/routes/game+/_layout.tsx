@@ -299,7 +299,7 @@ export default function _layout() {
                 <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
                     <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                         <section className="flex justify-center relative">
-                            <WhiteContainer>
+                            <WhiteContainer className="animate-jump-in ">
                                 <span className="text-sm text-zinc font-dogica-bold px-5">
                                     {
                                         hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
@@ -307,7 +307,7 @@ export default function _layout() {
                                 </span>
                             </WhiteContainer>
                             <div className="absolute right-0 w-fit">
-                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-thrice animate-duration-[3000ms] animate-ease-in-out shadow-sm" onClick={()=>navigate('/game/events')}>
+                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out" onClick={()=>navigate('/game/events')}>
                                     <img
                                         src="/assets/icons/efficiencyIcon.png"
                                         alt="Back Button"
