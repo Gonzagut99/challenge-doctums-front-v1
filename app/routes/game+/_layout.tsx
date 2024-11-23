@@ -702,8 +702,8 @@ export default function _layout() {
                                                     : "Esperar..."
                                             }
                                             disabled={
-                                                currentPlayerTurnId !==
-                                                localPlayer?.id
+                                                (currentPlayerTurnId !==
+                                                    localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
                                             }
                                          />
                                     )
