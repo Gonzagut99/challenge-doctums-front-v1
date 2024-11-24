@@ -6,7 +6,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 import { useLiveLoader } from "~/utils/use-live-loader";
 
-import { WhiteContainer } from "~/components/custom/WhiteContainer";
+import { WhiteContainer, WhiteContainerLarge } from "~/components/custom/WhiteContainer";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { PageContainer } from "~/components/custom/PageContainer";
 import {
@@ -389,7 +389,7 @@ export default function _layout() {
                                                 <h4 className="text-sm font-easvhs">
                                                     {button.title}
                                                 </h4>
-                                                <p className="text-[0.60rem] font-easvhs">
+                                                <p className="text-[12px] font-rajdhani font-semibold">
                                                     {button.description}
                                                 </p>
                                             </div>
@@ -453,6 +453,7 @@ export default function _layout() {
                                                 currentPlayerTurnId !==
                                                 localPlayer?.id
                                             }
+                                            hoverImgSrc={"/assets/buttons/ButtonPurple-hover.png"}
                                         />
                                     )}
 
@@ -549,7 +550,7 @@ export default function _layout() {
                                     newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
                                     !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                     (
-                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out cursor-pointer max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
+                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md" onClick={() => navigate(`/game/actionPlan`)}>
                                             {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
@@ -558,16 +559,16 @@ export default function _layout() {
                                             <div className="flex gap-2">
                                                 <figure className="size-12">
                                                     <img
-                                                        src={'/assets/icons/cashIcon.png'}
+                                                        src={'/assets/icons/action-plan.png'}
                                                         alt="Icon"
-                                                        className="object-contain aspect-square size-12"
+                                                        className="object-contain aspect-square h-full w-full size-12"
                                                     />
                                                 </figure>
-                                                <div className="grow">
+                                                <div className="grow max-w-64">
                                                     <h4 className="text-sm font-easvhs">
                                                         Plan de acción
                                                     </h4>
-                                                    <p className="text-[0.60rem] font-easvhs">
+                                                    <p className="text-[0.60rem] font-rajdhani">
                                                         ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                     </p>
                                                 </div>
@@ -741,7 +742,7 @@ const gameControlButtons: GameControlButton[] = [
         icon: "/assets/icons/efficiencyIcon.png",
         title: "Ver mis Eficiencias",
         description:
-            "Habilidades especiales que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
+            "Habilidades que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
         control: "myEfficiencies",
     },
     {
@@ -836,7 +837,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
         ) ?? charactersData[0];
 
     return (
-        <WhiteContainer className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 animate-fade-down animate-once">
+        <WhiteContainerLarge className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 animate-fade-down animate-once">
             <div className="grid grid-cols-1 grid-rows-[1fr_1fr] max-h-full">
                 <header className="flex gap-2 mb-1">
                     <figure
@@ -903,7 +904,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                     </div>
                 </div>
             </div>
-        </WhiteContainer>
+        </WhiteContainerLarge>
     );
 }
 function PlayerCard({ player }: { player: TurnOrderPlayer }) {
@@ -979,6 +980,7 @@ interface DynamicActionButtonProps extends React.HTMLProps<HTMLButtonElement> {
     message?: string;
     children?: React.ReactNode;
     buttonImgSrc?: string;
+    hoverImgSrc?: string;
     type?: "submit" | "reset" | "button";
 }
 
@@ -990,15 +992,15 @@ export function ActionButtonManager(props: DynamicActionButtonProps) {
         case "turn_order_stage":
             return <DynamicActionButton {...rest} name={method}/>;
         case "start_new_turn":
-                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"  name={method}/>;
         case "days_advanced":
-                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method}/>;
         case "submit_plan":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
         case "turn_event_flow":
                 return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
         case "next_turn":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         default:
             return null;
     }
@@ -1011,19 +1013,37 @@ const DynamicActionButton = ({
     className,
     children,
     buttonImgSrc="/assets/buttons/ButtonPurple.png",
+    hoverImgSrc="/assets/buttons/ButtonPurple-hover.png",
     ...rest
 }: Omit<DynamicActionButtonProps, 'method'>) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center animate-jump-in disabled:opacity-60", className)} type={type} onClick={wsActionTriggerer}>
-            <img
-                className="w-full absolute inset-0 h-full"
-                src={buttonImgSrc}
-                alt="Button"
-            />
-            <p className="z-10 font-easvhs text-center text-white">
-                {message ?? children}
-            </p>
-        </button>
+        <button
+        {...rest}
+        className={twMerge(
+            "relative w-60 aspect-[4/1] flex items-center justify-center animate-jump-in group overflow-hidden",
+            "disabled:opacity-60",
+            className
+        )}
+        type={type}
+        onClick={wsActionTriggerer}
+    >
+     
+        <img
+            className="absolute inset-0 w-full h-full block group-hover:hidden"
+            src={buttonImgSrc}
+            alt="Button"
+        />
+       
+        <img
+            className="absolute inset-0 w-full h-full hidden group-hover:block"
+            src={hoverImgSrc}
+            alt="Button Hover"
+        />
+        
+        <p className="z-10 font-easvhs text-center text-white">
+            {message ?? children}
+        </p>
+    </button>
     );
 }
 
@@ -1034,6 +1054,7 @@ interface LocalStateDynamicButtonProps extends React.HTMLProps<HTMLButtonElement
     buttonImgSrc?: string;
     darkText?: boolean;
     type?: "submit" | "reset" | "button";
+    hoverImgSrc?: string;
 }
 
 const LocalStateDynamicButton = ({
@@ -1044,18 +1065,27 @@ const LocalStateDynamicButton = ({
     children,
     buttonImgSrc="/assets/buttons/ButtonPurple.png",
     darkText=false,
+    hoverImgSrc="/assets/buttons/ButtonPurple-hover.png",
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
         <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center animate-jump-in disabled:opacity-60", className)} type={type} onClick={onClick}>
-            <img
-                className="w-full absolute inset-0 h-full"
-                src={buttonImgSrc}
-                alt="Button"
-            />
-            <p className={twMerge("z-10 font-easvhs text-center", darkText ? "text-black" : "text-white")}>
-                {message ?? children}
-            </p>
+         
+        <img
+            className="absolute inset-0 w-full h-full block group-hover:hidden"
+            src={buttonImgSrc}
+            alt="Button"
+        />
+       
+        <img
+            className="absolute inset-0 w-full h-full hidden group-hover:block"
+            src={hoverImgSrc}
+            alt="Button Hover"
+        />
+        
+        <p className="z-10 font-easvhs text-center text-white">
+            {message ?? children}
+        </p>
         </button>
     );
 }
