@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
+import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
@@ -139,7 +140,7 @@ export default function BuyProjects() {
                     onDismiss={handleDismiss}
                 >
                     <div className="flex flex-col gap-2">
-                        <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg">
                             Misiones o tareas que al pasar tres meses te otorgan
                             productos.
                             {"\n"}
@@ -186,7 +187,7 @@ export default function BuyProjects() {
                                                     </div>
                                                 )
                                             }
-                                            <button
+                                            {/* <button
                                                 className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2 disabled:opacity-50"
                                                 onClick={() =>
                                                     handleSelectProject(
@@ -214,7 +215,14 @@ export default function BuyProjects() {
                                                 <span className="font-easvhs text-lg">
                                                     {project.cost}
                                                 </span>
-                                            </button>
+                                            </button> */}
+                                            <CostButton
+                                                alreadyAcquired={alreadyAcquired}
+                                                product={{ id: project.id, cost: project.cost }}
+                                                handleSelectProduct={handleSelectProject}
+                                                modifierType="projects"
+                                            >
+                                            </CostButton>
                                             {/* <span className="text-green-500">
                                                     {product.cost}
                                             </span> */}

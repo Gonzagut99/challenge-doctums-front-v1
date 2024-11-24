@@ -81,7 +81,7 @@ function Index() {
             </header>
             <div className="flex flex-col gap-4">
                 <Button onClick={handleSubmit} hoverImgSrc="/assets/buttons/Button-hover.png" disabled={fetcher.state != 'idle'}>
-                    <span className="z-10  text-white font-easvhs text-2xl group-hover:opacity-60">
+                    <span className="z-10  text-white font-easvhs text-2xl group-hover:opacity-90">
                         {
                             fetcher.state === "submitting" || fetcher.state === "loading" ? "Creando partida..." : "Crear partida"
                         }
@@ -89,7 +89,7 @@ function Index() {
                 </Button>
                 <Link to={"/home/joinGame"}>
                     <Button hoverImgSrc="/assets/buttons/Button-hover.png">
-                        <span className="z-10 text-white font-easvhs text-2xl group-hover:opacity-60">
+                        <span className="z-10 text-white font-easvhs text-2xl group-hover:opacity-90">
                             Unirse a partida
                         </span>
                     </Button>

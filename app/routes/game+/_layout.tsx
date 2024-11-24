@@ -321,7 +321,7 @@ export default function _layout() {
                                 </span>
                             </WhiteContainer>
                             <div className="absolute right-0 w-fit">
-                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out" onClick={()=>navigate('/game/events')}>
+                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={()=>navigate('/game/events')}>
                                     <img
                                         src="/assets/icons/efficiencyIcon.png"
                                         alt="Back Button"
@@ -568,7 +568,7 @@ export default function _layout() {
                                                     <h4 className="text-sm font-easvhs">
                                                         Plan de acción
                                                     </h4>
-                                                    <p className="text-[0.60rem] font-rajdhani">
+                                                    <p className="text-xs font-rajdhani font-bold">
                                                         ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                     </p>
                                                 </div>
@@ -598,7 +598,7 @@ export default function _layout() {
                                                         <h4 className="text-sm font-easvhs">
                                                             ¡Es hora de enfrentar el evento!
                                                         </h4>
-                                                        <p className="text-[0.60rem] font-easvhs">
+                                                        <p className="text-xs font-rajdhani font-bold">
                                                             ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
                                                             Da CLICK en el botón para ver el resultado.
                                                         </p>
@@ -645,7 +645,7 @@ export default function _layout() {
                                                         <h4 className="text-sm font-easvhs">
                                                             ¡Es fin de semana!
                                                         </h4>
-                                                        <p className="text-[0.60rem] font-easvhs">
+                                                        <p className="text-xs font-rajdhani font-bold">
                                                             ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
                                                         </p>
                                                     </div>
@@ -1020,7 +1020,7 @@ const DynamicActionButton = ({
         <button
         {...rest}
         className={twMerge(
-            "relative w-60 aspect-[4/1] flex items-center justify-center group overflow-hidden",
+            "relative w-60 aspect-[4/1] flex items-center justify-center group overflow-hidden animate-jump-in",
             "disabled:opacity-60",
             className
         )}
@@ -1069,7 +1069,7 @@ const LocalStateDynamicButton = ({
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={onClick}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60 animate-jump-in", className)} type={type} onClick={onClick}>
          
         <img
             className="absolute inset-0 w-full h-full block group-hover:hidden"
@@ -1086,7 +1086,7 @@ const LocalStateDynamicButton = ({
         <p className="z-10 font-easvhs text-center text-white">
             {message ?? children}
         </p>
-        </button>
+     </button>
     );
 }
 

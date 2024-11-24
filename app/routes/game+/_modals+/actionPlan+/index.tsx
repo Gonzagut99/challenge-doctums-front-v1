@@ -121,7 +121,7 @@ export default function ActionPlan() {
             {isModalOpen && (
                 <Modal title="Plan de Acción" onDismiss={handleDismiss}>
                     <div className="flex flex-col gap-2">
-                        <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg">
                             Ha llegado el momento de planear tu plan de acción.
                             Dale click a cada item para que puedas comprar.
                         </p>
@@ -147,7 +147,7 @@ export default function ActionPlan() {
                                                 <h4 className="text-sm font-easvhs">
                                                     {button.title}
                                                 </h4>
-                                                <p className="text-[0.60rem] font-easvhs">
+                                                <p className="text-sm font-semibold font-rajdhani line-clamp-2" title={button.description}>
                                                     {button.description}
                                                 </p>
                                             </div>
@@ -188,7 +188,7 @@ export default function ActionPlan() {
                                             )}
                                             {
                                                 modifiersCheckout.products.length === 0 && (
-                                                    <p className="text-center font-easvhs text-sm text-gray-500">
+                                                    <p className="text-center font-rajdhani text-base text-gray-500">
                                                         No se han seleccionado productos
                                                     </p>
                                                 )
@@ -219,7 +219,7 @@ export default function ActionPlan() {
                                             )}
                                             {
                                                 modifiersCheckout.resources.length === 0 && (
-                                                    <p className="text-center font-easvhs text-sm text-gray-500">
+                                                    <p className="text-center font-rajdhani text-base text-gray-500">
                                                         No se han seleccionado recursos
                                                     </p>
                                                 )
@@ -250,7 +250,7 @@ export default function ActionPlan() {
                                             )}
                                             {
                                                 modifiersCheckout.projects.length === 0 && (
-                                                    <p className="text-center font-easvhs text-sm text-gray-500">
+                                                    <p className="text-center font-rajdhani text-base text-gray-500">
                                                         No se han seleccionado proyectos
                                                     </p>
                                                 )

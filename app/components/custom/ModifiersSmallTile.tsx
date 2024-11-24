@@ -46,7 +46,7 @@ export const ModifiersSmallTile = ({
             <div className={twMerge("flex gap-2 items-start font-easvhs border-[3px] border-zinc-900 rounded-sm p-1 justify-between", rest.className)} {...rest}>
                 <div className="flex gap-2 items-start">
                     <img src={src} alt="Efficiency Icon" className="size-8"/>
-                    <p className="text-[13px]">
+                    <p className="text-sm font-rajdhani font-semibold">
                         { title }
                     </p>
                 </div>
@@ -81,7 +81,7 @@ export const ModifiersSmallTile = ({
         return <div className={twMerge("flex gap-2 items-start font-easvhs border-[3px] border-zinc-900 rounded-sm p-1 justify-between", rest.className)} {...rest} >
             <div className="flex gap-2 items-start">
                 <img src={type == 'project'? "/assets/icons/projectsIcon.png": "/assets/icons/resourcesIcon.png"} alt="Modifier Icon" className="size-8"/>
-                <p className="text-[13px]">
+                <p className="text-sm font-rajdhani font-semibold">
                     { title}
                 </p>
             </div>

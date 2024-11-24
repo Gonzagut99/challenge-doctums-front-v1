@@ -59,7 +59,11 @@ export const loader = async () => {
         globalWebSocketService.getLocalPlayerDynamicInfo();
     const submitPlanResponse = globalWebSocketService.getSubmitPlanEffects();
     const productTileData: ProductTileData[] =
-        submitPlanResponse.player.products.map((product) => {
+        submitPlanResponse.player.products.map((product:{
+            product_id: string;
+            is_enabled: boolean;
+            purchased_requirements: string[];
+        }) => {
             const { product_id, is_enabled, purchased_requirements } = product;
             const productInfo = products[product_id];
             const allRequirements = productInfo.requirements
@@ -91,7 +95,10 @@ export const loader = async () => {
             };
         });
     const projectTileData: ProjectTileData[] =
-        submitPlanResponse.player.projects.map((project) => {
+        submitPlanResponse.player.projects.map((project:{
+            project_id: string;
+            remaining_time: number;
+        }) => {
             const { project_id, remaining_time } = project;
             return {
                 project_id,
@@ -103,7 +110,10 @@ export const loader = async () => {
             };
         });
     const resourceTileData: ResourceTileData[] =
-        submitPlanResponse.player.resources.map((resource) => {
+        submitPlanResponse.player.resources.map((resource:{
+            resource_id: string;
+            remaining_time: number;
+        }) => {
             const { resource_id, remaining_time } = resource;
             return {
                 resource_id,
@@ -158,7 +168,7 @@ export default function WidgetDetailRoute() {
                         <p className="text-lg font-easvhs">
                             Ahora tienes estos modificadores
                         </p>
-                        <p className="text-xs">
+                        <p className="text-sm font-rajdhani font-semibold">
                             Tus productos activados te ayudarán a pasar eventos.
                         </p>
                     </div>

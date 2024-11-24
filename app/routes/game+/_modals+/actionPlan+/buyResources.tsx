@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
+import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
@@ -144,12 +145,12 @@ export default function BuyResources() {
                 >
                     <div className="flex flex-col gap-4">
                         <div>
-                            <p className="space-y-2 px-5 py-4 font-easvhs text-lg">
+                            <p className="space-y-2 px-5 py-4 font-rajdhani font-semibold text-lg leading-snug">
                                 Contrata recursos humanos que te ayuden a
                                 desarrollan productos.
                             </p>
                             <div className="px-11">
-                                <div className="border-[3px] border-zinc-900 bg-[#FFE96F] rounded-md font-easvhs px-3 py-2 flex gap-2 items-center">
+                                <div className="border-[3px] border-zinc-900 bg-[#FFE96F] rounded-md font-rajdhani font-semibold text-lg px-3 py-2 flex gap-2 items-center leading-tight">
                                     <img
                                         src="/assets/icons/warningIcon.png"
                                         alt="WarningIcon"
@@ -204,7 +205,7 @@ export default function BuyResources() {
                                                     </div>
                                                 )
                                             }
-                                            <button className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2 disabled:opacity-50" onClick={() =>
+                                            {/* <button className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2 disabled:opacity-50" onClick={() =>
                                                     handleSelectResources(
                                                         resource.id
                                                     )
@@ -229,7 +230,13 @@ export default function BuyResources() {
                                                 <span className="font-easvhs text-lg">
                                                     {resource.cost}
                                                 </span>
-                                            </button>
+                                            </button> */}
+                                            <CostButton
+                                                alreadyAcquired={alreadyAcquired}
+                                                product={{ id: resource.id, cost: resource.cost }}
+                                                handleSelectProduct={handleSelectResources}
+                                                modifierType="resources"
+                                            ></CostButton>
                                             {/* <span className="text-green-500">
                                                     {product.cost}
                                             </span> */}

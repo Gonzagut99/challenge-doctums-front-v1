@@ -37,7 +37,7 @@ export const charactersData: CharacterData[] = [
         avatar: "/assets/characters/avatars/AvatarMale2.png",
         profession: "Ing. de Software",
         description:
-            "Ideal para proyectos que requieren soluciones técnicas avanzadas. En cuanto a habilidades blandas, es creativoy resiliente, capaz de adaptarse rápidamentea los cambios y aportar nuevas ideas en cada fase del proyecto.",
+            "Ideal para proyectos que requieren soluciones técnicas avanzadas. En cuanto a habilidades blandas, es creativo y resiliente, capaz de adaptarse rápidamentea los cambios y aportar nuevas ideas en cada fase del proyecto.",
         color: "bg-[#29AA5B]",
         twTextColor: "text-[#29AA5B]",
     },

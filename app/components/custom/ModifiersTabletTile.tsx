@@ -19,8 +19,8 @@ export function ModifierTabletTile({ children,className, tabletTileData, already
                     {tabletTileData.title}
                 </p>
             </header>
-            <div className="font-easvhs h-full">
-                <p className="text-[10px]">{tabletTileData.productDescription}</p>
+            <div className="font-rajdhani h-full">
+                <p className="text-xs font-semibold">{tabletTileData.productDescription}</p>
                 <div className="grid grid-cols-2 h-full pb-3">
                     <div className="flex gap-1 flex-wrap h-fit">
                     {
@@ -38,7 +38,7 @@ export function ModifierTabletTile({ children,className, tabletTileData, already
                     }
                     {
                         tabletTileData.products.length === 0 && (
-                            <span className="text-[10px] font-easvhs opacity-50 pt-2">Ninguno</span>
+                            <span className="text-sm font-rajdhani font-semibold opacity-50 pt-2">Ninguno</span>
                         )
                     }
                     </div>

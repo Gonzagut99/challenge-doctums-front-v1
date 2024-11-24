@@ -365,7 +365,7 @@ export default function ChallengingEvent() {
                     <div className="flex flex-col gap-3 py-2 max-h-[500px] overflow-auto scrollbar-thin">
                         <div className="flex flex-col gap-1">
                             <h2 className="font-easvhs text-md">DESCRIPCIÓN</h2>
-                            <p className="font-easvhs text-sm line-clamp-3 overflow-hidden h-fit">
+                            <p className="font-rajdhani text-sm line-clamp-3 leading-tight overflow-hidden h-fit font-semibold">
                                 {eventData.description}
                             </p>
                         </div>
@@ -398,7 +398,7 @@ export default function ChallengingEvent() {
                                     alt="Check"
                                     className="size-8"
                                 />
-                                <p className="text-sm text-center">
+                                <p className="text-sm text-center font-rajdhani font-semibold leading-tight ">
                                     Si tienes o has comprado alguno de estos
                                     modificadores, y estos estan activos, te
                                     otorgarán puntos para pasar el evento.
@@ -552,7 +552,7 @@ export default function ChallengingEvent() {
                                         eficiencia random entre las requeridas
                                     </p>
                                 </div>
-                                <div className="flex flex-col gap-2 items-center">
+                                <div className="flex flex-col gap-2 items-center font-rajdhani font-semibold leading-tight">
                                     <p className="text-base">
                                         Los eventos de{" "}
                                         <span className="font-black">{`Nivel ${eventResults.event.level}`}</span>{" "}
