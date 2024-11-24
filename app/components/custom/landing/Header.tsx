@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ButtonContact } from "./Buttons";
+import { Link } from "@remix-run/react";
 
 const Header = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -7,9 +8,9 @@ const Header = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="relative max-h-20 my-2 w-[84%] lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
+    <header className="relative max-h-16 my-2 w-[84%] lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
       <nav
-        className="mx-auto  flex max-w-7xl mx-auto items-center justify-between px-6 py-4 lg:px-8"
+        className="mx-auto  flex max-w-7xl mx-auto items-center justify-between px-6 py-2 lg:px-8"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
@@ -49,12 +50,16 @@ const Header = () => {
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Beneficios
           </a>
+          <Link to="/landing-page/gameRules">
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Reglas del juego
           </a>
+          </Link>
+          
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Precios
           </a>
+          
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Contacto
           </a>

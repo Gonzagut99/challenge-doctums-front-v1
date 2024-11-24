@@ -35,7 +35,7 @@ import {
   
   export function AccordionRules() {
     return (
-      <Accordion type="single" collapsible className="w-full text-white font-montserrat ">
+      <Accordion type="single" collapsible className="w-full text-black font-montserrat ">
         {gameRules.map((rule) => (
           <AccordionItem key={rule.id} value={rule.id}>
             <AccordionTrigger className="text-lg">{rule.question}</AccordionTrigger>
