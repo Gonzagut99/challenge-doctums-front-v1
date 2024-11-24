@@ -82,7 +82,7 @@ function MyProducts() {
                     {myProducts.length > 0 &&
                         alreadyAcquiredProductsIds.length > 0 && (
                             <div className="flex flex-col gap-2 h-full">
-                                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                                <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-snug text-lg">
                                     Objetos o mejoras que, una vez adquiridos te
                                     ayudarán a ganar más puntos en futuras
                                     etapas.
@@ -113,7 +113,7 @@ function MyProducts() {
                                     )} */}
                                 </div>
                                 <div className="flex justify-center flex-grow items-center">
-                                    <Button2 onClick={goToProductCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs">Ver catálogo de productos</Button2>
+                                    <Button2 onClick={goToProductCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs py-4">Ver catálogo de productos</Button2>
                                 </div>
                             </div>
                         )}
@@ -121,10 +121,10 @@ function MyProducts() {
                         myProducts.length === 0 &&
                         alreadyAcquiredProductsIds.length === 0 && (
                             <div className="flex justify-center items-center flex-col h-full w-full">
-                                <p className="space-y-4 px-5 py-4 font-easvhs text-lg opacity-50 pt-2 text-center ">
+                                <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg opacity-50 pt-2 text-center ">
                                     No cuentas con ningun producto aún.
                                 </p>
-                                <Button2 onClick={goToProductCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs">Ver catálogo de productos</Button2>
+                                <Button2 onClick={goToProductCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs py-4">Ver catálogo de productos</Button2>
                             </div>
                         )
                     }

@@ -107,7 +107,7 @@ export default function EventDetail() {
             <div className="flex flex-col gap-3 py-2">
                 <div className="flex flex-col gap-1">
                     <h2 className="font-easvhs text-md">DESCRIPCIÓN</h2>
-                    <p className="font-easvhs text-sm line-clamp-3 overflow-hidden h-fit">{event.description}</p>
+                    <p className="font-rajdhani leading-tight font-semibold text-sm line-clamp-3 overflow-hidden h-fit">{event.description}</p>
                 </div>
                 <div className="flex flex-col gap-1">
                     <h2 className="font-easvhs text-md">
@@ -133,7 +133,7 @@ export default function EventDetail() {
                 <div className="flex flex-col bg-zinc-50 border-[3px] border-zinc-900">
                     <div className="border-b-[3px] border-zinc-900 p-1 font-easvhs flex gap-2 bg-[#99C579]">
                         <img src="/assets/icons/check.png" alt="Check" className="size-8" />
-                        <p className="text-sm text-center">Si tienes o has comprado alguno de estos modificadores, y estos estan activos, te otorgarán puntos para pasar el evento.</p>
+                        <p className="text-sm text-center font-rajdhani leading-tight font-semibold">Si tienes o has comprado alguno de estos modificadores, y estos estan activos, te otorgarán puntos para pasar el evento.</p>
                     </div>
                     <div className="py-1 px-2">
                         <div className="grid grid-cols-3 gap-4 font-easvhs">

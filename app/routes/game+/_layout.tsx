@@ -314,7 +314,7 @@ export default function _layout() {
                     <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                         <section className="flex justify-center relative">
                             <WhiteContainer className="animate-jump-in ">
-                                <span className="text-sm text-zinc font-dogica-bold px-5">
+                                <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
                                     {
                                         hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
                                     }
@@ -323,7 +323,7 @@ export default function _layout() {
                             <div className="absolute right-0 w-fit">
                                 <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={()=>navigate('/game/events')}>
                                     <img
-                                        src="/assets/icons/efficiencyIcon.png"
+                                        src="/assets/icons/evento.png"
                                         alt="Back Button"
                                         className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
                                         title="Ver catálogo de Eventos"
@@ -375,7 +375,7 @@ export default function _layout() {
                                         onClick={() =>
                                             navigate(`/game/${button.control}`)
                                         }
-                                        className="cursor-pointer animate-fade animate-once"
+                                        className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
                                     >
                                         <div className="flex gap-2">
                                             <figure className="w-16 min-w-16">
@@ -550,7 +550,7 @@ export default function _layout() {
                                     newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
                                     !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                     (
-                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md" onClick={() => navigate(`/game/actionPlan`)}>
+                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan`)}>
                                             {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
@@ -568,7 +568,7 @@ export default function _layout() {
                                                     <h4 className="text-sm font-easvhs">
                                                         Plan de acción
                                                     </h4>
-                                                    <p className="text-xs font-rajdhani font-bold">
+                                                    <p className="text-xs font-rajdhani font-semibold">
                                                         ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                     </p>
                                                 </div>
@@ -589,7 +589,7 @@ export default function _layout() {
                                                 <div className="flex gap-2">
                                                     <figure className="size-12">
                                                         <img
-                                                            src={'/assets/icons/efficiencyIcon.png'}
+                                                            src={'/assets/icons/evento.png'}
                                                             alt="Icon"
                                                             className="object-contain aspect-square size-12"
                                                         />
@@ -636,7 +636,7 @@ export default function _layout() {
                                                 <div className="flex gap-2">
                                                     <figure className="size-12">
                                                         <img
-                                                            src={'/assets/icons/efficiencyIcon.png'}
+                                                            src={'/assets/icons/weekend-rest.png'}
                                                             alt="Icon"
                                                             className="object-contain aspect-square size-12"
                                                         />
@@ -887,7 +887,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                     </div>
                 </header>
                 <div className="flex flex-col">
-                    <h4 className="text-[12px] font-easvhs">
+                    <h4 className="text-[12px] font-rajdhani font-semibold leading-tight">
                         Proyectos en marcha:
                     </h4>
                     <div className="grow flex items-center">
@@ -996,9 +996,9 @@ export function ActionButtonManager(props: DynamicActionButtonProps) {
         case "days_advanced":
                 return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method}/>;
         case "submit_plan":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         case "turn_event_flow":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
         case "next_turn":
                 return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         default:

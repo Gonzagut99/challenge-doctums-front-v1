@@ -15,7 +15,7 @@ export function EfficiencyPointsTile({ points, title, className, ...rest }: Effi
             {
                 points && (
                     <div className="h-full flex items-center">
-                    <p className="text-lg font-bold">
+                    <p className="text-lg font-semibold">
                         { points }
                     </p>
                 </div>

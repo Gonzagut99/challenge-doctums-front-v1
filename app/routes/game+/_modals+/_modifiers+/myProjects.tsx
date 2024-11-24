@@ -120,7 +120,7 @@ export default function MyProjects() {
                     {myProjects.length > 0 &&
                         alreadyAcquiredProductsIds.length > 0 && (
                             <div className="flex flex-col gap-2 h-full">
-                                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                                <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-snug text-lg">
                                     Objetos o mejoras que, una vez adquiridos te
                                     ayudarán a ganar más puntos en futuras etapa
                                 </p>
@@ -169,7 +169,7 @@ export default function MyProjects() {
                                 <div className="flex justify-center flex-grow items-center">
                                     <Button2
                                         onClick={goToProjectCatalogue}
-                                        className="px-4 h-fit text-zinc-50 font-easvhs"
+                                        className="px-4 h-fit text-zinc-50 font-easvhs py-4"
                                     >
                                         Ver catálogo de proyectos
                                     </Button2>
@@ -180,10 +180,10 @@ export default function MyProjects() {
                             myProjects.length === 0 &&
                             alreadyAcquiredProductsIds.length === 0 && (
                                 <div className="flex justify-center items-center flex-col h-full w-full">
-                                    <p className="space-y-4 px-5 py-4 font-easvhs text-lg opacity-50 pt-2 text-center ">
+                                    <p className="space-y-4 px-5 py-4 text-lg opacity-50 pt-2 text-center font-rajdhani leading-tight font-semibold">
                                         No cuentas con ningun proyecto aún.
                                     </p>
-                                    <Button2 onClick={goToProjectCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs">Ver catálogo de proyectos</Button2>
+                                    <Button2 onClick={goToProjectCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs py-4">Ver catálogo de proyectos</Button2>
                                 </div>
                             )
                         }

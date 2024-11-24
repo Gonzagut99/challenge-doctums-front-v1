@@ -111,7 +111,7 @@ function ChooseCharacter() {
                         alt="Back Button"
                         className="absolute left-0 size-16"
                     />
-                    <h1 className="font-dogica-bold text-zinc-900 text-balance text-3xl text-center px-4 py-2 bg-white/80 w-fit rounded-md border-zinc-900 border-[4px] shadow-lg">
+                    <h1 className="font-easvhs font-bold tracking-[0.1em] text-zinc-900 text-balance text-2xl text-center px-4 py-2 bg-white/80 w-fit rounded-md border-zinc-900 border-[4px] shadow-lg">
                         ESCOGE TU PERSONAJE
                     </h1>
                 </header>
@@ -134,7 +134,7 @@ function ChooseCharacter() {
                                     type="text"
                                     id="name"
                                     name="playerName"
-                                    className="bg-transparent relative font-easvhs text-center w-80 h-[3.5rem] px-4 text-xl border-none active:border-none ring-0 focus:ring-0 active:ring-0 outline-none focus:outline-none"
+                                    className="bg-transparent relative font-easvhs text-center w-80 h-[3.5rem] px-4 text-xl border-none active:border-none ring-0 focus:ring-0 active:ring-0 outline-none focus:outline-none focus:bg-transparent autofill:!bg-transparent selection:bg-transparent"
                                 />
                                 {errors.playerName && (
                                     <p className="text-red-500 text-base font-easvhs">
@@ -196,8 +196,9 @@ export const CharacterCard = ({
     const {
         image,
         profession,
-        description,
+        //description,
         color,
+        preview,
         id
     } = characterData;
 
@@ -213,7 +214,7 @@ export const CharacterCard = ({
                 {profession.toUpperCase()}
                 </h3>
             </header>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full w-full">
                 <figure className={twMerge("h-44 flex justify-center border-zinc-900 border-[3px] rounded-sm px-2", color)}>
                 <img
                     src={image}
@@ -222,13 +223,48 @@ export const CharacterCard = ({
                 />
                 </figure>
                 <div className="p-1 border-zinc-900 border-[3px] rounded-sm bg-white border-t-0 h-full">
-                <p className="font-rajdhani font-semibold text-[12px] text-pretty">
-                    {description}
-                </p>
+                <ul className="font-rajdhani font-semibold text-[12px] text-pretty flex flex-col gap-1">
+                    {
+                        Object.entries(preview).map(([key, value]) => {
+                            const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^./, (str) => str.toUpperCase());
+                            return (
+                                <li key={key} className="flex flex-col">
+                                    <span className="font-bold text-sm">{formattedKey}: </span>
+                                    <ul className="text-sm leading-tight">
+                                        {
+                                            value.map((item) => (
+                                                <li key={item} className="flex items-center space-x-1 w-full justify-center">
+                                                    <img src="/assets/icons/check.png" alt="Check" className="object-contain aspect-square max-w-3 "/>
+                                                    <span>
+                                                        {item}
+                                                    </span>
+                                                </li>
+                                            ))
+                                        }
+                                    </ul>
+                                </li>
+                            )
+                        })
+                    }
+                </ul>
                 </div>
             </div>
         </button>
     );
 };
+
+// {
+//     id: 3,
+//     image: "/assets/characters/characterMale2.png",
+//     avatar: "/assets/characters/avatars/AvatarMale2.png",
+//     profession: "Ing. de Software",
+//     description:
+//         "Ideal para proyectos que requieren soluciones técnicas avanzadas. En cuanto a habilidades blandas, es creativo y resiliente, capaz de adaptarse rápidamentea los cambios y aportar nuevas ideas en cada fase del proyecto.",
+//     preview: { habilidadesTecnicas: [ "Soluciones técnicas avanzadas" ], habilidadesBlandas: [ "Creatividad", "Resiliencia" ], adaptabilidad: [ "Adaptación a cambios", "Aportar nuevas ideas" ] },
+//     color: "bg-[#29AA5B]",
+//     twTextColor: "text-[#29AA5B]",
+// }
+
+
 
 export default ChooseCharacter;

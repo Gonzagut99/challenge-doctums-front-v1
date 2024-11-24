@@ -89,7 +89,7 @@ function Index() {
                             className="size-16"
                         />
                     </button> */}
-                    <h1 className="font-dogica-bold text-zinc-900 text-balance text-2xl text-center px-4 py-2 bg-white/90 w-fit rounded-md border-zinc-900 border-[4px] shadow-lg">
+                    <h1 className="font-easvhs font-bold tracking-[0.1em] text-zinc-900 text-balance text-2xl text-center px-4 py-2 bg-white/90 w-fit rounded-md border-zinc-900 border-[4px] shadow-lg">
                         ESPERANDO JUGADORES ...
                     </h1>
                 </header>

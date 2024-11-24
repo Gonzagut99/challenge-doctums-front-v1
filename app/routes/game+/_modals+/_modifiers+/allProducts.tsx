@@ -80,7 +80,7 @@ export default function AllProducts() {
                     className="h-full pb-10"
                 >
                     <div className="flex flex-col gap-2">
-                        <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-snug text-lg">
                             Objetos o mejoras que, una vez adquiridos te
                             ayudarán a ganar más puntos en futuras etapas.
                         </p>

@@ -125,7 +125,7 @@ export default function ActionPlan() {
                             Ha llegado el momento de planear tu plan de acción.
                             Dale click a cada item para que puedas comprar.
                         </p>
-                        <div className="flex-grow max-h-[430px] overflow-y-auto">
+                        <div className="flex-grow max-h-[430px]">
                             <div className="flex flex-wrap gap-2 justify-center">
                                 {actionPlanButtons.map((button) => (
                                     <WhiteContainer
@@ -133,7 +133,7 @@ export default function ActionPlan() {
                                         onClick={() =>
                                             navigate(`/game/actionPlan/${button.control}`)
                                         }
-                                        className="max-w-80 cursor-pointer"
+                                        className="max-w-80 cursor-pointer hover:scale-105 transform transition-transform duration-300"
                                     >
                                         <div className="flex gap-2">
                                             <figure className="w-16 min-w-16">
@@ -180,7 +180,7 @@ export default function ActionPlan() {
                                                                 className="object-contain aspect-square size-6"
                                                             />
                                                         </figure>
-                                                        <div>
+                                                        <div className="font-rajdhani leading-tight font-semibold text-base">
                                                             <p className="line-clamp-1">{product.title}</p>
                                                         </div>
                                                     </div>
@@ -211,7 +211,7 @@ export default function ActionPlan() {
                                                                 className="object-contain aspect-square size-6"
                                                             />
                                                         </figure>
-                                                        <div>
+                                                        <div className="font-rajdhani leading-tight font-semibold text-base">
                                                             <p className="line-clamp-1">{resource.title}</p>
                                                         </div>
                                                     </div>
@@ -242,7 +242,7 @@ export default function ActionPlan() {
                                                                 className="object-contain aspect-square size-6"
                                                             />
                                                         </figure>
-                                                        <div>
+                                                        <div className="font-rajdhani leading-tight font-semibold text-base">
                                                             <p className="line-clamp-1">{project.title}</p>
                                                         </div>
                                                     </div>
