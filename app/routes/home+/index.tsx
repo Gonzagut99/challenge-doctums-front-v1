@@ -1,5 +1,5 @@
 import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
 import { initializeWebSocket } from "~/services/ws";
@@ -33,9 +33,19 @@ function Index() {
     // const webSocketService = useGameStore((state) => state.webSocketService);
     const navigate = useNavigate();
     const fetcher = useFetcher<typeof action>();
+    const [showStaticImage, setShowStaticImage] = useState(false);
 
-    // Escuchar cambios en fetcher.data
     useEffect(() => {
+        const timer = setTimeout(() => {
+          setShowStaticImage(true);
+        }, 3000); 
+    
+        return () => clearTimeout(timer);
+      }, []);
+
+   
+    useEffect(() => {
+
         if (fetcher.data) {
             const error = fetcher.data?.error;
             const gameSession = fetcher.data?.data;
@@ -74,11 +84,20 @@ function Index() {
     };
     return (
         <>
-            <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
+            {/* <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
                 <h1 className="text-yellow-50 text-2xl font-bold text-center text-balance font-dogica-bold shadow-slate-700 text-shadow-lg">
                     Bienvenido al challenge Doctums
                 </h1>
-            </header>
+            </header> */}
+            <header className="w-[48%]">
+            {showStaticImage ? (
+            // Mostrar la imagen estática después de la animación
+            <img src="/assets/challenge-logo.png" alt="Logo estático" />
+            ) : (
+            // Mostrar el GIF o animación inicialmente
+            <img src="/assets/challenge-animation.gif" alt="Animación inicial" />
+            )}
+        </header>
             <div className="flex flex-col gap-4">
                 <Button onClick={handleSubmit} hoverImgSrc="/assets/buttons/Button-hover.png" disabled={fetcher.state != 'idle'}>
                     <span className="z-10  text-white font-easvhs text-2xl group-hover:opacity-60">
