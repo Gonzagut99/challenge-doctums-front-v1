@@ -5,11 +5,9 @@ import { Header } from "~/components/custom/landing/Header";
 function SectionRules() {
   return (
     
-    <>
+    <div>
       <Header/>
       <GameRules />
-    </>
+    </div>
   );
 }
-
-export default SectionRules;

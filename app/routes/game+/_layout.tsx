@@ -6,7 +6,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 import { useLiveLoader } from "~/utils/use-live-loader";
 
-import { WhiteContainer, WhiteContainerLarge } from "~/components/custom/WhiteContainer";
+import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { ButtonDices } from "~/components/custom/ButtonDices";
 import { PageContainer } from "~/components/custom/PageContainer";
 import {
@@ -389,7 +389,7 @@ export default function _layout() {
                                                 <h4 className="text-sm font-easvhs">
                                                     {button.title}
                                                 </h4>
-                                                <p className="text-[12px] font-rajdhani font-semibold">
+                                                <p className="text-[0.60rem] font-easvhs">
                                                     {button.description}
                                                 </p>
                                             </div>
@@ -453,7 +453,6 @@ export default function _layout() {
                                                 currentPlayerTurnId !==
                                                 localPlayer?.id
                                             }
-                                            hoverImgSrc={"/assets/buttons/ButtonPurple-hover.png"}
                                         />
                                     )}
 
@@ -550,7 +549,7 @@ export default function _layout() {
                                     newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
                                     !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                     (
-                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md" onClick={() => navigate(`/game/actionPlan`)}>
+                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out cursor-pointer max-w-96" onClick={() => navigate(`/game/actionPlan`)}>
                                             {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
@@ -559,16 +558,16 @@ export default function _layout() {
                                             <div className="flex gap-2">
                                                 <figure className="size-12">
                                                     <img
-                                                        src={'/assets/icons/action-plan.png'}
+                                                        src={'/assets/icons/cashIcon.png'}
                                                         alt="Icon"
-                                                        className="object-contain aspect-square h-full w-full size-12"
+                                                        className="object-contain aspect-square size-12"
                                                     />
                                                 </figure>
-                                                <div className="grow max-w-64">
+                                                <div className="grow">
                                                     <h4 className="text-sm font-easvhs">
                                                         Plan de acción
                                                     </h4>
-                                                    <p className="text-[0.60rem] font-rajdhani">
+                                                    <p className="text-[0.60rem] font-easvhs">
                                                         ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                     </p>
                                                 </div>
@@ -742,7 +741,7 @@ const gameControlButtons: GameControlButton[] = [
         icon: "/assets/icons/efficiencyIcon.png",
         title: "Ver mis Eficiencias",
         description:
-            "Habilidades que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
+            "Habilidades especiales que potencian tu desempeño, aumentando tu capacidad de progreso en el juego.",
         control: "myEfficiencies",
     },
     {
@@ -904,7 +903,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                     </div>
                 </div>
             </div>
-        </WhiteContainerLarge>
+        </WhiteContainer>
     );
 }
 function PlayerCard({ player }: { player: TurnOrderPlayer }) {
@@ -980,7 +979,6 @@ interface DynamicActionButtonProps extends React.HTMLProps<HTMLButtonElement> {
     message?: string;
     children?: React.ReactNode;
     buttonImgSrc?: string;
-    hoverImgSrc?: string;
     type?: "submit" | "reset" | "button";
 }
 
@@ -992,15 +990,15 @@ export function ActionButtonManager(props: DynamicActionButtonProps) {
         case "turn_order_stage":
             return <DynamicActionButton {...rest} name={method}/>;
         case "start_new_turn":
-                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"  name={method}/>;
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
         case "days_advanced":
-                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method}/>;
+                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" name={method}/>;
         case "submit_plan":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
         case "turn_event_flow":
                 return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
         case "next_turn":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
         default:
             return null;
     }
@@ -1013,7 +1011,6 @@ const DynamicActionButton = ({
     className,
     children,
     buttonImgSrc="/assets/buttons/ButtonPurple.png",
-    hoverImgSrc="/assets/buttons/ButtonPurple-hover.png",
     ...rest
 }: Omit<DynamicActionButtonProps, 'method'>) => {
     return (
@@ -1054,7 +1051,6 @@ interface LocalStateDynamicButtonProps extends React.HTMLProps<HTMLButtonElement
     buttonImgSrc?: string;
     darkText?: boolean;
     type?: "submit" | "reset" | "button";
-    hoverImgSrc?: string;
 }
 
 const LocalStateDynamicButton = ({
@@ -1065,7 +1061,6 @@ const LocalStateDynamicButton = ({
     children,
     buttonImgSrc="/assets/buttons/ButtonPurple.png",
     darkText=false,
-    hoverImgSrc="/assets/buttons/ButtonPurple-hover.png",
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (

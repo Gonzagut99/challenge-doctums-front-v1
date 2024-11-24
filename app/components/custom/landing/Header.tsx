@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { ButtonContact } from "./Buttons";
-import { Link } from "@remix-run/react";
 
 const Header = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -54,12 +53,9 @@ const Header = () => {
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Reglas del juego
           </a>
-          </Link>
-          
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Precios
           </a>
-          
           <a href="#" className="text-lg font-light font-montserrat text-white">
             Contacto
           </a>
