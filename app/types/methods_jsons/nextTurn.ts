@@ -4,11 +4,25 @@ export type NextTurnResponse = {
     message: string;
     current_turn: string;
     player: NextTurnPlayerState;
+    turn_order: NextTurnPlayerOrderStats[];
 }
 
 export type NextTurnPlayerState = {
-    is_first_turn: boolean;
-    current_month: number;
+    playerId: string;
+    avatarId: string;
+    name: string
+    score: number;
+    budget: number;
+    date:string;
+}
+
+export type NextTurnPlayerOrderStats = {
+    playerId: string;
+    avatarId: string;
+    name: string
+    score: number;
+    budget: number;
+    date:string;
 }
 
 // export type NextTurnResponse = {
@@ -19,5 +33,9 @@ export type NextTurnPlayerState = {
 //     player: {
 //         is_first_turn: boolean;
 //         current_month: number;
-//     }
+//     },
+//     turn_order: {
+//         player: string;
+//         order: number;
+//     }[];
 // }

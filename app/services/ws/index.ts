@@ -36,6 +36,7 @@ export type LocalPlayerDynamicInfo =  {
     avatarId: string;
     budget: number;
     score: number;
+    date: string;
     //modifiers: any;
 }
 
@@ -137,6 +138,11 @@ class WebSocketService implements IWebSocketService {
     }
 
     getDefinedTurnsOrder() {
+
+        if(this.nextTurn_newTurnSettledInfo) {
+            return this.nextTurn_newTurnSettledInfo?.turn_order ?? [];
+        }
+
         return this.turnOrderStageResponse?.turns_order ?? [];
     }
 
@@ -187,6 +193,19 @@ class WebSocketService implements IWebSocketService {
             avatarId: this.localPlayerAvatarInfo?.avatar_id ?? '',
             budget: this.startGameResponse?.player.budget ?? 0,
             score: this.startGameResponse?.player.score ?? 0,
+            date: "01/01"
+            //modifiers: this.turnStartInfo?. ?? {},
+        };
+    }
+
+    setLocalPlayerNewDynamicInfo() {
+        this.localPlayerDynamicInfo = {
+            id: this.localPlayerAvatarInfo?.id ?? '',
+            name: this.localPlayerAvatarInfo?.name ?? '',
+            avatarId: this.localPlayerAvatarInfo?.avatar_id ?? '',
+            budget: this.nextTurn_newTurnSettledInfo?.player.budget ?? 0,
+            score: this.nextTurn_newTurnSettledInfo?.player.score ?? 0,
+            date: this.nextTurn_newTurnSettledInfo?.player.date ?? '',
             //modifiers: this.turnStartInfo?. ?? {},
         };
     }
@@ -640,10 +659,10 @@ class WebSocketService implements IWebSocketService {
         if (message.method === 'turn_event_flow') {
             this.gameStateMessage = message;
             this.eventFlow_results = message;
-            if (this.localPlayerDynamicInfo) {
-                this.localPlayerDynamicInfo.budget = message.player.budget;
-                this.localPlayerDynamicInfo.score = message.player.score;
-            }
+            // if (this.localPlayerDynamicInfo) {
+            //     this.localPlayerDynamicInfo.budget = message.player.budget;
+            //     this.localPlayerDynamicInfo.score = message.player.score;
+            // }
             this.localPlayerPreviousEfficiencies = this.localPlayerEfficiencies;
             this.localPlayerEfficiencies = message.player.effiencies;
             console.log("Game Event", message);
@@ -660,6 +679,7 @@ class WebSocketService implements IWebSocketService {
             this.eventFlow_results = {};
             this.submitActionPlanEffects = {};
 
+            this.setLocalPlayerNewDynamicInfo();
             console.log("Next Turn", message);
             emitter.emit('game', message);
         }

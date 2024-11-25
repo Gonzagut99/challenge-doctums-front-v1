@@ -47,6 +47,7 @@ import { Header } from "~/components/custom/landing/Header";
 import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { set } from "zod";
+import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
 const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
@@ -180,6 +181,7 @@ export default function _layout() {
     const newTurnStage_timeManager = (genericGameState as StartNewTurn)?.time_manager
     const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn)?.player
     const newTurnStage_isReadyToFaceEvent = (genericGameState as StartNewTurn)?.is_ready_to_face_event
+    const hasLocalPlayer_advancedDays = (genericGameState as PlayersActionNotification)?.method == "days_advanced"
 
     const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event
     const submitPlan_showModal = (genericGameState as SubmitPlanResponse)?.show_modal
@@ -189,6 +191,7 @@ export default function _layout() {
     const eventFlow_level = (genericGameState as TurnEventResults)?.event?.level
     const eventFlow_showEvent = (genericGameState as TurnEventResults)?.show_event
     const eventFlow_eventId = (genericGameState as TurnEventResults)?.event?.id
+    const eventFlow_isReadyToSetNextTurn = (genericGameState as TurnEventResults)?.is_ready_to_set_next_turn
 
     const nextTurn_currentTurn = (genericGameState as NextTurnResponse)?.current_turn
     const nextTurn_method = (genericGameState as NextTurnResponse)?.method
@@ -577,7 +580,8 @@ export default function _layout() {
                                     )
                                 }
                                 {
-                                    (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && !newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                    (hasLocalPlayer_advancedDays||submitPlan_isReadyToFaceEvent ) 
+                                    && !newTurn_localPlayerStoredData.time_manager.is_weekend && !newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
                                     (
                                         <>
                                             <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
@@ -624,8 +628,8 @@ export default function _layout() {
                                 }
                                 
                                 {
-                                    (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
-                                    (
+                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                     (
                                         <>
                                             <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
@@ -779,14 +783,14 @@ interface PlayerDataToUseInCard {
     budget: number;
     score: number;
     date: string;
-    activeProducts: number;
+    //activeProducts: number;
 }
 
 const playerCardIcons = ({
     budget,
     score,
     date,
-    activeProducts,
+    //activeProducts,
 }: PlayerDataToUseInCard): PlayerCardIcons[] => {
     return [
         {
@@ -807,12 +811,12 @@ const playerCardIcons = ({
             tw_bg: "bg-[#e4675c]",
             text: date,
         },
-        {
-            field: "activeProducts",
-            icon: "/assets/icons/objectCountIcon.png",
-            tw_bg: "bg-[#D9D9D9]",
-            text: activeProducts.toString(),
-        },
+        // {
+        //     field: "activeProducts",
+        //     icon: "/assets/icons/objectCountIcon.png",
+        //     tw_bg: "bg-[#D9D9D9]",
+        //     text: activeProducts.toString(),
+        // },
     ];
 };
 
@@ -858,8 +862,8 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                             {playerCardIcons({
                                 budget: player.budget,
                                 score: player.score,
-                                date: "36",
-                                activeProducts: 0,
+                                date: player.date,
+                                //activeProducts: 0,
                             }).map((icon) => (
                                 <div
                                     key={icon.field}
@@ -907,7 +911,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
         </WhiteContainerLarge>
     );
 }
-function PlayerCard({ player }: { player: TurnOrderPlayer }) {
+function PlayerCard({ player }: { player: TurnOrderPlayer | NextTurnPlayerOrderStats }) {
     if (!player) return null;
     const characterData =
         charactersData.find(
@@ -933,10 +937,10 @@ function PlayerCard({ player }: { player: TurnOrderPlayer }) {
                     <p className="font-easvhs text-lg">{player.name}</p>
                     <div className="grid grid-cols-2 gap-1">
                         {playerCardIcons({
-                            budget: 0,
-                            score: 0,
-                            date: "36",
-                            activeProducts: 0,
+                            budget: 'budget' in player ? player.budget : 0,
+                            score: 'score' in player ? player.score : 0,
+                            date: 'date' in player ? player.date : "01/01",
+                            //activeProducts: 0,
                         }).map((icon) => {
                             if (
                                 icon.field === "budget" ||
