@@ -140,7 +140,7 @@ export default function BuyProjects() {
                     onDismiss={handleDismiss}
                 >
                     <div className="flex flex-col gap-2">
-                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-tight text-lg">
                             Misiones o tareas que al pasar tres meses te otorgan
                             productos.
                             {"\n"}
@@ -168,7 +168,7 @@ export default function BuyProjects() {
                                         >   {(alreadyAcquired) && (
                                                 <div className="w-fit">
                                                     <img
-                                                        src="/public/assets/icons/check.png"
+                                                        src="/assets/icons/check.png"
                                                         alt="selected modifier"
                                                         className="size-6"
                                                     />

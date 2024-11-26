@@ -147,6 +147,7 @@ export default function _layout() {
 
     // stages states
     const is_start_game_stage = (genericGameState as GameStartMessage)?.is_start_game_stage
+    const showLegacyModal = (genericGameState as GameStartMessage)?.show_legacy_modal
     const turnStage_isTurnOrderStage = (genericGameState as TurnOrderStage)?.is_turn_order_stage
     const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)?.is_turn_order_stage_over;
     const newturn_isStartNewTurnStage = (genericGameState as StartNewTurn)?.is_new_turn_stage
@@ -204,6 +205,15 @@ export default function _layout() {
     ); // This data will continously change thanks to live loader
 
     //load speacial modals
+    const [legacyModal_hasNavigated, legacyModal_setHasNavigated] = useState(false);
+    useEffect(() => {
+        if (showLegacyModal && !legacyModal_hasNavigated) {
+            legacyModal_setHasNavigated(true);
+            navigate(`/game/legacyRewards`);
+        }
+    }, [showLegacyModal, legacyModal_hasNavigated, navigate]);
+
+
     const [submitPlan_hasNavigated, submitPlan_setHasNavigated] = useState(false);
     
     useEffect(() => {
@@ -323,7 +333,7 @@ export default function _layout() {
                             <div className="absolute right-0 w-fit">
                                 <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={()=>navigate('/game/events')}>
                                     <img
-                                        src="/assets/icons/evento.png"
+                                        src="/assets/icons/eventoNoBorder.png"
                                         alt="Back Button"
                                         className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
                                         title="Ver catálogo de Eventos"
@@ -591,7 +601,7 @@ export default function _layout() {
                                                         <img
                                                             src={'/assets/icons/evento.png'}
                                                             alt="Icon"
-                                                            className="object-contain aspect-square size-12"
+                                                            className="object-contain aspect-square size-12 min-w-12"
                                                         />
                                                     </figure>
                                                     <div className="grow">

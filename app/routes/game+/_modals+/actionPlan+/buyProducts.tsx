@@ -155,7 +155,7 @@ export default function BuyProducts() {
                     type="back"
                 >
                     <div className="flex flex-col gap-2">
-                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg leading-tight">
                             Objetos o mejoras que, una vez adquiridos te
                             ayudarán a ganar más puntos en futuras etapas.
                             {"\n"}
@@ -178,7 +178,7 @@ export default function BuyProducts() {
                                             {(alreadyAcquired) && (
                                                     <div className="w-fit">
                                                         <img
-                                                            src="/public/assets/icons/check.png"
+                                                            src="/assets/icons/check.png"
                                                             alt="selected modifier"
                                                             className="size-6"
                                                         />

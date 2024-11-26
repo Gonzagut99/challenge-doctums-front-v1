@@ -1000,9 +1000,9 @@ export default function ChallengingEvent() {
                                                         puntos para pasar.
                                                         </p>
                                                     </div>
-                                        <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
+                                        {/* <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
                                             Aceptar
-                                        </Button2>
+                                        </Button2> */}
                                     </>
                                                 <div className="flex justify-center">
                                                     <FinalResultsTile

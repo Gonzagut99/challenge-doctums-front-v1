@@ -145,7 +145,7 @@ export default function BuyResources() {
                 >
                     <div className="flex flex-col gap-4">
                         <div>
-                            <p className="space-y-2 px-5 py-4 font-rajdhani font-semibold text-lg leading-snug">
+                            <p className="space-y-2 px-5 py-4 font-rajdhani font-semibold text-lg leading-tight">
                                 Contrata recursos humanos que te ayuden a
                                 desarrollan productos.
                             </p>
@@ -186,7 +186,7 @@ export default function BuyResources() {
                                             {(alreadyAcquired) && (
                                                 <div className="w-fit">
                                                     <img
-                                                        src="/public/assets/icons/check.png"
+                                                        src="/assets/icons/check.png"
                                                         alt="selected modifier"
                                                         className="size-6"
                                                     />

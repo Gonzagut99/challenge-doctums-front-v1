@@ -153,8 +153,9 @@ export default function WidgetDetailRoute() {
     return (
         <AnimatePresence onExitComplete={handleExitComplete}>
             {isModalOpen && (
-                <SmallModal onDismiss={handleDismiss} className="w-[500px] h-[500px] p-2">
-                    <h1 className="text-2xl font-easvhs flex gap-2">
+                <SmallModal onDismiss={handleDismiss} className="w-[500px] h-[500px] py-2">
+                    <div className="flex flex-col px-2 w-full space-y-2">
+                    <h1 className="text-2xl font-easvhs flex gap-2 justify-center">
                         ¡Compra exitosa!
                         <span>
                             <img
@@ -164,7 +165,7 @@ export default function WidgetDetailRoute() {
                             />
                         </span>
                     </h1>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1 items-center">
                         <p className="text-lg font-easvhs">
                             Ahora tienes estos modificadores
                         </p>
@@ -231,6 +232,7 @@ export default function WidgetDetailRoute() {
                                 </div>
                             )}
                         </div>
+                    </div>
                     </div>
                 </SmallModal>
             )}
