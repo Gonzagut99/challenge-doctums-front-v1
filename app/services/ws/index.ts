@@ -12,7 +12,7 @@ const { emitter } = isServer
 import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
-import { NextTurnResponse, PlanActions, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
+import { NextTurnResponse, PlanActions, PlayersActionNotification, SubmitPlanResponse, TurnEventResults } from "~/types/methods_jsons";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { UpdatedPlayersPositions } from "~/types/methods_jsons/updatePlayersPositions";
 import { LocalPlayerModifiers } from "~/types/methods_jsons/submitPlan";
@@ -103,10 +103,9 @@ class WebSocketService implements IWebSocketService {
     };
     private submitActionPlanEffects: SubmitPlanResponse | Record<string, any>;
     public eventFlow_results: TurnEventResults | Record<string, any> ;
-
     private nextTurn_newTurnSettledInfo: NextTurnResponse;
-
     private gameStateMessage: any;
+    private currentPlayerTurn: string;
     //private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
@@ -148,6 +147,10 @@ class WebSocketService implements IWebSocketService {
 
     getIsGameInitialized() {
         return this.isGameInitialized;
+    }
+
+    getHasPlayerSubmittedPlan() {
+        return this.submitActionPlanEffects?.status == "success";
     }
 
     // getIsRenderedOneTime() {
@@ -227,7 +230,7 @@ class WebSocketService implements IWebSocketService {
     }
 
     getCurrentPlayerTurn() {
-        return this.gameStateMessage?.current_turn;
+        return this.currentPlayerTurn;
     }
 
     getStageMethod(): string {
@@ -510,9 +513,10 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    handleStartGameResponse(message: any) {
+    handleStartGameResponse(message: GameStartMessage) {
         if (message.status === 'success' && message.method == "start_game") {
             this.startGameResponse = message;
+            this.currentPlayerTurn = message.current_turn;
             this.localPlayerModifiers.products = message.legacy_products.map((product: string) => {
                 return ({
                     id: product,
@@ -530,8 +534,9 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    handlerTurnOrderStage(message: any) {
+    handlerTurnOrderStage(message: TurnOrderStage) {
         if (message.method === 'turn_order_stage') {
+            this.currentPlayerTurn = message.current_turn;
             this.turnOrderStageResponse = message;
             this.gameStateMessage = message;
             console.log("Turn Stage", message);
@@ -588,18 +593,28 @@ class WebSocketService implements IWebSocketService {
         }
     }
 
-    handleNotifications(message: any) {
+    handleNotifications(message: PlayersActionNotification) {
         if (message.method === 'notification') {
             this.gameStateMessage = message;
+            if(message?.current_turn){
+                this.currentPlayerTurn = message.current_turn;
+            }
+
             console.log("notification", message);
             emitter.emit('game', message);
         }
     }
 
-    handleNewTurnStart(message: any) {
+    handleNewTurnStart(message: StartNewTurn) {
         if (message.method === 'new_turn_start') {
+            this.currentPlayerTurn = message.current_turn;
             this.newTurn_storedData = message;
             this.gameStateMessage = message;
+            if(message.time_manager.is_first_turn_in_month){
+                this.submitActionPlanEffects = {};
+            }
+
+
             console.log("New Turn Start", message);
             emitter.emit('game', message);
         }
@@ -673,11 +688,11 @@ class WebSocketService implements IWebSocketService {
     handleSetNextTurn(message: NextTurnResponse) {
         if (message.method === 'next_turn') {
             this.gameStateMessage = message;
+            this.currentPlayerTurn = message.current_turn;
             this.nextTurn_newTurnSettledInfo = message;
             //Here we can make it possible to show the previous player results' summary            this.eventFlow_results = {};
             this.newTurn_storedData = {}
             this.eventFlow_results = {};
-            this.submitActionPlanEffects = {};
 
             this.setLocalPlayerNewDynamicInfo();
             console.log("Next Turn", message);

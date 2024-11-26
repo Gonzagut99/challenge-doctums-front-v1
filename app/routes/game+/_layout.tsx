@@ -75,6 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const newTurn_localPlayerStoredData = globalWebSocketService.newTurn_getStoredLocalPlayerData()
 
     const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
+    const hasPlayerSubmittedPlan = globalWebSocketService.getHasPlayerSubmittedPlan();
     // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
@@ -92,7 +93,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         playersTurnOrder,
         newTurn_localPlayerAdvancedDays,
         newTurn_localPlayerStoredData,
-        hasPositionsUpdated
+        hasPositionsUpdated,
+        hasPlayerSubmittedPlan
     });
 };
 
@@ -144,7 +146,9 @@ export default function _layout() {
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
+    const nextTurn_currentTurn = loaderData.currentPlayerTurnId
     // const is_notification = genericGameState.method == "notification"
+    const hasPlayerSubmittedPlan = loaderData.hasPlayerSubmittedPlan
 
     // stages states
     const is_start_game_stage = (genericGameState as GameStartMessage)?.is_start_game_stage
@@ -166,7 +170,7 @@ export default function _layout() {
     // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
     //const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
     const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
-    const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
+    //const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
     const preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false //We already know the dice results, but before showing the advanced days we controll that the player has rolled the dices
 
     // 4th frontstage - 3rd backstage
@@ -183,7 +187,7 @@ export default function _layout() {
     const newTurnStage_isReadyToFaceEvent = (genericGameState as StartNewTurn)?.is_ready_to_face_event
     const hasLocalPlayer_advancedDays = (genericGameState as PlayersActionNotification)?.method == "days_advanced"
 
-    const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event
+    const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event_after_submit
     const submitPlan_showModal = (genericGameState as SubmitPlanResponse)?.show_modal
     // 5th frontstage - 4th backstage
     const eventFlow_passedFirstChallenge = (genericGameState as TurnEventResults)?.event?.pass_first_challenge
@@ -193,7 +197,6 @@ export default function _layout() {
     const eventFlow_eventId = (genericGameState as TurnEventResults)?.event?.id
     const eventFlow_isReadyToSetNextTurn = (genericGameState as TurnEventResults)?.is_ready_to_set_next_turn
 
-    const nextTurn_currentTurn = (genericGameState as NextTurnResponse)?.current_turn
     const nextTurn_method = (genericGameState as NextTurnResponse)?.method
     
     // charging react/remix hooks
@@ -290,11 +293,13 @@ export default function _layout() {
     // console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
     // console.log("players positions", playerPositions)
     console.log({
-        genericGameState,
-        is_ready_to_face_event: newTurn_localPlayerStoredData?.is_ready_to_face_event,
+        preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays,
         submitPlan_isReadyToFaceEvent,
-        newTurnStage_isReadyToFaceEvent,
-        is_not_weekend: !newTurn_localPlayerStoredData?.time_manager?.is_weekend
+        newTurn_localPlayerStoredData,
+        hasPlayerSubmittedPlan,
+        isWeekend: newTurn_localPlayerStoredData?.time_manager?.is_weekend,
+        currentPlayerTurnId,
+        localPlayer
     });
     emitter.emit("updated_players_positions", playerPositions);
 
@@ -343,7 +348,7 @@ export default function _layout() {
                                 diceResult={diceResult}
                             ></GameCanvas>
                             <div className="flex flex-col gap-1">
-                                {turnsOrder.map(
+                                {turnsOrder?.map(
                                     (turnPlayer: TurnOrderPlayer) => {
                                         if (
                                             turnPlayer?.playerId ===
@@ -372,7 +377,7 @@ export default function _layout() {
 
                         <section className="flex flex-col gap-2">
                             <div className="grid grid-cols-4 gap-2">
-                                {gameControlButtons.map((button) => (
+                                {gameControlButtons?.map((button) => (
                                     <WhiteContainer
                                         key={button.control}
                                         onClick={() =>
@@ -516,7 +521,7 @@ export default function _layout() {
                                     turnStage_hasPlayerRolledDices &&
                                     turnStage_dicesResult && (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                            {turnStage_dicesResult.map(
+                                            {turnStage_dicesResult?.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
@@ -534,7 +539,7 @@ export default function _layout() {
                                 {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
                                     (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                            {newTurn_advancedDays.dices.map(
+                                            {newTurn_advancedDays?.dices.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
@@ -580,8 +585,9 @@ export default function _layout() {
                                     )
                                 }
                                 {
-                                    (hasLocalPlayer_advancedDays||submitPlan_isReadyToFaceEvent ) 
-                                    && !newTurn_localPlayerStoredData.time_manager.is_weekend && !newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
+                                    (preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays || submitPlan_isReadyToFaceEvent) &&
+                                    hasPlayerSubmittedPlan  &&
+                                    !newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                     (
                                         <>
                                             <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
@@ -628,7 +634,9 @@ export default function _layout() {
                                 }
                                 
                                 {
-                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent || preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays) && 
+                                     hasPlayerSubmittedPlan &&
+                                     newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                      (
                                         <>
                                             <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
@@ -675,6 +683,7 @@ export default function _layout() {
 
                                 {
                                     nextTurn_currentTurn && nextTurn_method == "next_turn" && 
+                                    !eventFlow_hasNavigated &&
                                     (
                                         <ActionButtonManager
                                             method="next_turn"

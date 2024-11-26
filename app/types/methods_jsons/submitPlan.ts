@@ -7,7 +7,7 @@ export type SubmitPlanResponse = {
     bought_modifiers: {[key: string]: string[]};
     player: ActionPlanPlayerState;
     show_modal: boolean;
-    is_ready_to_face_event: boolean;
+    is_ready_to_face_event_after_submit: boolean;
 }
 
 export type ActionPlanPlayerState = {
