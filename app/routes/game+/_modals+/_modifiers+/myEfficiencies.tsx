@@ -76,7 +76,7 @@ export default function EfficiencyModal() {
     {isModalOpen && (
         <Modal title="Tus Eficiencias" onDismiss={handleDismiss}>
             <div className="flex flex-col gap-2">
-                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">¿Cómo va avanzando tu empresa? Los puntos de fortaleza de tus eficiencias muestran si estas preparado para enfrentar eventos de mayor dificultad.</p>
+                <p className="space-y-4 px-5 py-4 font-semibold font-rajdhani leading-snug text-lg">¿Cómo va avanzando tu empresa? Los puntos de fortaleza de tus eficiencias muestran si estas preparado para enfrentar eventos de mayor dificultad.</p>
                 <div className="flex-grow max-h-[410px] overflow-y-auto scrollbar-thin">
                     <div className="grid grid-cols-2 gap-2">
                         {

@@ -72,7 +72,7 @@ export default function MyResources() {
             {isModalOpen && (
                 <Modal title="Ctálogo de recursos" type="back" onDismiss={handleDismiss}>
                     <div className="flex flex-col gap-2 max-h-[500px] overflow-auto scrollbar-thin">
-                        <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-snug text-lg">
                             Contratando recursos humanos tienes la garantía de la producción de productos despues del primer mes de contratación.
                         </p>
                         <div className="grid grid-cols-2 gap-2">

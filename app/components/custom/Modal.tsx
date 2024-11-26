@@ -113,7 +113,7 @@ export default function Modal(
                                     <div className="py-4 px-2 h-full">
                                         <header className="flex justify-center ">
                                             <div className="w-full relative py-2 px-4 flex bg-zinc-50 rounded-md border-[3px] border-zinc-900">
-                                                <p id="modal-title" className="text-center w-full font-dogica-bold">{props.title}</p>
+                                                <p id="modal-title" className="text-center w-full font-easvhs text-2xl">{props.title}</p>
                                                 {
                                                     type === 'close' ? (
                                                         !isDisabled && (
