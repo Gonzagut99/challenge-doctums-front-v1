@@ -22,8 +22,8 @@ function _layout() {
           
           <div className="absolute top-0 right-0">
             <SoundProvider>
-          <MusicAndSoundControls />
-          </SoundProvider>
+              <MusicAndSoundControls />
+            </SoundProvider>
           </div>
             <img
               className="-z-10 aspect-[3/2] object-cover absolute inset-0"
@@ -31,7 +31,7 @@ function _layout() {
               alt="Landing Background"
             />
             
-            <div className="absolute h-64 inset-0 bg-gradient-to-b from-black/75 via-purple-transparent to-transparent -z-10"></div>
+            <div className="absolute h-96 inset-0 bg-gradient-to-b from-black/75 via-purple-transparent to-transparent -z-10"></div>
             
             <Outlet />
           </section>

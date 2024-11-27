@@ -47,6 +47,7 @@ import { Header } from "~/components/custom/landing/Header";
 import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { set } from "zod";
+import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
 const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
@@ -74,6 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const newTurn_localPlayerStoredData = globalWebSocketService.newTurn_getStoredLocalPlayerData()
 
     const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
+    const hasPlayerSubmittedPlan = globalWebSocketService.getHasPlayerSubmittedPlan();
     // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
@@ -91,7 +93,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         playersTurnOrder,
         newTurn_localPlayerAdvancedDays,
         newTurn_localPlayerStoredData,
-        hasPositionsUpdated
+        hasPositionsUpdated,
+        hasPlayerSubmittedPlan
     });
 };
 
@@ -143,10 +146,13 @@ export default function _layout() {
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
     const currentPlayerTurnId = loaderData.currentPlayerTurnId;
+    const nextTurn_currentTurn = loaderData.currentPlayerTurnId
     // const is_notification = genericGameState.method == "notification"
+    const hasPlayerSubmittedPlan = loaderData.hasPlayerSubmittedPlan
 
     // stages states
     const is_start_game_stage = (genericGameState as GameStartMessage)?.is_start_game_stage
+    const showLegacyModal = (genericGameState as GameStartMessage)?.show_legacy_modal
     const turnStage_isTurnOrderStage = (genericGameState as TurnOrderStage)?.is_turn_order_stage
     const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)?.is_turn_order_stage_over;
     const newturn_isStartNewTurnStage = (genericGameState as StartNewTurn)?.is_new_turn_stage
@@ -165,7 +171,7 @@ export default function _layout() {
     // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
     //const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
     const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
-    const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
+    //const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
     const preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false //We already know the dice results, but before showing the advanced days we controll that the player has rolled the dices
 
     // 4th frontstage - 3rd backstage
@@ -180,8 +186,9 @@ export default function _layout() {
     const newTurnStage_timeManager = (genericGameState as StartNewTurn)?.time_manager
     const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn)?.player
     const newTurnStage_isReadyToFaceEvent = (genericGameState as StartNewTurn)?.is_ready_to_face_event
+    const hasLocalPlayer_advancedDays = (genericGameState as PlayersActionNotification)?.method == "days_advanced"
 
-    const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event
+    const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event_after_submit
     const submitPlan_showModal = (genericGameState as SubmitPlanResponse)?.show_modal
     // 5th frontstage - 4th backstage
     const eventFlow_passedFirstChallenge = (genericGameState as TurnEventResults)?.event?.pass_first_challenge
@@ -189,8 +196,8 @@ export default function _layout() {
     const eventFlow_level = (genericGameState as TurnEventResults)?.event?.level
     const eventFlow_showEvent = (genericGameState as TurnEventResults)?.show_event
     const eventFlow_eventId = (genericGameState as TurnEventResults)?.event?.id
+    const eventFlow_isReadyToSetNextTurn = (genericGameState as TurnEventResults)?.is_ready_to_set_next_turn
 
-    const nextTurn_currentTurn = (genericGameState as NextTurnResponse)?.current_turn
     const nextTurn_method = (genericGameState as NextTurnResponse)?.method
     
     // charging react/remix hooks
@@ -204,6 +211,15 @@ export default function _layout() {
     ); // This data will continously change thanks to live loader
 
     //load speacial modals
+    const [legacyModal_hasNavigated, legacyModal_setHasNavigated] = useState(false);
+    useEffect(() => {
+        if (showLegacyModal && !legacyModal_hasNavigated) {
+            legacyModal_setHasNavigated(true);
+            navigate(`/game/legacyRewards`);
+        }
+    }, [showLegacyModal, legacyModal_hasNavigated, navigate]);
+
+
     const [submitPlan_hasNavigated, submitPlan_setHasNavigated] = useState(false);
     
     useEffect(() => {
@@ -280,19 +296,6 @@ export default function _layout() {
             method: "post",
         });
     }
-
-    
-    // console.log("isServer", isServer)
-    // console.log("advance days", newTurn_advancedDays)
-    // console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
-    // console.log("players positions", playerPositions)
-    console.log({
-        genericGameState,
-        is_ready_to_face_event: newTurn_localPlayerStoredData?.is_ready_to_face_event,
-        submitPlan_isReadyToFaceEvent,
-        newTurnStage_isReadyToFaceEvent,
-        is_not_weekend: !newTurn_localPlayerStoredData?.time_manager?.is_weekend
-    });
     emitter.emit("updated_players_positions", playerPositions);
 
 
@@ -314,16 +317,16 @@ export default function _layout() {
                     <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                         <section className="flex justify-center relative">
                             <WhiteContainer className="animate-jump-in ">
-                                <span className="text-sm text-zinc font-dogica-bold px-5">
+                                <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
                                     {
                                         hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
                                     }
                                 </span>
                             </WhiteContainer>
                             <div className="absolute right-0 w-fit">
-                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out" onClick={()=>navigate('/game/events')}>
+                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={()=>navigate('/game/events')}>
                                     <img
-                                        src="/assets/icons/efficiencyIcon.png"
+                                        src="/assets/icons/eventoNoBorder.png"
                                         alt="Back Button"
                                         className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
                                         title="Ver catálogo de Eventos"
@@ -340,7 +343,7 @@ export default function _layout() {
                                 diceResult={diceResult}
                             ></GameCanvas>
                             <div className="flex flex-col gap-1">
-                                {turnsOrder.map(
+                                {turnsOrder?.map(
                                     (turnPlayer: TurnOrderPlayer) => {
                                         if (
                                             turnPlayer?.playerId ===
@@ -369,13 +372,13 @@ export default function _layout() {
 
                         <section className="flex flex-col gap-2">
                             <div className="grid grid-cols-4 gap-2">
-                                {gameControlButtons.map((button) => (
+                                {gameControlButtons?.map((button) => (
                                     <WhiteContainer
                                         key={button.control}
                                         onClick={() =>
                                             navigate(`/game/${button.control}`)
                                         }
-                                        className="cursor-pointer animate-fade animate-once"
+                                        className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
                                     >
                                         <div className="flex gap-2">
                                             <figure className="w-16 min-w-16">
@@ -513,7 +516,7 @@ export default function _layout() {
                                     turnStage_hasPlayerRolledDices &&
                                     turnStage_dicesResult && (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                            {turnStage_dicesResult.map(
+                                            {turnStage_dicesResult?.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
@@ -531,7 +534,7 @@ export default function _layout() {
                                 {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
                                     (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                            {newTurn_advancedDays.dices.map(
+                                            {newTurn_advancedDays?.dices.map(
                                                 (dice: number) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
@@ -550,7 +553,7 @@ export default function _layout() {
                                     newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
                                     !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                     (
-                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md" onClick={() => navigate(`/game/actionPlan`)}>
+                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan`)}>
                                             {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
@@ -568,7 +571,7 @@ export default function _layout() {
                                                     <h4 className="text-sm font-easvhs">
                                                         Plan de acción
                                                     </h4>
-                                                    <p className="text-[0.60rem] font-rajdhani">
+                                                    <p className="text-xs font-rajdhani font-semibold">
                                                         ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                     </p>
                                                 </div>
@@ -577,7 +580,9 @@ export default function _layout() {
                                     )
                                 }
                                 {
-                                    (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && !newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                    (preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays || submitPlan_isReadyToFaceEvent) &&
+                                    hasPlayerSubmittedPlan  &&
+                                    !newTurn_localPlayerStoredData.time_manager.is_weekend &&
                                     (
                                         <>
                                             <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
@@ -589,16 +594,16 @@ export default function _layout() {
                                                 <div className="flex gap-2">
                                                     <figure className="size-12">
                                                         <img
-                                                            src={'/assets/icons/efficiencyIcon.png'}
+                                                            src={'/assets/icons/evento.png'}
                                                             alt="Icon"
-                                                            className="object-contain aspect-square size-12"
+                                                            className="object-contain aspect-square size-12 min-w-12"
                                                         />
                                                     </figure>
                                                     <div className="grow">
                                                         <h4 className="text-sm font-easvhs">
                                                             ¡Es hora de enfrentar el evento!
                                                         </h4>
-                                                        <p className="text-[0.60rem] font-easvhs">
+                                                        <p className="text-xs font-rajdhani font-bold">
                                                             ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
                                                             Da CLICK en el botón para ver el resultado.
                                                         </p>
@@ -624,8 +629,10 @@ export default function _layout() {
                                 }
                                 
                                 {
-                                    (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent) && newTurn_localPlayerStoredData.time_manager.is_weekend &&
-                                    (
+                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent || preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays) && 
+                                     hasPlayerSubmittedPlan &&
+                                     newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                     (
                                         <>
                                             <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
@@ -636,7 +643,7 @@ export default function _layout() {
                                                 <div className="flex gap-2">
                                                     <figure className="size-12">
                                                         <img
-                                                            src={'/assets/icons/efficiencyIcon.png'}
+                                                            src={'/assets/icons/weekend-rest.png'}
                                                             alt="Icon"
                                                             className="object-contain aspect-square size-12"
                                                         />
@@ -645,7 +652,7 @@ export default function _layout() {
                                                         <h4 className="text-sm font-easvhs">
                                                             ¡Es fin de semana!
                                                         </h4>
-                                                        <p className="text-[0.60rem] font-easvhs">
+                                                        <p className="text-xs font-rajdhani font-bold">
                                                             ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
                                                         </p>
                                                     </div>
@@ -671,6 +678,7 @@ export default function _layout() {
 
                                 {
                                     nextTurn_currentTurn && nextTurn_method == "next_turn" && 
+                                    !eventFlow_hasNavigated &&
                                     (
                                         <ActionButtonManager
                                             method="next_turn"
@@ -779,14 +787,14 @@ interface PlayerDataToUseInCard {
     budget: number;
     score: number;
     date: string;
-    activeProducts: number;
+    //activeProducts: number;
 }
 
 const playerCardIcons = ({
     budget,
     score,
     date,
-    activeProducts,
+    //activeProducts,
 }: PlayerDataToUseInCard): PlayerCardIcons[] => {
     return [
         {
@@ -807,12 +815,12 @@ const playerCardIcons = ({
             tw_bg: "bg-[#e4675c]",
             text: date,
         },
-        {
-            field: "activeProducts",
-            icon: "/assets/icons/objectCountIcon.png",
-            tw_bg: "bg-[#D9D9D9]",
-            text: activeProducts.toString(),
-        },
+        // {
+        //     field: "activeProducts",
+        //     icon: "/assets/icons/objectCountIcon.png",
+        //     tw_bg: "bg-[#D9D9D9]",
+        //     text: activeProducts.toString(),
+        // },
     ];
 };
 
@@ -858,8 +866,8 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                             {playerCardIcons({
                                 budget: player.budget,
                                 score: player.score,
-                                date: "36",
-                                activeProducts: 0,
+                                date: player.date,
+                                //activeProducts: 0,
                             }).map((icon) => (
                                 <div
                                     key={icon.field}
@@ -887,7 +895,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                     </div>
                 </header>
                 <div className="flex flex-col">
-                    <h4 className="text-[12px] font-easvhs">
+                    <h4 className="text-[12px] font-rajdhani font-semibold leading-tight">
                         Proyectos en marcha:
                     </h4>
                     <div className="grow flex items-center">
@@ -907,7 +915,7 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
         </WhiteContainerLarge>
     );
 }
-function PlayerCard({ player }: { player: TurnOrderPlayer }) {
+function PlayerCard({ player }: { player: TurnOrderPlayer | NextTurnPlayerOrderStats }) {
     if (!player) return null;
     const characterData =
         charactersData.find(
@@ -933,10 +941,10 @@ function PlayerCard({ player }: { player: TurnOrderPlayer }) {
                     <p className="font-easvhs text-lg">{player.name}</p>
                     <div className="grid grid-cols-2 gap-1">
                         {playerCardIcons({
-                            budget: 0,
-                            score: 0,
-                            date: "36",
-                            activeProducts: 0,
+                            budget: 'budget' in player ? player.budget : 0,
+                            score: 'score' in player ? player.score : 0,
+                            date: 'date' in player ? player.date : "01/01",
+                            //activeProducts: 0,
                         }).map((icon) => {
                             if (
                                 icon.field === "budget" ||
@@ -996,9 +1004,9 @@ export function ActionButtonManager(props: DynamicActionButtonProps) {
         case "days_advanced":
                 return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method}/>;
         case "submit_plan":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         case "turn_event_flow":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" />;
+                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
         case "next_turn":
                 return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         default:
@@ -1020,7 +1028,7 @@ const DynamicActionButton = ({
         <button
         {...rest}
         className={twMerge(
-            "relative w-60 aspect-[4/1] flex items-center justify-center group overflow-hidden",
+            "relative w-60 aspect-[4/1] flex items-center justify-center group overflow-hidden animate-jump-in",
             "disabled:opacity-60",
             className
         )}
@@ -1069,7 +1077,7 @@ const LocalStateDynamicButton = ({
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
-        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60", className)} type={type} onClick={onClick}>
+        <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60 animate-jump-in", className)} type={type} onClick={onClick}>
          
         <img
             className="absolute inset-0 w-full h-full block group-hover:hidden"
@@ -1086,7 +1094,7 @@ const LocalStateDynamicButton = ({
         <p className="z-10 font-easvhs text-center text-white">
             {message ?? children}
         </p>
-        </button>
+     </button>
     );
 }
 

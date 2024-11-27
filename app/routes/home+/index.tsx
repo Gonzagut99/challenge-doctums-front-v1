@@ -83,38 +83,38 @@ function Index() {
         );
     };
     return (
-        <>
+        <div className="flex flex-col h-full items-center w-full justify-center gap-10">
             {/* <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
                 <h1 className="text-yellow-50 text-2xl font-bold text-center text-balance font-dogica-bold shadow-slate-700 text-shadow-lg">
                     Bienvenido al challenge Doctums
                 </h1>
             </header> */}
-            <header className="w-[48%]">
-            {showStaticImage ? (
-            // Mostrar la imagen estática después de la animación
-            <img src="/assets/challenge-logo.png" alt="Logo estático" />
-            ) : (
-            // Mostrar el GIF o animación inicialmente
-            <img src="/assets/challenge-animation.gif" alt="Animación inicial" />
-            )}
-        </header>
-            <div className="flex flex-col gap-4">
-                <Button onClick={handleSubmit} hoverImgSrc="/assets/buttons/Button-hover.png" disabled={fetcher.state != 'idle'}>
-                    <span className="z-10  text-white font-easvhs text-2xl group-hover:opacity-60">
-                        {
-                            fetcher.state === "submitting" || fetcher.state === "loading" ? "Creando partida..." : "Crear partida"
-                        }
-                    </span>
-                </Button>
-                <Link to={"/home/joinGame"}>
-                    <Button hoverImgSrc="/assets/buttons/Button-hover.png">
-                        <span className="z-10 text-white font-easvhs text-2xl group-hover:opacity-60">
-                            Unirse a partida
+            <header className="flex items-center justify-center w-full">
+                    {showStaticImage ? (
+                    // Mostrar la imagen estática después de la animación
+                    <img src="/assets/challenge-logo.png" alt="Logo estático" className="w-1/2"/>
+                    ) : (
+                    // Mostrar el GIF o animación inicialmente
+                    <img src="/assets/challenge-animation.gif" alt="Animación inicial" className="w-1/2"/>
+                    )}
+                </header>
+                <div className="flex flex-col gap-4 justify-center items-center">
+                    <Button onClick={handleSubmit} hoverImgSrc="/assets/buttons/Button-hover.png" disabled={fetcher.state != 'idle'}>
+                        <span className="z-10  text-white font-easvhs text-2xl group-hover:opacity-90">
+                            {
+                                fetcher.state === "submitting" || fetcher.state === "loading" ? "Creando partida..." : "Crear partida"
+                            }
                         </span>
                     </Button>
-                </Link>
-            </div>
-        </>
+                    <Link to={"/home/joinGame"}>
+                        <Button hoverImgSrc="/assets/buttons/Button-hover.png">
+                            <span className="z-10 text-white font-easvhs text-2xl group-hover:opacity-90">
+                                Unirse a partida
+                            </span>
+                        </Button>
+                    </Link>
+                </div>
+        </div>
     );
 }
 

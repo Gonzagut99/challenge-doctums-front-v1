@@ -8,9 +8,9 @@ const Header = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="relative max-h-16 my-2 w-[84%] lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-50 backdrop-blur-md bg-black/80">
+    <header className="relative max-h-16 my-2 lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-20 backdrop-blur-md bg-black/80">
       <nav
-        className="mx-auto  flex max-w-7xl mx-auto items-center justify-between px-6 py-2 lg:px-8"
+        className="mx-auto  flex max-w-7xl items-center justify-between px-6 py-2 lg:px-8"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
@@ -21,7 +21,7 @@ const Header = () => {
               src="/assets/landing/logo_doctums.png"
               alt="Logo"
             />
-          </a>
+          {/*  */}</a>
         </div>
         <div className="flex lg:hidden">
           <button

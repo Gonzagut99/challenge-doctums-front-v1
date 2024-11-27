@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
+import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
@@ -154,7 +155,7 @@ export default function BuyProducts() {
                     type="back"
                 >
                     <div className="flex flex-col gap-2">
-                        <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold text-lg leading-tight">
                             Objetos o mejoras que, una vez adquiridos te
                             ayudarán a ganar más puntos en futuras etapas.
                             {"\n"}
@@ -177,7 +178,7 @@ export default function BuyProducts() {
                                             {(alreadyAcquired) && (
                                                     <div className="w-fit">
                                                         <img
-                                                            src="/public/assets/icons/check.png"
+                                                            src="/assets/icons/check.png"
                                                             alt="selected modifier"
                                                             className="size-6"
                                                         />
@@ -196,8 +197,8 @@ export default function BuyProducts() {
                                                     </div>
                                                 )
                                             }
-                                            <button
-                                                className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2 disabled:opacity-50"
+                                            {/* <button
+                                                className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2 disabled:opacity-50 hover:scale-105 transform transition-transform duration-300"
                                                 onClick={() =>
                                                     handleSelectProduct(
                                                         product.id
@@ -224,7 +225,13 @@ export default function BuyProducts() {
                                                 <span className="font-easvhs text-lg">
                                                     {product.cost}
                                                 </span>
-                                            </button>
+                                            </button> */}
+                                            <CostButton
+                                                alreadyAcquired={alreadyAcquired}
+                                                product={{ id: product.id, cost: product.cost }}
+                                                handleSelectProduct={handleSelectProduct}//the id is sent in the callback
+                                                modifierType="products"
+                                            ></CostButton>
                                             {/* <span className="text-green-500">
                                                 {product.cost}
                                         </span> */}

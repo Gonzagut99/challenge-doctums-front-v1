@@ -40,7 +40,7 @@ export default function EventDetail() {
     {isModalOpen && (
         <Modal title={"Eventos"} onDismiss={handleDismiss}>
             <div className="flex flex-col gap-2">
-                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">Aqui encontrarás toda la lista de eventos para planificar tu estrategia.</p>
+                <p className="space-y-4 px-5 py-4 font-rajdhani leading-tight font-semibold text-lg">Aqui encontrarás toda la lista de eventos para planificar tu estrategia.</p>
                 <div className="flex-grow max-h-[430px] overflow-y-auto scrollbar-thin">
                     <div className="grid grid-cols-2 gap-2">
                         {

@@ -58,10 +58,10 @@ function JoinGame() {
         <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10">
             <section className="z-20 absolute w-full h-full flex justify-center items-center px-64 pt-[4.2rem] pb-[9rem]">
                 <div className="h-full w-full flex flex-col justify-center items-center px-6 gap-4">
-                    <header className="font-dogica-bold text-zinc-900 text-balance text-3xl text-center">
-                        Introduce el código
+                    <header className="font-easvhs font-bold tracking-[0.1em] text-zinc-900 text-balance text-3xl text-center">
+                        INTRODUCE EL CÓDIGO
                     </header>
-                    <p className="font-easvhs text-xl text-center">
+                    <p className="font-rajdhani leading-snug font-semibold text-2xl text-center">
                         Si tienes algún código de partida, introdúcelo aquí
                     </p>
                     <div className="flex flex-col gap-3">

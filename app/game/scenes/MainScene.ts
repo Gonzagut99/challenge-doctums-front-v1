@@ -268,16 +268,6 @@ export class MainScene extends Phaser.Scene {
         const character = this.getCharacterByPlayerId(playerId);
         const tolerance = 21;
         const isWithinTolerance =  Math.abs(Math.round(character.x) - (casilla as Phaser.GameObjects.Sprite).x) < tolerance && Math.abs(Math.round(character.y + character.height / 2) - (casilla as Phaser.GameObjects.Sprite).y) < tolerance
-        console.log("isWithinTolerance", {
-            character,
-            casilla: casilla.getData('id'),
-            isWithinTolerance,
-            diceResult: this.diceRollResult,
-            casillas: this.visitedCasillas,
-            isStopped: this.isStopped,
-            chracter_x_position: character.x,
-            character_y_position: character.y,
-        });
         return isWithinTolerance;
     }
 

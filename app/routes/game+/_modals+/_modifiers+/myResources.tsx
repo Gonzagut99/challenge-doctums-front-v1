@@ -82,7 +82,7 @@ export default function MyResources() {
                     {myResources.length > 0 &&
                         alreadyAcquiredProductsIds.length > 0 && (
                             <div className="flex flex-col gap-2 h-full">
-                                <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                                <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-snug text-lg">
                                     Herramienta, tiempo y equipo humano
                                     necesarios para ejecutar tus proyectos, que
                                     además, desarrollan productos.
@@ -122,7 +122,7 @@ export default function MyResources() {
                                 <div className="flex justify-center flex-grow items-center">
                                     <Button2
                                         onClick={goToResourceCatalogue}
-                                        className="px-4 h-fit text-zinc-50 font-easvhs"
+                                        className="px-4 h-fit text-zinc-50 font-easvhs py-4"
                                     >
                                         Ver perfiles de recursos humanos
                                     </Button2>
@@ -133,10 +133,10 @@ export default function MyResources() {
                             myResources.length === 0 &&
                             alreadyAcquiredProductsIds.length === 0 && (
                                 <div className="flex justify-center items-center flex-col h-full w-full">
-                                    <p className="space-y-4 px-5 py-4 font-easvhs text-lg opacity-50 pt-2 text-center ">
+                                    <p className="space-y-4 px-5 py-4 text-lg opacity-50 pt-2 text-center font-rajdhani leading-tight font-semibold">
                                         No cuentas con ningún recurso humano aún.
                                     </p>
-                                    <Button2 onClick={goToResourceCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs">Ver perfiles de recursos humanos</Button2>
+                                    <Button2 onClick={goToResourceCatalogue} className="px-4 h-fit text-zinc-50 font-easvhs py-4">Ver perfiles de recursos humanos</Button2>
                                 </div>
                             )
                         }

@@ -72,7 +72,7 @@ export default function MyProjects() {
             {isModalOpen && (
                 <Modal title="Catálogo de proyectos" type="back" onDismiss={handleDismiss}>
                     <div className="flex flex-col gap-2 max-h-[500px] overflow-auto scrollbar-thin">
-                        <p className="space-y-4 px-5 py-4 font-easvhs text-lg">
+                        <p className="space-y-4 px-5 py-4 font-rajdhani font-semibold leading-snug text-lg">
                             Los proyectos te ayudarán a desarrollar tu empresa pues te brindan una producción alta de productos despues de 3 meses de ejecución.
                         </p>
                         <div className="grid grid-cols-2 gap-2">

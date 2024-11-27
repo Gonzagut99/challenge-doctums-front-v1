@@ -365,7 +365,7 @@ export default function ChallengingEvent() {
                     <div className="flex flex-col gap-3 py-2 max-h-[500px] overflow-auto scrollbar-thin">
                         <div className="flex flex-col gap-1">
                             <h2 className="font-easvhs text-md">DESCRIPCIÓN</h2>
-                            <p className="font-easvhs text-sm line-clamp-3 overflow-hidden h-fit">
+                            <p className="font-rajdhani text-base line-clamp-3 leading-tight overflow-hidden h-fit font-semibold">
                                 {eventData.description}
                             </p>
                         </div>
@@ -398,7 +398,7 @@ export default function ChallengingEvent() {
                                     alt="Check"
                                     className="size-8"
                                 />
-                                <p className="text-sm text-center">
+                                <p className="text-base text-center font-rajdhani font-semibold leading-tight ">
                                     Si tienes o has comprado alguno de estos
                                     modificadores, y estos estan activos, te
                                     otorgarán puntos para pasar el evento.
@@ -534,12 +534,12 @@ export default function ChallengingEvent() {
                             ></ConsequenceTile>
                         </div>
                         <div className="flex flex-col gap-2 justify-center">
-                            <header className="font-easvhs text-xl w-full flex justify-center">
+                            <header className="font-rajdhani leading-tight font-semibold text-2xl w-full flex justify-center">
                                 <h2>Vamos a comprobar la 1era Prueba</h2>
                             </header>
                             <div className="flex flex-col gap-2">
                                 <div className="flex flex-col gap-1 items-center justify-center">
-                                    <h4 className="font-easvhs text-md">
+                                    <h4 className="font-rajdhani leading-tight font-semibold text-lg">
                                         La eficiencia con más puntos es:
                                     </h4>
                                     <EfficiencyPointsTile
@@ -552,7 +552,7 @@ export default function ChallengingEvent() {
                                         eficiencia random entre las requeridas
                                     </p>
                                 </div>
-                                <div className="flex flex-col gap-2 items-center">
+                                <div className="flex flex-col gap-2 items-center font-rajdhani font-semibold leading-tight">
                                     <p className="text-base">
                                         Los eventos de{" "}
                                         <span className="font-black">{`Nivel ${eventResults.event.level}`}</span>{" "}
@@ -1000,9 +1000,9 @@ export default function ChallengingEvent() {
                                                         puntos para pasar.
                                                         </p>
                                                     </div>
-                                        <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
+                                        {/* <Button2 className="text-zinc-50 h-10" onClick={handleEventComplete}>
                                             Aceptar
-                                        </Button2>
+                                        </Button2> */}
                                     </>
                                                 <div className="flex justify-center">
                                                     <FinalResultsTile
@@ -1382,7 +1382,7 @@ export function ConsequenceTile({
             <h3 className="text-center text-base">
                 {type === "success" ? "Si pasas" : "Si fracasas"}
             </h3>
-            <p className="text-sm text-center">
+            <p className="text-md text-center font-rajdhani leading-tight font-semibold">
                 {type === "success"
                     ? "Por la credibilidad, se te otorgará"
                     : "Se te restará"}
@@ -1432,7 +1432,7 @@ export function FinalResultsTile({
         <div
             {...rest}
             className={twMerge(
-                "flex flex-col gap-1 font-easvhs bg-zinc-50 border-[3px] border-zinc-900 p-1 rounded-sm",
+                "flex flex-col gap-1 font-easvhs bg-zinc-50 border-[3px] border-zinc-900 p-1 rounded-sm font-normal",
                 twBorderColor,
                 className
             )}
@@ -1440,7 +1440,7 @@ export function FinalResultsTile({
             <h3 className="text-center text-base">
                 {type === "success" ? "Pasaste" : "Fracasaste"}
             </h3>
-            <p className="text-sm text-center">
+            <p className="text-sm text-center font-rajdhani leading-tight font-semibold">
                 {type === "success"
                     ? "Por la credibilidad, se te otorgará"
                     : "Se te restará"}
