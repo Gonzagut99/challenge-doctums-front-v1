@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 
 import { registerHotkey, setHotkeysScope } from "~/utils/hotkeysHelpers";
-import { WhiteContainerLarge } from "./WhiteContainer";
+import { WhiteContainerXL } from "./WhiteContainer";
 import { Button2 } from "./Button2";
 import { twMerge } from "tailwind-merge";
 
@@ -131,14 +131,14 @@ export default function Modal(
                                     </div>
                                 </section>
                             </article> */}
-                            <WhiteContainerLarge ref={modalRef} className={twMerge("min-w-60",props.className )}>
+                            <WhiteContainerXL ref={modalRef} className={twMerge("min-w-60",props.className )}>
                                 <div className="flex flex-col gap-2 items-center py-4">
                                     {
                                         props.children
                                     }
                                     <Button2 className="text-zinc-50 h-10" onClick={handleOutsideClickOrDismissKeypress}>Aceptar</Button2>
                                 </div>
-                            </WhiteContainerLarge>
+                            </WhiteContainerXL>
                         </motion.div>
                     </>,
                     document.getElementById("modal-container") as Element
