@@ -18,7 +18,7 @@ function _layout() {
       <main className="flex justify-center items-center">
         <PageContainer className="z-0 bg-white flex justify-center items-center">
           
-          <section className="w-[950px] pt-32 aspect-[3/2] relative flex flex-col gap-8 items-center">
+          <section className="w-[950px] aspect-[3/2] relative flex flex-col gap-8 items-center">
           
           <div className="absolute top-0 right-0">
             <SoundProvider>

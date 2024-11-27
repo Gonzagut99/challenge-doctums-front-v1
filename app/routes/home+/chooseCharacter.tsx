@@ -12,7 +12,7 @@ import {
     RemixFormProvider,
     useRemixForm,
 } from "remix-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { globalWebSocketService } from "~/services/ws";
 
 //Form validation and configuration
@@ -61,6 +61,7 @@ function ChooseCharacter() {
     const loaderData = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     // const submit = useSubmit();
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     const form = useRemixForm<FormData>({
         mode: "onSubmit",
@@ -98,6 +99,18 @@ function ChooseCharacter() {
             sessionCode: watch('sessionCode')
         });
     }, [watch]);
+
+    const handlePrevious = () => {
+        setCurrentIndex((prevIndex) =>
+            prevIndex === 0 ? charactersData.length - 1 : prevIndex - 1
+        );
+    };
+
+    const handleNext = () => {
+        setCurrentIndex((prevIndex) =>
+            prevIndex === charactersData.length - 1 ? 0 : prevIndex + 1
+        );
+    };
     
 
     return (
@@ -142,18 +155,30 @@ function ChooseCharacter() {
                                     </p>
                                 )}
                             </div>
-                        </div>                       
-                        <div className="grid grid-cols-4 grid-rows-1 gap-3">
-                            {
-                                charactersData.map((character) => (
-                                    <CharacterCard
-                                        key={character.id}
-                                        characterData={character}
-                                        onClick={() => handleSelectCharacter(character.id)}
-                                    />
-                                ))
-                            }
-                        </div>
+                        </div>   
+                                            
+                        <div className="w-full max-w-[80%] overflow-hidden relative">
+                    <div
+                        className="flex transition-transform duration-500 ease-in-out"
+                        style={{
+                            transform: `translateX(-${currentIndex * 100}%)`,
+                        }}
+                    >
+                        {charactersData.map((character) => (
+                            <div
+                                key={character.id}
+                                className="flex-shrink-0 w-full flex justify-center"
+                            >
+                                <CharacterCard
+                                    characterData={character}
+                                    onClick={() =>
+                                        console.log(`Selected: ${character.id}`)
+                                    }
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
                         <div>
                             {
                                 errors.root && (
@@ -180,6 +205,14 @@ function ChooseCharacter() {
                     </Form>
                 </RemixFormProvider>
             </section>
+            
+                {/* Botón Siguiente */}
+                <button
+                    onClick={handleNext}
+                    className="absolute right-2 top-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
+                >
+                    &#8250;
+                </button>
         </article>
     );
 }
