@@ -1,50 +1,46 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState } from "react";
 
-interface SoundContextType {
+interface SoundContextProps {
   isMusicPlaying: boolean;
   isSoundOn: boolean;
   toggleMusic: () => void;
   toggleSound: () => void;
-  setMusicState: (state: boolean) => void;
-  setSoundState: (state: boolean) => void;
+  playSound: (src: string) => void;
 }
 
-const SoundContext = createContext<SoundContextType | undefined>(undefined);
+const SoundContext = createContext<SoundContextProps | undefined>(undefined);
 
-export const useSoundContext = (): SoundContextType => {
-  const context = useContext(SoundContext);
-  if (!context) {
-    throw new Error("useSoundContext must be used within a SoundProvider");
-  }
-  return context;
-};
-
-interface SoundProviderProps {
-  children: ReactNode;
-}
-
-export const SoundProvider: React.FC<SoundProviderProps> = ({ children }) => {
+export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMusicPlaying, setIsMusicPlaying] = useState(true);
   const [isSoundOn, setIsSoundOn] = useState(true);
 
   const toggleMusic = () => setIsMusicPlaying((prev) => !prev);
-  const toggleSound = () => setIsSoundOn((prev) => !prev);
+  const toggleSound = () => {
+    setIsSoundOn((prev) => {
+      console.log("isSoundOn cambia a:", !prev);
+      return !prev;
+    });
+  };
 
-  const setMusicState = (state: boolean) => setIsMusicPlaying(state);
-  const setSoundState = (state: boolean) => setIsSoundOn(state);
+  const playSound = (src: string) => {
+    if (!isSoundOn) return; const audio = new Audio(src);
+    console.log("Reproduciendo sonido:", src);
+    audio.play().catch((err) => console.error("Error al reproducir el sonido:", err));
+  };
 
   return (
-    <SoundContext.Provider
-      value={{
-        isMusicPlaying,
-        isSoundOn,
-        toggleMusic,
-        toggleSound,
-        setMusicState,
-        setSoundState,
-      }}
-    >
+    <SoundContext.Provider value={{ isMusicPlaying, 
+    isSoundOn, 
+    toggleMusic, 
+    toggleSound, 
+    playSound }}>
       {children}
     </SoundContext.Provider>
   );
+};
+
+export const useSoundContext = () => {
+  const context = useContext(SoundContext);
+  if (!context) throw new Error("useSoundContext debe usarse dentro de SoundProvider");
+  return context;
 };
