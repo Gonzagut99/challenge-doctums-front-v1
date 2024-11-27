@@ -71,4 +71,34 @@ export const charactersData: CharacterData[] = [
         color: "bg-[#FEE349]",
         twTextColor: "text-[#D8B700]",
     },
+    {
+        id: 5,
+        image: "/assets/characters/characterMale3.png",
+        avatar: "/assets/characters/avatars/AvatarMale2.png",
+        profession: "Consultor Ágil",
+        description:
+            "Un facilitador clave en equipos ágiles, ayuda a mantener el enfoque en los objetivos del proyecto mientras asegura la flexibilidad necesaria para adaptarse a los cambios. Es conocido por fomentar la colaboración y un flujo de trabajo eficiente.",
+        preview: { 
+            metodologías_ágiles: ["Gestor de talento", "Foco en objetivos"], 
+            habilidades_blandas: ["Colaboración", "Adaptabilidad"], 
+            //flujo_trabajo: ["Eficiencia en procesos", "Gestión de cambios"]
+        },
+        color: "bg-[#B74CF4]",
+        twTextColor: "text-[#B74CF4]",
+    },
+    {
+        id: 6,
+        image: "/assets/characters/characterFemale3.png",
+        avatar: "/assets/characters/avatars/AvatarFemale3.png",
+        profession: "Gestora de Riesgos",
+        description:
+            "Experta en identificar, analizar y mitigar riesgos dentro de los proyectos. Su enfoque proactivo garantiza la continuidad operativa y la calidad del trabajo. En habilidades blandas, destaca por su pensamiento crítico y su habilidad para anticiparse a problemas futuros.",
+        preview: { 
+            manejo_riesgos: ["Identificación de riesgos", "Mitigación proactiva"], 
+            habilidades_blandas: ["Pensamiento crítico", "Anticipación a problemas"],
+            //garantía_calidad: ["Continuidad operativa", "Gestión eficiente"]
+        },
+        color: "bg-[#FEA221]",
+        twTextColor: "text-[#FEA221]",
+    },
 ];
