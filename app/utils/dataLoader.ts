@@ -229,3 +229,4 @@ export const loadAllModifiersData = async () => {
     return { products, projects, resources };
 }
 
+export const projectsData = await loadProjects(dataPaths.projects);

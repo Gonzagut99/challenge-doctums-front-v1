@@ -48,6 +48,7 @@ import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { set } from "zod";
 import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
+import { projectsData } from "~/utils/dataLoader";
 const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
@@ -75,9 +76,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const newTurn_localPlayerStoredData = globalWebSocketService.newTurn_getStoredLocalPlayerData()
 
     const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
-    console.log("hasPositionsUpdated", hasPositionsUpdated)
     const hasPlayerSubmittedPlan = globalWebSocketService.getHasPlayerSubmittedPlan();
-    // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
+    const localPlayerProjectsData = globalWebSocketService.localPlayerModifiers.projects;
+
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
     }
@@ -95,7 +96,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         newTurn_localPlayerAdvancedDays,
         newTurn_localPlayerStoredData,
         hasPositionsUpdated,
-        hasPlayerSubmittedPlan
+        hasPlayerSubmittedPlan,
+        localPlayerProjectsData,
+        csvLoadedProjects: projectsData
     });
 };
 
@@ -135,6 +138,8 @@ export default function _layout() {
     //charging loader data | gameInitData
 
     const loaderData: any = useLiveLoader<typeof loader>();
+    const loadedProjects = loaderData.csvLoadedProjects;
+
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn | SubmitPlanResponse | TurnEventResults | NextTurnResponse =
         loaderData.gameState;
     const playerPositions = loaderData.gamePlayersPositions;
@@ -142,7 +147,8 @@ export default function _layout() {
     const localPlayer = loaderData.localPlayer as Player;
     const localPlayerDynamicInfo =
         loaderData.localPlayerDynamicInfo as LocalPlayerDynamicInfo;
-    //const isGameInitialized:boolean = loaderData.isGameInitialized;
+    const localPlayerProjectsData = loaderData.localPlayerProjectsData;
+
     const turnsOrder = loaderData.playersTurnOrder as TurnOrderPlayer[];
     // const currentPlayerTurnId =
     //     loaderData.currentPlayerTurnId ?? genericGameState.current_turn;
@@ -362,6 +368,8 @@ export default function _layout() {
                                                     player={
                                                         localPlayerDynamicInfo
                                                     }
+                                                    csvLoadedProjects={loadedProjects}
+                                                    localPlayerProjects={localPlayerProjectsData}
                                                 />
                                             );
                                         } else {
@@ -844,12 +852,13 @@ const playerCardIcons = ({
 //     color: string;
 //     twTextColor: string;
 // }
-function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
+function LocalPlayerCard({ player, localPlayerProjects, csvLoadedProjects }: { player: LocalPlayerDynamicInfo,localPlayerProjects: Record<string,any>[], csvLoadedProjects: Record<string, any> }) {
     if (!player) return null;
     const characterData =
         charactersData.find(
             (character) => character.id === parseInt(player.avatarId)
         ) ?? charactersData[0];
+    const maxMonths = 3;
 
     return (
         <WhiteContainerLarge className="max-w-[19rem] min-w-[19rem] min-h-44 h-44 animate-fade-down animate-once">
@@ -905,7 +914,27 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                     <h4 className="text-[12px] font-rajdhani font-semibold leading-tight">
                         Proyectos en marcha:
                     </h4>
-                    <div className="grow flex items-center">
+                    <div className="mt-1 flex items-center">
+                        {
+                            localPlayerProjects.map((project) => {
+                                const alreadyAcquired = csvLoadedProjects[project.id];
+
+                                return (
+                                    <figure key={project.id} className="w-fit relative">
+                                            {((maxMonths - project.remaining_time) == maxMonths) && (
+                                                    <div className="w-fit z-10 absolute inset-0 backdrop-blur-0 bg-zinc-50/50">
+                                                        <img className="size-7" src="/assets/icons/check.png" alt="finished" title="Proyecto ya terminado!"/>
+                                                    </div>
+                                                )
+                                            }
+                                            {
+                                                <img className="object-fill size-7" src="/assets/icons/projectsIcon.png" alt={`Proyecto ${alreadyAcquired.ID}`} title={alreadyAcquired.name}/>
+                                            }
+                                    </figure>
+                                    
+                                )
+                            })
+                        }
                         {/* {gamePlayerData.ongoingProjects === 0 ? (
                             <p className="text-[12px] font-easvhs text-center opacity-30 w-full">
                                 No tienes proyectos en marcha
