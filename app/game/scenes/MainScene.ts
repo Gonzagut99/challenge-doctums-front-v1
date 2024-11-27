@@ -160,6 +160,8 @@ export class MainScene extends Phaser.Scene {
             { x: 115, y: 5980 },
             { x: 80, y: 5950 },
             { x: 80, y: 5980 },
+            { x: 80, y: 6000 },
+            { x: 80, y: 6000 },
         ];    
         this.playerPositions.forEach((playerState, idx) => {
             this.playersCharacter[playerState.playerId] = this.physics.add.sprite(defaultPositions[idx].x, defaultPositions[idx].y, `character_${playerState.avatarId}`);

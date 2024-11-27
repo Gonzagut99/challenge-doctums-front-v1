@@ -39,7 +39,7 @@ const MusicAndSoundControls: React.FC = () => {
 
   return (
     <div
-      className="relative"
+      className="relative z-40"
       onMouseEnter={() => setIsExpanded(true)} // Cambiar el estado a true cuando el mouse entra
       onMouseLeave={() => setIsExpanded(false)} // Cambiar el estado a false cuando el mouse sale
     >
@@ -50,7 +50,6 @@ const MusicAndSoundControls: React.FC = () => {
         />
       </button>
 
-      {/* Contenedor expandido */}
       {isExpanded && (
         <div
           className="absolute top-4 right-full ml-4 w-60 p-4 text-white rounded-lg shadow-lg transition-all duration-300"
