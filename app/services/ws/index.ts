@@ -114,8 +114,9 @@ class WebSocketService implements IWebSocketService {
     // }
 
     getHasPositionsUpdated() {
-        const copy = this.updatedPlayersPositions;
+        const copy = this.updatedPlayersPositions?.method;
         this.updatedPlayersPositions = null;
+        console.log(copy)
         return copy;
     }
 

@@ -75,6 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const newTurn_localPlayerStoredData = globalWebSocketService.newTurn_getStoredLocalPlayerData()
 
     const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
+    console.log("hasPositionsUpdated", hasPositionsUpdated)
     const hasPlayerSubmittedPlan = globalWebSocketService.getHasPlayerSubmittedPlan();
     // const isGameInitialized = globalWebSocketService.getIsGameInitialized(); //Control game canvas initialization
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
@@ -227,7 +228,7 @@ export default function _layout() {
             submitPlan_setHasNavigated(true);
             navigate(`/game/submitPlanSuccess`);
         }
-    }, [submitPlan_showModal, submitPlan_isReadyToFaceEvent, navigate, submitPlan_hasNavigated]);
+    }, [submitPlan_showModal, submitPlan_isReadyToFaceEvent, submitPlan_hasNavigated]);
 
     //load EventFlowModal
     const [eventFlow_hasNavigated, eventFlow_setHasNavigated] = useState(false);
@@ -240,7 +241,13 @@ export default function _layout() {
         if(eventFlow_hasNavigated && nextTurn_currentTurn != localPlayer?.id) {
             eventFlow_setHasNavigated(false)
         }
-    }, [navigate, eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
+    }, [ eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
+
+    useEffect(() => {
+        if (hasPlayersPositionsUpdated) {
+            emitter.emit("updated_players_positions", playerPositions);
+        }
+    }, [playerPositions]);
 
 
 
@@ -296,7 +303,7 @@ export default function _layout() {
             method: "post",
         });
     }
-    emitter.emit("updated_players_positions", playerPositions);
+    
 
 
 
