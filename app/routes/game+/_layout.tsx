@@ -296,21 +296,6 @@ export default function _layout() {
             method: "post",
         });
     }
-
-    
-    // console.log("isServer", isServer)
-    // console.log("advance days", newTurn_advancedDays)
-    // console.log("hasLocalPlayerRolledDicesToAdvanceDays", preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays)
-    // console.log("players positions", playerPositions)
-    console.log({
-        preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays,
-        submitPlan_isReadyToFaceEvent,
-        newTurn_localPlayerStoredData,
-        hasPlayerSubmittedPlan,
-        isWeekend: newTurn_localPlayerStoredData?.time_manager?.is_weekend,
-        currentPlayerTurnId,
-        localPlayer
-    });
     emitter.emit("updated_players_positions", playerPositions);
 
 
