@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
-import { SoundProvider, useSoundContext } from "./SoundContext";
+import { SoundProvider, useSoundContext } from "./music/SoundContext";
 
 interface ButtonProps extends React.HTMLProps<HTMLButtonElement> {
     children?: React.ReactNode;

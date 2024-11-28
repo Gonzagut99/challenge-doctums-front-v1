@@ -5,12 +5,12 @@ const MusicAndSoundControls: React.FC = () => {
   const { isMusicPlaying, isSoundOn, toggleMusic, toggleSound } = useSoundContext(); 
   const [isExpanded, setIsExpanded] = useState(false); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
+/*
   useEffect(() => {
     const audioElement = audioRef.current;
-    
+    */
 
-    if (audioElement) {
+  /*  if (audioElement) {
       audioElement.volume = 0;
       audioElement.play().catch((err) => console.error("Error al reproducir la música:", err));
 
@@ -27,7 +27,7 @@ const MusicAndSoundControls: React.FC = () => {
       };
     }
   }, []);
-
+*/
   useEffect(() => {
     if (audioRef.current) {
       if (isMusicPlaying) {
@@ -45,7 +45,7 @@ const MusicAndSoundControls: React.FC = () => {
       onMouseEnter={() => setIsExpanded(true)} 
       onMouseLeave={() => setIsExpanded(false)} 
     >
-      <button className="p-4 text-white">
+      <button className="text-white">
         <img
           src={isExpanded ? "/assets/setting/button-setting2.png" : "/assets/setting/button-setting1.png"}
           alt="Botón de configuración"
@@ -107,11 +107,6 @@ const MusicAndSoundControls: React.FC = () => {
           </div>
         </div>
       )}
-
-      <audio ref={audioRef} loop>
-        <source src="/assets/audios/background-music.mp3" type="audio/mpeg" />
-        Tu navegador no soporta el elemento de audio.
-      </audio>
     </div>
   );
 };

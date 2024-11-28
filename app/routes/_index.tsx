@@ -1,7 +1,7 @@
 import type { LinksFunction, MetaFunction } from '@remix-run/node';
 import { ClientOnly } from 'remix-utils/client-only';
 import App from '../app.client';
-import { SoundProvider } from '~/components/custom/SoundContext';
+import { SoundProvider } from '~/components/custom/music/SoundContext';
 
 export const links: LinksFunction = () => {
     return [
@@ -25,9 +25,7 @@ export default function Index() {
         <ClientOnly fallback={<h3>Loading Game...</h3>}>
             
             { () => (
-                <SoundProvider>
                 <App /> 
-                </SoundProvider> 
             )}
         </ClientOnly>
     );

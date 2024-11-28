@@ -14,6 +14,7 @@ import {
 } from "remix-hook-form";
 import { useEffect, useState } from "react";
 import { globalWebSocketService } from "~/services/ws";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 
 //Form validation and configuration
 const schema = z.object({
@@ -117,6 +118,9 @@ function ChooseCharacter() {
         <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10 py-4 px-8 flex flex-col gap-6"
 
         >
+             <div className="absolute top-0 right-2">
+            <MusicAndSoundControls />
+        </div>
             <section>
                 <header className="flex justify-center relative">
                     <img

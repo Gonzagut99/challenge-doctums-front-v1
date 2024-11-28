@@ -12,6 +12,8 @@ import { useEffect } from "react";
 import toastStyles from "react-toastify/dist/ReactToastify.css?url";
 import { getToast } from "remix-toast";
 import { ToastContainer, toast as notify } from "react-toastify";
+import { SoundProvider } from "./components/custom/music/SoundContext";
+import GlobalMusic from "./components/custom/music/GlobalMusic";
 
 export const links: LinksFunction = () => [
     { rel: "stylesheet", href: styles },
@@ -47,7 +49,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="!m-0">
-                {children}
+                <SoundProvider>
+                    <GlobalMusic />
+                    {children}
+                </SoundProvider>
+                
                 <ToastContainer
                     position="top-right"
                     autoClose={3000}

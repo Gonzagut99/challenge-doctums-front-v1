@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { charactersData } from "~/data/characters";
 import { globalWebSocketService } from "~/services/ws";
 import { useLiveLoader } from "~/utils/use-live-loader";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
@@ -77,6 +78,9 @@ function Index() {
 
     return (
         <article className="h-full w-full relative z-10 py-4 px-8 flex flex-col gap-6">
+            <div className="absolute top-0 right-2">
+            <MusicAndSoundControls />
+        </div>
             <section>
                 <header className="flex justify-center relative">
                     {/* <button

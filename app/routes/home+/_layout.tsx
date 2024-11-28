@@ -1,11 +1,12 @@
 import { Outlet } from "@remix-run/react"
-import MusicAndSoundControls from "~/components/custom/BackgroundMusic";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { Header } from "~/components/custom/landing/Header"
 import { PageContainer } from "~/components/custom/PageContainer"
-import { SoundProvider } from "~/components/custom/SoundContext";
+import { SoundProvider } from "~/components/custom/music/SoundContext";
 
 function _layout() {
   return (
+    
     <div
       className="min-h-dvh grid grid-cols-1 max-h-screen"
       style={{
