@@ -9,7 +9,7 @@ import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyProductTableTileData } from "~/types/modifiers";
-import { loadProducts } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 // import { ModifiersTabletTileData } from "~/types/Modifiers";
 
 // type ProductFeature = {
@@ -25,7 +25,8 @@ import { loadProducts } from "~/utils/dataLoader";
 // }
 
 export const loader = async () => {
-    const domainProducts = await loadProducts("app/data/products.csv");
+    // const domainProducts = await loadProducts("app/data/products.csv");
+    const domainProducts = initializedDataLoader.getProducts();
     const products = Object.values(domainProducts);
 
     const tileProducts: BuyProductTableTileData[] = products.map((product) => ({

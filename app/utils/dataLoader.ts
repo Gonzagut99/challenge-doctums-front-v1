@@ -230,3 +230,81 @@ export const loadAllModifiersData = async () => {
 }
 
 export const projectsData = await loadProjects(dataPaths.projects);
+
+class DataLoader {
+    projects: Record<string, Project>;
+    resources: Record<string, Resource>;
+    products: Record<string, Product>;
+    efficiencies: Record<string, Efficiency>;
+    events: Record<string, Event>;
+    legacy: string[][];
+
+    constructor() {
+        this.projects = {};
+        this.resources = {};
+        this.products = {};
+        this.efficiencies = {};
+        this.events = {};
+        this.legacy = [];
+    }
+
+    async initialize() {
+        this.projects = await loadProjects(dataPaths.projects);
+        this.resources = await loadResources(dataPaths.resources);
+        this.products = await loadProducts(dataPaths.products);
+        this.efficiencies = await loadEfficiencies(dataPaths.efficiencies);
+        this.events = await loadEvents(dataPaths.events);
+        this.legacy = await loadLegacy(dataPaths.legacy);
+        return this;
+    }
+
+    async reload() {
+        await this.initialize();
+    }
+
+    getProjects() {
+        return this.projects;
+    }
+
+    getResources() {
+        return this.resources;
+    }
+
+    getProducts() {
+        return this.products;
+    }
+
+    getEfficiencies() {
+        return this.efficiencies;
+    }
+
+    getEvents() {
+        return this.events;
+    }
+
+    getLegacy() {
+        return this.legacy;
+    }
+
+    getAllData() {
+        return {
+            projects: this.projects,
+            resources: this.resources,
+            products: this.products,
+            efficiencies: this.efficiencies,
+            events: this.events,
+            legacy: this.legacy
+        };
+    }
+
+    getAllModifiersData() {
+        return {
+            products: this.products,
+            projects: this.projects,
+            resources: this.resources
+        };
+    }
+}
+
+const dataLoader = new DataLoader();
+export const initializedDataLoader = await dataLoader.initialize();

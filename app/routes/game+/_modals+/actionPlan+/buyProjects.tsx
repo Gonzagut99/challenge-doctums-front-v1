@@ -9,11 +9,13 @@ import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyProjectTableTileData } from "~/types/modifiers";
-import { loadProducts, loadProjects } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 
 export const loader = async () => {
-    const domainProjects = await loadProjects("app/data/projects.csv");
-    const domainProducts = await loadProducts("app/data/products.csv");
+    // const domainProjects = await loadProjects("app/data/projects.csv");
+    // const domainProducts = await loadProducts("app/data/products.csv");
+    const domainProjects = initializedDataLoader.getProjects();
+    const domainProducts = initializedDataLoader.getProducts();
     const projects = Object.values(domainProjects);
 
     const tileProjects: BuyProjectTableTileData[] = projects.map((project) => ({

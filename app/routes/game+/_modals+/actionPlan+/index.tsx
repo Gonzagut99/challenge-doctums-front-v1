@@ -7,7 +7,7 @@ import Modal from "~/components/custom/Modal";
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { Button2 } from "~/components/custom/Button2";
 import { GameControlButton } from "../../_layout";
-import { loadAllModifiersData } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 import { globalWebSocketService } from "~/services/ws";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { PlanActions } from "~/types/methods_jsons";
@@ -31,7 +31,8 @@ interface ResourceCheckoutFeature extends ModifiersCheackoutFeature {}
 interface ProjectCheckoutFeature extends ModifiersCheackoutFeature {}
 
 export const loader = async () => {
-    const { products, projects, resources} = await loadAllModifiersData();
+    // const { products, projects, resources} = await loadAllModifiersData();
+    const { products, projects, resources} = initializedDataLoader.getAllModifiersData();
 
     const originalBudget = actionPlanState.getBudget() ?? 0;
     // const originalBudget = actionPlanState.getBudget();

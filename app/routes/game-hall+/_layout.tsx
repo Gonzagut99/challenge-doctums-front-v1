@@ -11,10 +11,11 @@ function _layout() {
         backgroundImage: 'url(/assets/landing/img/gradiente.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
       }}
     >
       <Header />
-      <main className="min-h-dvh grid grid-cols-1 max-h-screen"
+      <main className="min-h-dvh grid grid-cols-1"
       >
         <PageContainer className="z-0 bg-transparent flex justify-center items-center">
           <section className="w-[950px] aspect-[3/2] relative flex flex-col gap-8 justify-center items-center">

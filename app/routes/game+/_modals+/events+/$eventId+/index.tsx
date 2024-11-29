@@ -8,7 +8,7 @@ import { EfficiencyPointsTile } from "~/components/custom/EfficienyTile";
 import Modal from "~/components/custom/Modal";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { ModifierFeature } from "~/types/modifiers";
-import { loadAllModifiersData, loadEfficiencies, loadEvents } from "~/utils/dataLoader";
+import { initializedDataLoader, loadAllModifiersData } from "~/utils/dataLoader";
 
 
 export type consequenceResult = {
@@ -32,9 +32,11 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     if (!eventId) {
         return redirect("/game");
     }
-    const domainEvents = await loadEvents("app/data/events.csv");
+    // const domainEvents = await loadEvents("app/data/events.csv");
+    const domainEvents = initializedDataLoader.getEvents();
     const selectedEvent = domainEvents[eventId];
-    const efficiencies = await loadEfficiencies("app/data/efficiencies.csv");
+    const efficiencies = initializedDataLoader.getEfficiencies();
+    // const efficiencies = await loadEfficiencies("app/data/efficiencies.csv");
     // const products = await loadProducts("app/data/products.csv");
     // const projects = await loadProducts("app/data/projects.csv");
     // const resources = await loadProducts("app/data/resources.csv");

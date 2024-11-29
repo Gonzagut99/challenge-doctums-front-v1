@@ -16,9 +16,7 @@ import { globalWebSocketService } from "~/services/ws";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { ModifierFeature } from "~/types/modifiers";
 import {
-    loadAllModifiersData,
-    loadEfficiencies,
-    loadEvents,
+    initializedDataLoader,
 } from "~/utils/dataLoader";
 
 export type ConsequenceResult = {
@@ -115,16 +113,18 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     if (!eventId) {
         return redirect("/game");
     }
-    const domainEvents = await loadEvents("app/data/events.csv");
+    // const domainEvents = await loadEvents("app/data/events.csv");
+    const domainEvents = initializedDataLoader.getEvents();
     const selectedEvent = domainEvents[eventId];
-    const domainEfficiencies = await loadEfficiencies(
-        "app/data/efficiencies.csv"
-    );
+    // const domainEfficiencies = await loadEfficiencies(
+    //     "app/data/efficiencies.csv"
+    // );
+    const domainEfficiencies = initializedDataLoader.getEfficiencies();
     const eventResults = globalWebSocketService.eventFlow_results;
     // const products = await loadProducts("app/data/products.csv");
     // const projects = await loadProducts("app/data/projects.csv");
     // const resources = await loadProducts("app/data/resources.csv");
-    const { products, projects, resources } = await loadAllModifiersData();
+    const { products, projects, resources } = initializedDataLoader.getAllModifiersData();
     const myPreviousEfficiencies =
         globalWebSocketService.localPlayerPreviousEfficiencies;
     const myEfficiencies = globalWebSocketService.localPlayerEfficiencies;

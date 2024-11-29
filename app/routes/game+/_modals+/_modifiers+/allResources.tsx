@@ -6,7 +6,7 @@ import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { globalWebSocketService } from "~/services/ws";
 import { ModifiersTabletTileData } from "~/types/modifiers";
-import { loadProducts, loadResources } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 
 interface MyResourcesTileData {
     remainingMonths: number;
@@ -14,8 +14,10 @@ interface MyResourcesTileData {
 }
 
 export const loader = async () => {
-    const domainResourcesObject = await loadResources("app/data/resources.csv");
-    const domainProductsObject = await loadProducts("app/data/products.csv");
+    // const domainResourcesObject = await loadResources("app/data/resources.csv");
+    // const domainProductsObject = await loadProducts("app/data/products.csv");
+    const domainResourcesObject = initializedDataLoader.getResources();
+    const domainProductsObject = initializedDataLoader.getProducts();
     const domainResourcesValues = Object.values(domainResourcesObject)
     // let myProjects = globalWebSocketService.localPlayerModifiers.projects;
     const myProducts = globalWebSocketService.localPlayerModifiers.products ?? [];

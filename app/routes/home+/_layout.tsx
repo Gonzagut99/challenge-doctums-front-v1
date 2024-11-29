@@ -7,14 +7,16 @@ import { SoundProvider } from "~/components/custom/SoundContext";
 function _layout() {
   return (
     <div
-      className="min-h-dvh grid grid-cols-1 max-h-screen"
+      className="min-h-dvh grid grid-cols-1 relative"
       style={{
         backgroundImage: 'url(/assets/landing/img/gradiente.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
       }}
     >
-      <Header />
+        {/* <img src="/assets/landing/img/gradiente.png" alt="background" className="fixed top-0 left-0 w-screen h-screen -z-10 object-cover"/> */}
+        <Header />
       <main className="flex justify-center items-center">
         <PageContainer className="z-0 bg-white flex justify-center items-center">
           

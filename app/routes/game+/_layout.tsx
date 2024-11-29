@@ -48,7 +48,7 @@ import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { set } from "zod";
 import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
-import { projectsData } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
@@ -98,7 +98,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         hasPositionsUpdated,
         hasPlayerSubmittedPlan,
         localPlayerProjectsData,
-        csvLoadedProjects: projectsData
+        csvLoadedProjects: initializedDataLoader.getProjects(),
     });
 };
 
@@ -320,11 +320,12 @@ export default function _layout() {
             backgroundImage: 'url(/assets/landing/img/gradiente.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
           }}
         >
         <Header/>
         
-        <main className="min-h-dvh grid grid-cols-1 max-h-screen">
+        <main className="min-h-dvh grid grid-cols-1">
             <PageContainer className="z-0 bg-transparent flex justify-center items-center">
                 <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
                     <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
