@@ -133,13 +133,7 @@ function ChooseCharacter() {
                     </h1>
                 </header>
             </section>
-            {/* Botón Anterior */}
-            <button
-                onClick={handlePrevious}
-                className="absolute left-2 top-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
-            >
-                &#8249;
-            </button>
+            
             <section>
                 <RemixFormProvider {...form}>
                     <Form className="flex flex-col items-center" method="post" action="/home/chooseCharacter" onSubmit={handleSubmit}>
@@ -216,13 +210,19 @@ function ChooseCharacter() {
                     </Form>
                 </RemixFormProvider>
             </section>
-
+            {/* Botón Anterior */}
+            <button
+                onClick={handlePrevious}
+                className="absolute left-2 top-1/2 z-20 w-20 text-white p-2 rounded-full"
+            >
+                <img src="/assets/buttons/arrow-left.png" alt="" />
+            </button>
             {/* Botón Siguiente */}
             <button
                 onClick={handleNext}
-                className="absolute right-2 top-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
+                className="absolute right-2 top-1/2 z-20 w-20 text-white p-2 rounded-full"
             >
-                &#8250;
+                <img src="/assets/buttons/arrow-right.png" alt="" />
             </button>
         </article>
     );

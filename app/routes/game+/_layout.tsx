@@ -253,18 +253,44 @@ export default function _layout() {
         message: "",
     });
 
-    //trigger turn_order_stage event from the backend
-    const triggerTurnOrderStage = () => {
-        // const currentPlayerOrderTurnId = currentPlayerTurnId;
+    // Trigger turn_order_stage event from the backend
+const triggerTurnOrderStage = () => {
+    if (currentPlayerTurnId === localPlayer?.id) {
+        const formData = new FormData();
+        formData.append("method", "turn_order_stage");
+        submit(formData, {
+            method: "post",
+        });
+        console.log("[Game]: Turno de orden activado");
+    } 
+};
 
+    const [rollDiceTrigger, setRollDiceTrigger] = useState(false);
+
+    const triggerRollDices = () => {
         if (currentPlayerTurnId === localPlayer?.id) {
+            setRollDiceTrigger(true); // Activa el sonido
             const formData = new FormData();
-            formData.append("method", "turn_order_stage");
-            submit(formData, {
-                method: "post",
-            });
+            formData.append("method", "roll_dices");
+            submit(formData, { method: "post" });
+            console.log("[Game]: Dados lanzados");
+    
+            // Restablece el estado después de un breve tiempo
+            setTimeout(() => setRollDiceTrigger(false), 500);
         }
     };
+
+    const triggerTurnOrderWithSound = () => {
+        if (currentPlayerTurnId === localPlayer?.id) {
+            // Activa el sonido
+            setRollDiceTrigger(true); // Activa el sonido de los dados
+            setTimeout(() => setRollDiceTrigger(false), 500); // Restablece el estado del sonido después de un tiempo
+    
+            // Ejecuta la lógica de triggerTurnOrderStage
+            triggerTurnOrderStage();
+        }
+    };
+    
 
     const triggerStartNewTurn = () => {
         const formData = new FormData();
@@ -276,12 +302,22 @@ export default function _layout() {
     };
 
     const triggerAdvanceDaysMessage = () => {
-        const formData = new FormData();
-        formData.append("method", "advance_days");
-        submit(formData, {
-            method: "post",
-        });
+        if (currentPlayerTurnId === localPlayer?.id) {
+            // Activa el sonido
+            setRollDiceTrigger(true); 
+            setTimeout(() => setRollDiceTrigger(false), 500); // Restablece el estado después de un tiempo breve
+    
+            // Lógica original
+            const formData = new FormData();
+            formData.append("method", "advance_days");
+            submit(formData, {
+                method: "post",
+            });
+    
+            console.log("[Game]: Dados lanzados y días avanzados.");
+        }
     };
+    
 
     const triggerStartEventFlow = () => {
         const formData = new FormData();
@@ -322,12 +358,18 @@ export default function _layout() {
                         <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                             <section className="flex justify-center relative">
 
-                            <div className="absolute top-0 right-12">
-                                        <MusicAndSoundControls />
-                            </div>
-                                <NotificationSound trigger={hasPlayersPositionsUpdated?.message || genericGameState}
-                                    audioSrc="/assets/audios/sound-effects/notification1.mp3"
-                                />
+                                <div className="absolute top-0 right-12">
+                                    <MusicAndSoundControls />
+                                </div>
+
+                                <NotificationSound
+                                trigger={rollDiceTrigger || hasPlayersPositionsUpdated?.message || genericGameState}
+                                audioSrc={
+                                    rollDiceTrigger
+                                        ? "/assets/audios/sound-effects/dices-roll.mp3"
+                                        : "/assets/audios/sound-effects/notification1.mp3"
+                                }
+                            />
                                 <WhiteContainer className="animate-jump-in ">
                                     <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
                                         {
@@ -335,13 +377,13 @@ export default function _layout() {
                                         }
                                     </span>
                                 </WhiteContainer>
-                                <div className="absolute right-6 w-fit">
-                                    
+                                <div className="absolute right-8 w-fit">
+
                                     <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={() => navigate('/game/events')}>
                                         <img
                                             src="/assets/icons/eventoNoBorder.png"
                                             alt="Back Button"
-                                            className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
+                                            className="size-10 min-h-10 absolute inset-0 rounded-lg object-cover aspect-square"
                                             title="Ver catálogo de Eventos"
                                         />
                                     </button>
@@ -416,45 +458,38 @@ export default function _layout() {
 
                                 {/* WS actions */}
                                 <div className="flex gap-4 justify-center">
-                                    {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
-
-                                        <ActionButtonManager
-                                            method={
-                                                genericGameState.method as keyof typeof gameStateHandlers
-                                            }
-                                            wsActionTriggerer={
-                                                triggerTurnOrderStage
-                                            }
-                                            message={
-                                                currentPlayerTurnId ===
-                                                    localPlayer?.id
-                                                    ? "Lanza los dados"
-                                                    : "Esperar..."
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId !==
-                                                localPlayer?.id
-                                            }
-                                        />
-
-                                    )}
+                                {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
+                                    <ActionButtonManager
+                                        method={genericGameState.method as keyof typeof gameStateHandlers}
+                                        wsActionTriggerer={triggerTurnOrderWithSound}
+                                        message={currentPlayerTurnId === localPlayer?.id ? "Lanza los dados" : "Esperar..."}
+                                        disabled={currentPlayerTurnId !== localPlayer?.id}
+                                    />
+                                )}
 
                                     {/* ready to start regular turns */}
                                     {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
-                                        <ActionButtonManager
-                                            method="start_new_turn"
-                                            wsActionTriggerer={triggerStartNewTurn}
-                                            message={
-                                                currentPlayerTurnId || turnStage_playerToStartNewTurn ===
+                                        <>
+                                            <ActionButtonManager
+                                                method="start_new_turn"
+                                                wsActionTriggerer={triggerStartNewTurn}
+                                                message={
+                                                    currentPlayerTurnId || turnStage_playerToStartNewTurn ===
+                                                        localPlayer?.id
+                                                        ? "Iniciar nuevo turno"
+                                                        : "Esperar"
+                                                }
+                                                disabled={
+                                                    currentPlayerTurnId || turnStage_playerToStartNewTurn !==
                                                     localPlayer?.id
-                                                    ? "Iniciar nuevo turno"
-                                                    : "Esperar"
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId || turnStage_playerToStartNewTurn !==
-                                                localPlayer?.id
-                                            }
-                                        />
+                                                }
+                                            />
+                                            {/* <NotificationSound
+                                                trigger={rollDiceTrigger}
+                                                audioSrc="/assets/audios/sound-effects/dices-roll.mp3"
+                                            /> */}
+
+                                        </>
                                     )}
 
                                     {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
