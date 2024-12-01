@@ -6,7 +6,7 @@ import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 // import { globalWebSocketService } from "~/services/ws";
 import { MyProductTableTileData } from "~/types/modifiers";
-import { loadProducts } from "~/utils/dataLoader";
+import { loadProducts, productsData } from "~/utils/dataLoader";
 // import { ModifiersTabletTileData } from "~/types/Modifiers";
 
 // export interface ModifiersTabletTileData{
@@ -22,7 +22,7 @@ import { loadProducts } from "~/utils/dataLoader";
 // }
 
 export const loader = async () => {
-    const domainProductsObject = await loadProducts("app/data/products.csv");
+    const domainProductsObject = productsData;
     const domainProductsValues = Object.values(domainProductsObject);
     // if (myProducts.length===0) {
     //     myProducts = Object.values(domainProductsObject).map((product) => ({

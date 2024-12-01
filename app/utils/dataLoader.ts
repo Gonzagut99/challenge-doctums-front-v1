@@ -230,3 +230,8 @@ export const loadAllModifiersData = async () => {
 }
 
 export const projectsData = await loadProjects(dataPaths.projects);
+export const resourcesData = await loadResources(dataPaths.resources);
+export const productsData = await loadProducts(dataPaths.products);
+export const efficienciesData = await loadEfficiencies(dataPaths.efficiencies);
+export const eventsData = await loadEvents(dataPaths.events);
+export const allLoadedData = await loadAllData();

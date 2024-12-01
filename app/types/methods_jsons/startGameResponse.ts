@@ -63,6 +63,13 @@ export type GameStartMessage = {
   show_legacy_modal:boolean;
 }
 
+type LegacyProducts = {
+  id: string;
+  is_enabled: boolean;
+  was_bought: boolean;
+  purchased_requirements: string[];
+}
+
 export type PlayerInitState = {
   id: string;
   name: string;

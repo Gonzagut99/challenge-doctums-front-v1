@@ -8,7 +8,7 @@ import { EfficiencyPointsTile } from "~/components/custom/EfficienyTile";
 import Modal from "~/components/custom/Modal";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { ModifierFeature } from "~/types/modifiers";
-import { loadAllModifiersData, loadEfficiencies, loadEvents } from "~/utils/dataLoader";
+import { allLoadedData, efficienciesData, eventsData, loadAllModifiersData, loadEfficiencies, loadEvents } from "~/utils/dataLoader";
 
 
 export type consequenceResult = {
@@ -32,13 +32,13 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     if (!eventId) {
         return redirect("/game");
     }
-    const domainEvents = await loadEvents("app/data/events.csv");
+    const domainEvents = eventsData;
     const selectedEvent = domainEvents[eventId];
-    const efficiencies = await loadEfficiencies("app/data/efficiencies.csv");
-    // const products = await loadProducts("app/data/products.csv");
+    const efficiencies = efficienciesData;
+    // const products = productsData;
     // const projects = await loadProducts("app/data/projects.csv");
     // const resources = await loadProducts("app/data/resources.csv");
-    const { products, projects, resources } = await loadAllModifiersData();
+    const { products, projects, resources } = allLoadedData;
     const requiredEficciencies = selectedEvent.required_efficiencies.map((efficiency) => efficiencies[efficiency]);
     const modifiableProducts = selectedEvent.modifiable_products.map((product) => products[product]);
     const modifiableProjects = selectedEvent.modifiable_projects.map((project) => projects[project]);

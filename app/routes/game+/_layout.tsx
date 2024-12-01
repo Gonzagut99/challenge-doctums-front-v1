@@ -177,7 +177,7 @@ export default function _layout() {
     // const [hasThisPlayer_Turn_Started, setThisPlayer_Turn ] = useState(false)
     // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
     //const [hasPlayerLocallyAdvancedDayd, setPlayerLocallyAdvancedDays] = useState(false)
-    const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
+    //const preNewTurnStage_message = (genericGameState as StartNewTurn)?.message
     //const preNewTurnStage_currentTurn = (genericGameState as StartNewTurn)?.current_turn
     const preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays = (genericGameState as PlayersActionNotification)?.has_player_rolled_dices ?? false //We already know the dice results, but before showing the advanced days we controll that the player has rolled the dices
 
@@ -187,23 +187,23 @@ export default function _layout() {
     const newTurn_advancedDays = loaderData?.newTurn_localPlayerAdvancedDays //Data saved in the websocket
     const newTurn_localPlayerStoredData = loaderData.newTurn_localPlayerStoredData as StartNewTurn
     //They become undefined when the days advance notification is triggered and received
-    const newTurnStage_message = (genericGameState as StartNewTurn)?.message
-    const newTurnStage_method = (genericGameState as StartNewTurn)?.method
-    const newTurnStage_thrownDices = (genericGameState as StartNewTurn)?.thrown_dices ?? null
-    const newTurnStage_timeManager = (genericGameState as StartNewTurn)?.time_manager
-    const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn)?.player
+    // const newTurnStage_message = (genericGameState as StartNewTurn)?.message
+    // const newTurnStage_method = (genericGameState as StartNewTurn)?.method
+    // const newTurnStage_thrownDices = (genericGameState as StartNewTurn)?.thrown_dices ?? null
+    // const newTurnStage_timeManager = (genericGameState as StartNewTurn)?.time_manager
+    // const newTurnStage_playerInitModifiers = (genericGameState as StartNewTurn)?.player
     const newTurnStage_isReadyToFaceEvent = (genericGameState as StartNewTurn)?.is_ready_to_face_event
-    const hasLocalPlayer_advancedDays = (genericGameState as PlayersActionNotification)?.method == "days_advanced"
+    //const hasLocalPlayer_advancedDays = (genericGameState as PlayersActionNotification)?.method == "days_advanced"
 
     const submitPlan_isReadyToFaceEvent = (genericGameState as SubmitPlanResponse)?.is_ready_to_face_event_after_submit
     const submitPlan_showModal = (genericGameState as SubmitPlanResponse)?.show_modal
     // 5th frontstage - 4th backstage
-    const eventFlow_passedFirstChallenge = (genericGameState as TurnEventResults)?.event?.pass_first_challenge
-    const eventFlow_passedSecondChallenge = (genericGameState as TurnEventResults)?.event?.pass_second_challenge
-    const eventFlow_level = (genericGameState as TurnEventResults)?.event?.level
+    // const eventFlow_passedFirstChallenge = (genericGameState as TurnEventResults)?.event?.pass_first_challenge
+    // const eventFlow_passedSecondChallenge = (genericGameState as TurnEventResults)?.event?.pass_second_challenge
+    // const eventFlow_level = (genericGameState as TurnEventResults)?.event?.level
     const eventFlow_showEvent = (genericGameState as TurnEventResults)?.show_event
     const eventFlow_eventId = (genericGameState as TurnEventResults)?.event?.id
-    const eventFlow_isReadyToSetNextTurn = (genericGameState as TurnEventResults)?.is_ready_to_set_next_turn
+    //const eventFlow_isReadyToSetNextTurn = (genericGameState as TurnEventResults)?.is_ready_to_set_next_turn
 
     const nextTurn_method = (genericGameState as NextTurnResponse)?.method
     
@@ -249,11 +249,7 @@ export default function _layout() {
         }
     }, [ eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
 
-    useEffect(() => {
-        if (hasPlayersPositionsUpdated) {
-            emitter.emit("updated_players_positions", playerPositions);
-        }
-    }, [playerPositions]);
+    //emitter.emit("updated_players_positions", playerPositions);
 
 
 
@@ -914,7 +910,7 @@ function LocalPlayerCard({ player, localPlayerProjects, csvLoadedProjects }: { p
                     <h4 className="text-[12px] font-rajdhani font-semibold leading-tight">
                         Proyectos en marcha:
                     </h4>
-                    <div className="mt-1 flex items-center">
+                    <div className="mt-1 flex items-center gap-2">
                         {
                             localPlayerProjects.map((project) => {
                                 const alreadyAcquired = csvLoadedProjects[project.id];
