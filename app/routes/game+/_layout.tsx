@@ -249,7 +249,7 @@ export default function _layout() {
         }
     }, [ eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
 
-    //emitter.emit("updated_players_positions", playerPositions);
+    emitter.emit("updated_players_positions", playerPositions);
 
 
 
@@ -344,13 +344,13 @@ export default function _layout() {
                             </div>
                         </section>
                         <section className="flex">
-                            <GameCanvas
+                            {/* <GameCanvas
                                 className="animate-fade animate-once"
                                 canvasInitialState={playerPositions}
                                 ref={gameCanvasRef}
                                 avatarId={avatarId!}
                                 diceResult={diceResult}
-                            ></GameCanvas>
+                            ></GameCanvas> */}
                             <div className="flex flex-col gap-1">
                                 {turnsOrder?.map(
                                     (turnPlayer: TurnOrderPlayer) => {
@@ -528,10 +528,10 @@ export default function _layout() {
                                     turnStage_dicesResult && (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
                                             {turnStage_dicesResult?.map(
-                                                (dice: number) => (
+                                                (dice: number, ind) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
-                                                        key={dice}
+                                                        key={ind}
                                                         src={`/assets/dices/${dice}.png`}
                                                         alt={`dice${dice}`}
                                                         className="size-[50px] object-contain"
@@ -546,10 +546,10 @@ export default function _layout() {
                                     (
                                         <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
                                             {newTurn_advancedDays?.dices.map(
-                                                (dice: number) => (
+                                                (dice: number, ind) => (
                                                     // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
                                                     <img
-                                                        key={dice}
+                                                        key={ind}
                                                         src={`/assets/dices/${dice}.png`}
                                                         alt={`dice${dice}`}
                                                         className="size-[50px] object-contain"
