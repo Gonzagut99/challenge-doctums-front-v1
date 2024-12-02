@@ -253,43 +253,65 @@ export default function _layout() {
 
     emitter.emit("updated_players_positions", playerPositions);
 
-
-
-
     const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
         message: "",
     });
 
-    //trigger turn_order_stage event from the backend
     const triggerTurnOrderStage = () => {
-        // const currentPlayerOrderTurnId = currentPlayerTurnId;
-
         if (currentPlayerTurnId === localPlayer?.id) {
             const formData = new FormData();
             formData.append("method", "turn_order_stage");
             submit(formData, {
                 method: "post",
             });
+            console.log("[Game]: Turno de orden activado");
+        } 
+    };
+
+    const [rollDiceTrigger, setRollDiceTrigger] = useState(false);
+
+    const triggerRollDices = () => {
+        if (currentPlayerTurnId === localPlayer?.id) {
+            setRollDiceTrigger(true);
+            const formData = new FormData();
+            formData.append("method", "roll_dices");
+            submit(formData, { method: "post" });
+            console.log("[Game]: Dados lanzados");
+    
+            setTimeout(() => setRollDiceTrigger(false), 500);
         }
     };
 
+    const triggerTurnOrderWithSound = () => {
+        if (currentPlayerTurnId === localPlayer?.id) {
+            setRollDiceTrigger(true);
+            setTimeout(() => setRollDiceTrigger(false), 500);
+            triggerTurnOrderStage();
+        }
+    };
+    
     const triggerStartNewTurn = () => {
         const formData = new FormData();
         formData.append("method", "start_new_turn");
-        // setPreNewTurnStage_isOver(true)
         submit(formData, {
             method: "post",
         });
     };
 
     const triggerAdvanceDaysMessage = () => {
-        const formData = new FormData();
-        formData.append("method", "advance_days");
-        submit(formData, {
-            method: "post",
-        });
+        if (currentPlayerTurnId === localPlayer?.id) {
+            setRollDiceTrigger(true); 
+            setTimeout(() => setRollDiceTrigger(false), 500); 
+            // Lógica original
+            const formData = new FormData();
+            formData.append("method", "advance_days");
+            submit(formData, {
+                method: "post",
+            });
+            console.log("[Game]: Dados lanzados y días avanzados.");
+        }
     };
 
     const triggerStartEventFlow = () => {
@@ -323,7 +345,7 @@ export default function _layout() {
         >
             <Header />
 
-            <main className="min-h-dvh grid grid-cols-1">
+            <main className="min-h-dvh grid grid-cols-1 max-h-screen">
 
                 <PageContainer className="z-0 bg-transparent flex justify-center items-center">
 
@@ -332,12 +354,18 @@ export default function _layout() {
                         <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                             <section className="flex justify-center relative">
 
-                            <div className="absolute top-0 right-12">
-                                        <MusicAndSoundControls />
-                            </div>
-                                <NotificationSound trigger={hasPlayersPositionsUpdated?.message || genericGameState}
-                                    audioSrc="/assets/audios/sound-effects/notification1.mp3"
-                                />
+                                <div className="absolute pb-2 top-0 right-2">
+                                    <MusicAndSoundControls />
+                                </div>
+
+                                <NotificationSound
+                                trigger={rollDiceTrigger || hasPlayersPositionsUpdated?.message || genericGameState}
+                                audioSrc={
+                                    rollDiceTrigger
+                                        ? "/assets/audios/sound-effects/dices-roll.mp3"
+                                        : "/assets/audios/sound-effects/notification1.mp3"
+                                }
+                            />
                                 <WhiteContainer className="animate-jump-in ">
                                     <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
                                         {
@@ -345,13 +373,13 @@ export default function _layout() {
                                         }
                                     </span>
                                 </WhiteContainer>
-                                <div className="absolute right-6 w-fit">
-                                    
-                                    <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={() => navigate('/game/events')}>
+                                <div className="absolute left-2 w-fit">
+
+                                    <button className="aspect-square min-h-12 relative rounded-lg animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[2px] outline-zinc-900" onClick={() => navigate('/game/events')}>
                                         <img
                                             src="/assets/icons/eventoNoBorder.png"
                                             alt="Back Button"
-                                            className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
+                                            className="size-12 min-h-10 absolute inset-0 rounded-lg object-cover aspect-square"
                                             title="Ver catálogo de Eventos"
                                         />
                                     </button>
@@ -378,8 +406,8 @@ export default function _layout() {
                                                         player={
                                                             localPlayerDynamicInfo
                                                         }
-                                                    csvLoadedProjects={loadedProjects}
-                                                    localPlayerProjects={localPlayerProjectsData}
+                                                        localPlayerProjects={localPlayerProjectsData}
+                                                        csvLoadedProjects={loadedProjects}
                                                     />
                                                 );
                                             } else {
@@ -428,45 +456,38 @@ export default function _layout() {
 
                                 {/* WS actions */}
                                 <div className="flex gap-4 justify-center">
-                                    {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
-
-                                        <ActionButtonManager
-                                            method={
-                                                genericGameState.method as keyof typeof gameStateHandlers
-                                            }
-                                            wsActionTriggerer={
-                                                triggerTurnOrderStage
-                                            }
-                                            message={
-                                                currentPlayerTurnId ===
-                                                    localPlayer?.id
-                                                    ? "Lanza los dados"
-                                                    : "Esperar..."
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId !==
-                                                localPlayer?.id
-                                            }
-                                        />
-
-                                    )}
+                                {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
+                                    <ActionButtonManager
+                                        method={genericGameState.method as keyof typeof gameStateHandlers}
+                                        wsActionTriggerer={triggerTurnOrderWithSound}
+                                        message={currentPlayerTurnId === localPlayer?.id ? "Lanza los dados" : "Esperar..."}
+                                        disabled={currentPlayerTurnId !== localPlayer?.id}
+                                    />
+                                )}
 
                                     {/* ready to start regular turns */}
                                     {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
-                                        <ActionButtonManager
-                                            method="start_new_turn"
-                                            wsActionTriggerer={triggerStartNewTurn}
-                                            message={
-                                                currentPlayerTurnId || turnStage_playerToStartNewTurn ===
+                                        <>
+                                            <ActionButtonManager
+                                                method="start_new_turn"
+                                                wsActionTriggerer={triggerStartNewTurn}
+                                                message={
+                                                    currentPlayerTurnId || turnStage_playerToStartNewTurn ===
+                                                        localPlayer?.id
+                                                        ? "Iniciar nuevo turno"
+                                                        : "Esperar"
+                                                }
+                                                disabled={
+                                                    currentPlayerTurnId || turnStage_playerToStartNewTurn !==
                                                     localPlayer?.id
-                                                    ? "Iniciar nuevo turno"
-                                                    : "Esperar"
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId || turnStage_playerToStartNewTurn !==
-                                                localPlayer?.id
-                                            }
-                                        />
+                                                }
+                                            />
+                                            {/* <NotificationSound
+                                                trigger={rollDiceTrigger}
+                                                audioSrc="/assets/audios/sound-effects/dices-roll.mp3"
+                                            /> */}
+
+                                        </>
                                     )}
 
                                     {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
@@ -883,12 +904,12 @@ function LocalPlayerCard({ player, localPlayerProjects, csvLoadedProjects }: { p
                         )}
                     >
                         <img
-                            className="object-contain aspect-square"
+                            className="object-contain h-full aspect-square"
                             src={characterData.image}
                             alt="Avatar imag"
                         />
                     </figure>
-                    <div className="w-[13rem] min-w-[13rem]">
+                    <div className="w-[12rem] min-w-[12rem]">
                         <p className="font-easvhs text-lg">Tú</p>
                         <div className="grid grid-cols-2 gap-1">
                             {playerCardIcons({
