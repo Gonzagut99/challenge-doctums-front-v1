@@ -74,7 +74,7 @@ export function EventTile({ tabletTileData , ...rest }: EventTileProps) {
             <img src={tabletTileData.icon} alt="Efficiency Icon" className="size-8"/>
             <div className="flex flex-col">
                 <p className="text-base">
-                    { `Evento ${tabletTileData.id} - Nivel ${tabletTileData.level}` }
+                    { `Evento ${tabletTileData.id}` }
                 </p>
                 <span className="line-clamp-2 text-[10px]">
                     { tabletTileData.description }
