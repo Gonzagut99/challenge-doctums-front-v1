@@ -49,12 +49,13 @@ const MusicAndSoundControls: React.FC = () => {
         <img
           src={isExpanded ? "/assets/setting/button-setting2.png" : "/assets/setting/button-setting1.png"}
           alt="Botón de configuración"
+          className="w-[3.4rem] right-0"
         />
       </button>
 
       {isExpanded && (
         <div
-          className="absolute top-4 right-full ml-4 w-60 p-4 text-white rounded-lg shadow-lg transition-all duration-300"
+          className="absolute top-2 right-full ml-4 w-60 p-4 text-white rounded-lg shadow-lg transition-all duration-300"
           style={{
             backgroundImage: "url(/assets/setting/panel-setting.png)",
             backgroundSize: "cover",

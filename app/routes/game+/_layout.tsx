@@ -244,58 +244,48 @@ export default function _layout() {
         }
     }, [navigate, eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
 
-
-
-
     const [gameData, setGameData] = useState({
         turns_order: [],
         method: "",
         message: "",
     });
 
-    // Trigger turn_order_stage event from the backend
-const triggerTurnOrderStage = () => {
-    if (currentPlayerTurnId === localPlayer?.id) {
-        const formData = new FormData();
-        formData.append("method", "turn_order_stage");
-        submit(formData, {
-            method: "post",
-        });
-        console.log("[Game]: Turno de orden activado");
-    } 
-};
+    const triggerTurnOrderStage = () => {
+        if (currentPlayerTurnId === localPlayer?.id) {
+            const formData = new FormData();
+            formData.append("method", "turn_order_stage");
+            submit(formData, {
+                method: "post",
+            });
+            console.log("[Game]: Turno de orden activado");
+        } 
+    };
 
     const [rollDiceTrigger, setRollDiceTrigger] = useState(false);
 
     const triggerRollDices = () => {
         if (currentPlayerTurnId === localPlayer?.id) {
-            setRollDiceTrigger(true); // Activa el sonido
+            setRollDiceTrigger(true);
             const formData = new FormData();
             formData.append("method", "roll_dices");
             submit(formData, { method: "post" });
             console.log("[Game]: Dados lanzados");
     
-            // Restablece el estado después de un breve tiempo
             setTimeout(() => setRollDiceTrigger(false), 500);
         }
     };
 
     const triggerTurnOrderWithSound = () => {
         if (currentPlayerTurnId === localPlayer?.id) {
-            // Activa el sonido
-            setRollDiceTrigger(true); // Activa el sonido de los dados
-            setTimeout(() => setRollDiceTrigger(false), 500); // Restablece el estado del sonido después de un tiempo
-    
-            // Ejecuta la lógica de triggerTurnOrderStage
+            setRollDiceTrigger(true);
+            setTimeout(() => setRollDiceTrigger(false), 500);
             triggerTurnOrderStage();
         }
     };
     
-
     const triggerStartNewTurn = () => {
         const formData = new FormData();
         formData.append("method", "start_new_turn");
-        // setPreNewTurnStage_isOver(true)
         submit(formData, {
             method: "post",
         });
@@ -303,21 +293,17 @@ const triggerTurnOrderStage = () => {
 
     const triggerAdvanceDaysMessage = () => {
         if (currentPlayerTurnId === localPlayer?.id) {
-            // Activa el sonido
             setRollDiceTrigger(true); 
-            setTimeout(() => setRollDiceTrigger(false), 500); // Restablece el estado después de un tiempo breve
-    
+            setTimeout(() => setRollDiceTrigger(false), 500); 
             // Lógica original
             const formData = new FormData();
             formData.append("method", "advance_days");
             submit(formData, {
                 method: "post",
             });
-    
             console.log("[Game]: Dados lanzados y días avanzados.");
         }
     };
-    
 
     const triggerStartEventFlow = () => {
         const formData = new FormData();
@@ -358,7 +344,7 @@ const triggerTurnOrderStage = () => {
                         <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
                             <section className="flex justify-center relative">
 
-                                <div className="absolute top-0 right-12">
+                                <div className="absolute pb-2 top-0 right-2">
                                     <MusicAndSoundControls />
                                 </div>
 
@@ -377,13 +363,13 @@ const triggerTurnOrderStage = () => {
                                         }
                                     </span>
                                 </WhiteContainer>
-                                <div className="absolute right-8 w-fit">
+                                <div className="absolute left-2 w-fit">
 
-                                    <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={() => navigate('/game/events')}>
+                                    <button className="aspect-square min-h-12 relative rounded-lg animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[2px] outline-zinc-900" onClick={() => navigate('/game/events')}>
                                         <img
                                             src="/assets/icons/eventoNoBorder.png"
                                             alt="Back Button"
-                                            className="size-10 min-h-10 absolute inset-0 rounded-lg object-cover aspect-square"
+                                            className="size-12 min-h-10 absolute inset-0 rounded-lg object-cover aspect-square"
                                             title="Ver catálogo de Eventos"
                                         />
                                     </button>
@@ -905,12 +891,12 @@ function LocalPlayerCard({ player }: { player: LocalPlayerDynamicInfo }) {
                         )}
                     >
                         <img
-                            className="object-contain aspect-square"
+                            className="object-contain h-full aspect-square"
                             src={characterData.image}
                             alt="Avatar imag"
                         />
                     </figure>
-                    <div className="w-[13rem] min-w-[13rem]">
+                    <div className="w-[12rem] min-w-[12rem]">
                         <p className="font-easvhs text-lg">Tú</p>
                         <div className="grid grid-cols-2 gap-1">
                             {playerCardIcons({
