@@ -1,5 +1,6 @@
 import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
 import { initializeWebSocket } from "~/services/ws";
@@ -83,27 +84,29 @@ function Index() {
         );
     };
     return (
+        <>
+        <div className="absolute top-0 right-2">
+            <MusicAndSoundControls />
+        </div>
         <div className="flex flex-col h-full items-center w-full justify-center gap-10">
-            {/* <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
-                <h1 className="text-yellow-50 text-2xl font-bold text-center text-balance font-dogica-bold shadow-slate-700 text-shadow-lg">
-                    Bienvenido al challenge Doctums
-                </h1>
-            </header> */}
-            <header className="flex items-center justify-center w-full">
+                {/* <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
+        <h1 className="text-yellow-50 text-2xl font-bold text-center text-balance font-dogica-bold shadow-slate-700 text-shadow-lg">
+            Bienvenido al challenge Doctums
+        </h1>
+    </header> */}
+                <header className="flex items-center justify-center w-full">
                     {showStaticImage ? (
-                    // Mostrar la imagen estática después de la animación
-                    <img src="/assets/challenge-logo.png" alt="Logo estático" className="w-1/2"/>
+                        // Mostrar la imagen estática después de la animación
+                        <img src="/assets/challenge-logo.png" alt="Logo estático" className="w-1/2" />
                     ) : (
-                    // Mostrar el GIF o animación inicialmente
-                    <img src="/assets/challenge-animation.gif" alt="Animación inicial" className="w-1/2"/>
+                        // Mostrar el GIF o animación inicialmente
+                        <img src="/assets/challenge-animation.gif" alt="Animación inicial" className="w-1/2" />
                     )}
                 </header>
                 <div className="flex flex-col gap-4 justify-center items-center">
                     <Button onClick={handleSubmit} hoverImgSrc="/assets/buttons/Button-hover.png" disabled={fetcher.state != 'idle'}>
                         <span className="z-10  text-white font-easvhs text-2xl group-hover:opacity-90">
-                            {
-                                fetcher.state === "submitting" || fetcher.state === "loading" ? "Creando partida..." : "Crear partida"
-                            }
+                            {fetcher.state === "submitting" || fetcher.state === "loading" ? "Creando partida..." : "Crear partida"}
                         </span>
                     </Button>
                     <Link to={"/home/joinGame"}>
@@ -114,7 +117,7 @@ function Index() {
                         </Button>
                     </Link>
                 </div>
-        </div>
+            </div></>
     );
 }
 
