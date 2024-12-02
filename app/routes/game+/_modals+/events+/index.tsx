@@ -8,14 +8,16 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 export interface EventTableTileData {
     id: string;
     description: string;
+    level: number;
     icon: string;
 }
 
 export const loader = async () => {
     const domainEvents = initializedDataLoader.getEvents();
-    const events: EventTableTileData[] = Object.values(domainEvents).map((efficiency) => ({
-        id: efficiency.ID,
-        description: efficiency.description,
+    const events: EventTableTileData[] = Object.values(domainEvents).map((event) => ({
+        id: event.ID,
+        description: event.description,
+        level: event.level,
         icon: `/assets/icons/productsIcon.png`,
     }));
     return json({ events });
@@ -72,7 +74,7 @@ export function EventTile({ tabletTileData , ...rest }: EventTileProps) {
             <img src={tabletTileData.icon} alt="Efficiency Icon" className="size-8"/>
             <div className="flex flex-col">
                 <p className="text-base">
-                    { `Evento ${tabletTileData.id}` }
+                    { `Evento ${tabletTileData.id} - Nivel ${tabletTileData.level}` }
                 </p>
                 <span className="line-clamp-2 text-[10px]">
                     { tabletTileData.description }
