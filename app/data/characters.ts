@@ -74,7 +74,7 @@ export const charactersData: CharacterData[] = [
     {
         id: 5,
         image: "/assets/characters/characterMale3.png",
-        avatar: "/assets/characters/avatars/AvatarMale2.png",
+        avatar: "/assets/characters/avatars/AvatarMale3.png",
         profession: "Consultor Ágil",
         description:
             "Un facilitador clave en equipos ágiles, ayuda a mantener el enfoque en los objetivos del proyecto mientras asegura la flexibilidad necesaria para adaptarse a los cambios. Es conocido por fomentar la colaboración y un flujo de trabajo eficiente.",

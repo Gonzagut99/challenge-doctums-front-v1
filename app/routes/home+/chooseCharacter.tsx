@@ -12,8 +12,10 @@ import {
     RemixFormProvider,
     useRemixForm,
 } from "remix-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { globalWebSocketService } from "~/services/ws";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
+import { useSoundContext } from "~/components/custom/music/SoundContext";
 
 //Form validation and configuration
 const schema = z.object({
@@ -117,6 +119,9 @@ function ChooseCharacter() {
         <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10 py-4 px-8 flex flex-col gap-6"
 
         >
+             <div className="absolute top-0 right-2">
+            <MusicAndSoundControls />
+        </div>
             <section>
                 <header className="flex justify-center relative">
                     <img
@@ -129,13 +134,7 @@ function ChooseCharacter() {
                     </h1>
                 </header>
             </section>
-            {/* Botón Anterior */}
-            <button
-                onClick={handlePrevious}
-                className="absolute left-2 top-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
-            >
-                &#8249;
-            </button>
+            
             <section>
                 <RemixFormProvider {...form}>
                     <Form className="flex flex-col items-center" method="post" action="/home/chooseCharacter" onSubmit={handleSubmit}>
@@ -212,13 +211,19 @@ function ChooseCharacter() {
                     </Form>
                 </RemixFormProvider>
             </section>
-
+            {/* Botón Anterior */}
+            <button
+                onClick={handlePrevious}
+                className="absolute left-2 top-1/2 z-20 w-20 text-white p-2 rounded-full"
+            >
+                <img src="/assets/buttons/arrow-left.png" alt="" />
+            </button>
             {/* Botón Siguiente */}
             <button
                 onClick={handleNext}
-                className="absolute right-2 top-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
+                className="absolute right-2 top-1/2 z-20 w-20 text-white p-2 rounded-full"
             >
-                &#8250;
+                <img src="/assets/buttons/arrow-right.png" alt="" />
             </button>
         </article>
     );
@@ -242,9 +247,29 @@ export const CharacterCard = ({
         id
     } = characterData;
 
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const { isSoundOn } = useSoundContext(); // Estado global del sonido
+
+    const playHoverSound = () => {
+        if (!isSoundOn) {
+            console.log("[CharacterCard]: Sonido desactivado globalmente.");
+            return;
+        }
+
+        if (!audioRef.current) {
+            audioRef.current = new Audio("/assets/audios/sound-effects/choose-character.mp3");
+        }
+
+        audioRef.current.currentTime = 0; // Reinicia el sonido
+        audioRef.current.play().catch((err) =>
+            console.error("Error al reproducir el sonido:", err)
+        );
+    };
+
     return (
         <button
             {...rest}
+            onMouseEnter={playHoverSound}
             className="w-[12rem] flex flex-col gap-2 hover:scale-105 transform transition-transform duration-300 focus:outline-dotted focus:outline-[3px] focus:outline-zinc-900"
             id={id.toString()}
             type="button"

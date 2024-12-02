@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { json, redirect, replace, useNavigate, useSubmit } from "@remix-run/react";
 import { Button2 } from "~/components/custom/Button2";
 import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import { charactersData } from "~/data/characters";
 import { globalWebSocketService } from "~/services/ws";
 import { useLiveLoader } from "~/utils/use-live-loader";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
+import { useSoundContext } from "~/components/custom/music/SoundContext";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
@@ -49,6 +51,30 @@ function Index() {
     const submit = useSubmit();
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const { isSoundOn } = useSoundContext(); // Control global del sonido
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const previousPlayersCount = useRef(connectedPlayers.length);
+
+    useEffect(() => {
+        // Reproduce el sonido cuando se detecta un nuevo jugador
+        if (connectedPlayers.length > previousPlayersCount.current) {
+            if (!audioRef.current) {
+                audioRef.current = new Audio("/assets/audios/sound-effects/new-character.mp3");
+            }
+            if (isSoundOn) {
+                console.log("[PlayersSection]: Nuevo personaje añadido, reproduciendo sonido.");
+                audioRef.current.currentTime = 0; // Reinicia el sonido
+                audioRef.current.play().catch((err) =>
+                    console.error("Error al reproducir el sonido de notificación:", err)
+                );
+            } else {
+                console.log("[PlayersSection]: Sonido desactivado globalmente.");
+            }
+        }
+        previousPlayersCount.current = connectedPlayers.length; // Actualiza el conteo
+    }, [connectedPlayers, isSoundOn]); // Escucha cambios en connectedPlayers e isSoundOn
+
+
     const isHost = connectedPlayers.find(
         (player) => player.id === currentUserId
     )?.isHost;
@@ -77,6 +103,9 @@ function Index() {
 
     return (
         <article className="h-full w-full relative z-10 py-4 px-8 flex flex-col gap-6">
+            <div className="absolute top-0 right-2">
+            <MusicAndSoundControls />
+        </div>
             <section>
                 <header className="flex justify-center relative">
                     {/* <button

@@ -1,0 +1,136 @@
+{
+    "anims": [
+        {
+            "key": "walk_forward_5",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_5",
+                    "frame": "frame-3"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-4"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-3"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-2"
+                }
+            ]
+        },
+        {
+            "key": "walk_backward_5",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_5",
+                    "frame": "frame-11"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-12"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-11"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-13"
+                }
+            ]
+        },
+        {
+            "key": "walk_right_5",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_5",
+                    "frame": "frame-8"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-9"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-8"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-10"
+                }
+            ]
+        },
+        {
+            "key": "walk_left_5",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_5",
+                    "frame": "frame-5"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-6"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-5"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-7"
+                }
+            ]
+        },
+        {
+            "key": "rest_5",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 6,
+            "frames": [
+                {
+                    "key": "character_5",
+                    "frame": "frame-14"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-15"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-16"
+                },
+                {
+                    "key": "character_5",
+                    "frame": "frame-17"
+                }
+            ]
+        },
+        {
+            "key": "idle_5",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_5",
+                    "frame": "frame-1"
+                }
+            ]
+        }
+    ]
+}

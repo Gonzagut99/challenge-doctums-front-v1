@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
+import { SoundProvider, useSoundContext } from "./music/SoundContext";
 
 interface ButtonProps extends React.HTMLProps<HTMLButtonElement> {
     children?: React.ReactNode;
@@ -9,19 +10,46 @@ interface ButtonProps extends React.HTMLProps<HTMLButtonElement> {
 }
 
 export function Button({ children, className, hoverImgSrc, ...rest }: ButtonProps) {
+    
+    const { isSoundOn } = useSoundContext();
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    const handleMouseEnter = () => {
-        if (audioRef.current) {
-            audioRef.current.play().catch((err) => console.error("Error al reproducir el audio:", err));
+    useEffect(() => {
+        if (!isSoundOn && audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
         }
-    };
+        
+      }, [isSoundOn]);
+      
+
+    const handleMouseEnter = () => {
+        console.log("isSoundOn cambia a:", isSoundOn);
+        if (!isSoundOn) {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
+          return;
+        }
+      
+        if (!audioRef.current) {
+          audioRef.current = new Audio("/assets/audios/sound-effects/button-press.mp3");
+        }
+      
+        audioRef.current
+          .play()
+          .catch((err) => console.error("Error al reproducir el sonido del botón:", err));
+      };
+
+      
+      
 
     return (
         <>
         <button
             {...rest}
-            onMouseEnter={handleMouseEnter} // Reproduce el audio en el hover
+            onMouseEnter={handleMouseEnter} 
             className={twMerge(
                 "relative w-60 aspect-[16/5] flex items-center justify-center group overflow-hidden",
                 className
@@ -43,7 +71,7 @@ export function Button({ children, className, hoverImgSrc, ...rest }: ButtonProp
                 {children}
             </p>
         </button>
-        <audio ref={audioRef} src="/assets/audios/sound-effects/button-press.mp3" preload="auto" />
+        {/* <audio ref={audioRef} src="/assets/audios/sound-effects/button-press.mp3" preload="auto" /> */}
         </>
     );
 }

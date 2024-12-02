@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSoundContext } from "./SoundContext"; // Importa el contexto
 
 const MusicAndSoundControls: React.FC = () => {
-  const { isMusicPlaying, isSoundOn, toggleMusic, toggleSound } = useSoundContext(); // Usa el contexto
-  const [isExpanded, setIsExpanded] = useState(false); // Definir el estado para controlar si el panel está expandido
+  const { isMusicPlaying, isSoundOn, toggleMusic, toggleSound } = useSoundContext(); 
+  const [isExpanded, setIsExpanded] = useState(false); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
+/*
   useEffect(() => {
     const audioElement = audioRef.current;
+    */
 
-    if (audioElement) {
+  /*  if (audioElement) {
       audioElement.volume = 0;
       audioElement.play().catch((err) => console.error("Error al reproducir la música:", err));
 
@@ -26,7 +27,7 @@ const MusicAndSoundControls: React.FC = () => {
       };
     }
   }, []);
-
+*/
   useEffect(() => {
     if (audioRef.current) {
       if (isMusicPlaying) {
@@ -35,24 +36,26 @@ const MusicAndSoundControls: React.FC = () => {
         audioRef.current.pause();
       }
     }
-  }, [isMusicPlaying]); // Se actualiza cuando cambia el estado de la música
+  }, [isMusicPlaying]); 
+
 
   return (
     <div
       className="relative z-40"
-      onMouseEnter={() => setIsExpanded(true)} // Cambiar el estado a true cuando el mouse entra
-      onMouseLeave={() => setIsExpanded(false)} // Cambiar el estado a false cuando el mouse sale
+      onMouseEnter={() => setIsExpanded(true)} 
+      onMouseLeave={() => setIsExpanded(false)} 
     >
-      <button className="p-4 text-white">
+      <button className="text-white">
         <img
           src={isExpanded ? "/assets/setting/button-setting2.png" : "/assets/setting/button-setting1.png"}
           alt="Botón de configuración"
+          className="w-[3.4rem] right-0"
         />
       </button>
 
       {isExpanded && (
         <div
-          className="absolute top-4 right-full ml-4 w-60 p-4 text-white rounded-lg shadow-lg transition-all duration-300"
+          className="absolute top-2 right-full ml-4 w-60 p-4 text-white rounded-lg shadow-lg transition-all duration-300"
           style={{
             backgroundImage: "url(/assets/setting/panel-setting.png)",
             backgroundSize: "cover",
@@ -66,7 +69,14 @@ const MusicAndSoundControls: React.FC = () => {
                 src={isMusicPlaying ? "/assets/setting/music-on.png" : "/assets/setting/music-off.png"}
                 alt="Icono de música"
               />
-              <button onClick={toggleMusic} className="w-12 h-10">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleMusic();
+                }}
+                className="w-12 h-10"
+              >
                 <img
                   className="w-64"
                   src={isMusicPlaying ? "/assets/setting/switch-on.png" : "/assets/setting/switch-off.png"}
@@ -80,7 +90,14 @@ const MusicAndSoundControls: React.FC = () => {
                 src={isSoundOn ? "/assets/setting/sound-on.png" : "/assets/setting/sound-off.png"}
                 alt="Icono de efectos de sonido"
               />
-              <button onClick={toggleSound} className="w-12 h-10">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleSound();
+                }}
+                className="w-12 h-10"
+              >
                 <img
                   className="w-64"
                   src={isSoundOn ? "/assets/setting/switch-on.png" : "/assets/setting/switch-off.png"}
@@ -91,11 +108,6 @@ const MusicAndSoundControls: React.FC = () => {
           </div>
         </div>
       )}
-
-      <audio ref={audioRef} loop>
-        <source src="/assets/audios/background-music.mp3" type="audio/mpeg" />
-        Tu navegador no soporta el elemento de audio.
-      </audio>
     </div>
   );
 };
