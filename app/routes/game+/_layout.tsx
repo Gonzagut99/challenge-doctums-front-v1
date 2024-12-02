@@ -33,12 +33,12 @@ import {
     TurnOrderStage,
     TurnOrderPlayer,
 } from "~/types/methods_jsons/turnOrderStage";
-import { StartNewTurn,PlayerInitModifiers, TimeManager } from "~/types/methods_jsons/startNewTurn";
-import { 
-        TurnEventResults,
-        PlayersActionNotification,
-        SubmitPlanResponse,
-        NextTurnResponse
+import { StartNewTurn, PlayerInitModifiers, TimeManager } from "~/types/methods_jsons/startNewTurn";
+import {
+    TurnEventResults,
+    PlayersActionNotification,
+    SubmitPlanResponse,
+    NextTurnResponse
 } from "~/types/methods_jsons";
 
 
@@ -48,7 +48,9 @@ import { emitter } from "~/utils/emitter.client";
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { set } from "zod";
 import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
-import { projectsData } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
+import NotificationSound from "~/components/custom/music/NotificationSound";
+import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 const isServer = typeof window === "undefined";
 
 const gameStateHandlers = {
@@ -98,7 +100,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         hasPositionsUpdated,
         hasPlayerSubmittedPlan,
         localPlayerProjectsData,
-        csvLoadedProjects: projectsData
+        csvLoadedProjects: initializedDataLoader.getProjects(),
     });
 };
 
@@ -163,7 +165,7 @@ export default function _layout() {
     const turnStage_isTurnOrderStage = (genericGameState as TurnOrderStage)?.is_turn_order_stage
     const turnStage_isTurnOrderStageOver = (genericGameState as TurnOrderStage)?.is_turn_order_stage_over;
     const newturn_isStartNewTurnStage = (genericGameState as StartNewTurn)?.is_new_turn_stage
-    
+
 
     // 2nd fronstage - 2nd backstage
     //charging turn order stage data
@@ -172,7 +174,7 @@ export default function _layout() {
     const turnStage_dicesResult =
         (genericGameState as TurnOrderStage)?.this_player_turn_results?.dices ??
         null;
-        
+
     //3rd frontstage
     // const [hasThisPlayer_Turn_Started, setThisPlayer_Turn ] = useState(false)
     // const [preNewTurnStage_isOver, setPreNewTurnStage_isOver] = useState(false)
@@ -206,7 +208,7 @@ export default function _layout() {
     //const eventFlow_isReadyToSetNextTurn = (genericGameState as TurnEventResults)?.is_ready_to_set_next_turn
 
     const nextTurn_method = (genericGameState as NextTurnResponse)?.method
-    
+
     // charging react/remix hooks
     const navigate = useNavigate();
     const submit = useSubmit();
@@ -228,7 +230,7 @@ export default function _layout() {
 
 
     const [submitPlan_hasNavigated, submitPlan_setHasNavigated] = useState(false);
-    
+
     useEffect(() => {
         if (submitPlan_showModal && submitPlan_isReadyToFaceEvent && !submitPlan_hasNavigated) {
             submitPlan_setHasNavigated(true);
@@ -244,7 +246,7 @@ export default function _layout() {
             navigate(`/game/challenge/${eventFlow_eventId}`);
         }
 
-        if(eventFlow_hasNavigated && nextTurn_currentTurn != localPlayer?.id) {
+        if (eventFlow_hasNavigated && nextTurn_currentTurn != localPlayer?.id) {
             eventFlow_setHasNavigated(false)
         }
     }, [ eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
@@ -310,156 +312,170 @@ export default function _layout() {
 
 
     return (
-        <div 
-        className="min-h-dvh grid grid-cols-1 h-full"
-        style={{
-            backgroundImage: 'url(/assets/landing/img/gradiente.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+        <div
+            className="min-h-dvh grid grid-cols-1 h-full"
+            style={{
+                backgroundImage: 'url(/assets/landing/img/gradiente.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              backgroundAttachment: 'fixed',
           }}
         >
-        <Header/>
-        
-        <main className="min-h-dvh grid grid-cols-1 max-h-screen">
-            <PageContainer className="z-0 bg-transparent flex justify-center items-center">
-                <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
-                    <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
-                        <section className="flex justify-center relative">
-                            <WhiteContainer className="animate-jump-in ">
-                                <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
-                                    {
-                                        hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
-                                    }
-                                </span>
-                            </WhiteContainer>
-                            <div className="absolute right-0 w-fit">
-                                <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={()=>navigate('/game/events')}>
-                                    <img
-                                        src="/assets/icons/eventoNoBorder.png"
-                                        alt="Back Button"
-                                        className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
-                                        title="Ver catálogo de Eventos"
-                                    />
-                                </button>
+            <Header />
+
+            <main className="min-h-dvh grid grid-cols-1">
+
+                <PageContainer className="z-0 bg-transparent flex justify-center items-center">
+
+                    <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
+
+                        <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
+                            <section className="flex justify-center relative">
+
+                            <div className="absolute top-0 right-12">
+                                        <MusicAndSoundControls />
                             </div>
-                        </section>
-                        <section className="flex">
-                            {/* <GameCanvas
-                                className="animate-fade animate-once"
-                                canvasInitialState={playerPositions}
-                                ref={gameCanvasRef}
-                                avatarId={avatarId!}
-                                diceResult={diceResult}
-                            ></GameCanvas> */}
-                            <div className="flex flex-col gap-1">
-                                {turnsOrder?.map(
-                                    (turnPlayer: TurnOrderPlayer) => {
-                                        if (
-                                            turnPlayer?.playerId ===
-                                            localPlayer?.id
-                                        ) {
-                                            return (
-                                                <LocalPlayerCard
-                                                    key={turnPlayer.playerId}
-                                                    player={
-                                                        localPlayerDynamicInfo
-                                                    }
+                                <NotificationSound trigger={hasPlayersPositionsUpdated?.message || genericGameState}
+                                    audioSrc="/assets/audios/sound-effects/notification1.mp3"
+                                />
+                                <WhiteContainer className="animate-jump-in ">
+                                    <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
+                                        {
+                                            hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
+                                        }
+                                    </span>
+                                </WhiteContainer>
+                                <div className="absolute right-6 w-fit">
+                                    
+                                    <button className="aspect-square min-h-10 relative rounded-full animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[3px] outline-zinc-900" onClick={() => navigate('/game/events')}>
+                                        <img
+                                            src="/assets/icons/eventoNoBorder.png"
+                                            alt="Back Button"
+                                            className="size-10 min-h-10 absolute inset-0 rounded-full object-cover aspect-square"
+                                            title="Ver catálogo de Eventos"
+                                        />
+                                    </button>
+                                </div>
+                            </section>
+                            <section className="flex">
+                                <GameCanvas
+                                    className="animate-fade animate-once"
+                                    canvasInitialState={playerPositions}
+                                    ref={gameCanvasRef}
+                                    avatarId={avatarId!}
+                                    diceResult={diceResult}
+                                ></GameCanvas>
+                                <div className="flex flex-col gap-1">
+                                    {turnsOrder?.map(
+                                        (turnPlayer: TurnOrderPlayer) => {
+                                            if (
+                                                turnPlayer?.playerId ===
+                                                localPlayer?.id
+                                            ) {
+                                                return (
+                                                    <LocalPlayerCard
+                                                        key={turnPlayer.playerId}
+                                                        player={
+                                                            localPlayerDynamicInfo
+                                                        }
                                                     csvLoadedProjects={loadedProjects}
                                                     localPlayerProjects={localPlayerProjectsData}
-                                                />
-                                            );
-                                        } else {
-                                            return (
-                                                <PlayerCard
-                                                    key={turnPlayer.playerId}
-                                                    player={turnPlayer}
-                                                />
-                                            );
+                                                    />
+                                                );
+                                            } else {
+                                                return (
+                                                    <PlayerCard
+                                                        key={turnPlayer.playerId}
+                                                        player={turnPlayer}
+                                                    />
+                                                );
+                                            }
                                         }
-                                    }
-                                )}
-                            </div>
-                        </section>
+                                    )}
+                                </div>
+                            </section>
 
-                        <section className="flex flex-col gap-2">
-                            <div className="grid grid-cols-4 gap-2">
-                                {gameControlButtons?.map((button) => (
-                                    <WhiteContainer
-                                        key={button.control}
-                                        onClick={() =>
-                                            navigate(`/game/${button.control}`)
-                                        }
-                                        className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
-                                    >
-                                        <div className="flex gap-2">
-                                            <figure className="w-16 min-w-16">
-                                                <img
-                                                    src={button.icon}
-                                                    alt="Icon"
-                                                    className="object-contain aspect-square !w-16"
-                                                />
-                                            </figure>
-                                            <div className="grow">
-                                                <h4 className="text-sm font-easvhs">
-                                                    {button.title}
-                                                </h4>
-                                                <p className="text-[12px] font-rajdhani font-semibold">
-                                                    {button.description}
-                                                </p>
+                            <section className="flex flex-col gap-2">
+                                <div className="grid grid-cols-4 gap-2">
+                                    {gameControlButtons?.map((button) => (
+                                        <WhiteContainer
+                                            key={button.control}
+                                            onClick={() =>
+                                                navigate(`/game/${button.control}`)
+                                            }
+                                            className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
+                                        >
+                                            <div className="flex gap-2">
+                                                <figure className="w-16 min-w-16">
+                                                    <img
+                                                        src={button.icon}
+                                                        alt="Icon"
+                                                        className="object-contain aspect-square !w-16"
+                                                    />
+                                                </figure>
+                                                <div className="grow">
+                                                    <h4 className="text-sm font-easvhs">
+                                                        {button.title}
+                                                    </h4>
+                                                    <p className="text-[12px] font-rajdhani font-semibold">
+                                                        {button.description}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </WhiteContainer>
-                                ))}
-                            </div>
+                                        </WhiteContainer>
+                                    ))}
+                                </div>
 
-                            {/* WS actions */}
-                            <div className="flex gap-4 justify-center">
-                                { (is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
-                                    <ActionButtonManager
-                                        method={
-                                            genericGameState.method as keyof typeof gameStateHandlers
-                                        }
-                                        wsActionTriggerer={
-                                            triggerTurnOrderStage
-                                        }
-                                        message={
-                                            currentPlayerTurnId ===
-                                            localPlayer?.id
-                                                ? "Lanza los dados"
-                                                : "Esperar..."
-                                        }
-                                        disabled={
-                                            currentPlayerTurnId !==
-                                            localPlayer?.id
-                                        }
-                                    />
-                                )}
+                                {/* WS actions */}
+                                <div className="flex gap-4 justify-center">
+                                    {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
 
-                                {/* ready to start regular turns */}
-                                {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
-                                    <ActionButtonManager
-                                        method="start_new_turn"
-                                        wsActionTriggerer={triggerStartNewTurn}
-                                        message={
-                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  ===
-                                            localPlayer?.id
-                                                ? "Iniciar nuevo turno"
-                                                : "Esperar"
-                                        }
-                                        disabled={
-                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  !==
-                                            localPlayer?.id
-                                        }
-                                    />
-                                )}
+                                        <ActionButtonManager
+                                            method={
+                                                genericGameState.method as keyof typeof gameStateHandlers
+                                            }
+                                            wsActionTriggerer={
+                                                triggerTurnOrderStage
+                                            }
+                                            message={
+                                                currentPlayerTurnId ===
+                                                    localPlayer?.id
+                                                    ? "Lanza los dados"
+                                                    : "Esperar..."
+                                            }
+                                            disabled={
+                                                currentPlayerTurnId !==
+                                                localPlayer?.id
+                                            }
+                                        />
 
-                                {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
-                                {newturn_isStartNewTurnStage && (
+                                    )}
+
+                                    {/* ready to start regular turns */}
+                                    {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
+                                        <ActionButtonManager
+                                            method="start_new_turn"
+                                            wsActionTriggerer={triggerStartNewTurn}
+                                            message={
+                                                currentPlayerTurnId || turnStage_playerToStartNewTurn ===
+                                                    localPlayer?.id
+                                                    ? "Iniciar nuevo turno"
+                                                    : "Esperar"
+                                            }
+                                            disabled={
+                                                currentPlayerTurnId || turnStage_playerToStartNewTurn !==
+                                                localPlayer?.id
+                                            }
+                                        />
+                                    )}
+
+                                    {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
+                                    {newturn_isStartNewTurnStage && (
                                         <LocalStateDynamicButton
                                             onClick={triggerAdvanceDaysMessage}
                                             message={
                                                 currentPlayerTurnId ===
-                                                localPlayer?.id
+                                                    localPlayer?.id
                                                     ? "Lanzar dados y avanza"
                                                     : "Esperar..."
                                             }
@@ -471,7 +487,7 @@ export default function _layout() {
                                         />
                                     )}
 
-                                {/* {preNewTurnStage_isOver && (
+                                    {/* {preNewTurnStage_isOver && (
                                     <ActionButtonManager
                                         method="days_advanced"
                                         wsActionTriggerer={triggerAdvanceDaysMessage}
@@ -508,8 +524,8 @@ export default function _layout() {
                                             }
                                         />
                                     )} */}
-                                
-                                {/* { is_notificaation && (
+
+                                    {/* { is_notificaation && (
                                         <LocalStateDynamicButton
                                             onClick={() => {}}
                                             message={
@@ -521,161 +537,183 @@ export default function _layout() {
                                         />
                                     )} */}
 
-                                {/* Dices view */}
-                                {/* Turn Stage Dices */}
-                                {!turnStage_isTurnOrderStageOver &&
-                                    turnStage_hasPlayerRolledDices &&
-                                    turnStage_dicesResult && (
-                                        <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                            {turnStage_dicesResult?.map(
-                                                (dice: number, ind) => (
-                                                    // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
-                                                    <img
-                                                        key={ind}
-                                                        src={`/assets/dices/${dice}.png`}
-                                                        alt={`dice${dice}`}
-                                                        className="size-[50px] object-contain"
-                                                    />
-                                                )
-                                            )}
-                                        </div>
-                                    )}
+                                    {/* Dices view */}
+                                    {/* Turn Stage Dices */}
+                                    {!turnStage_isTurnOrderStageOver &&
+                                        turnStage_hasPlayerRolledDices &&
+                                        turnStage_dicesResult && (
+                                            <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
+                                                {turnStage_dicesResult?.map(
+                                                    (dice: number) => (
+                                                        // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
+                                                        <img
+                                                            key={dice}
+                                                            src={`/assets/dices/${dice}.png`}
+                                                            alt={`dice${dice}`}
+                                                            className="size-[50px] object-contain"
+                                                        />
+                                                    )
+                                                )}
+                                            </div>
+                                        )}
 
-                                {/* New Turn Stage Dices */}
-                                {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
-                                    (
-                                        <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                            {newTurn_advancedDays?.dices.map(
-                                                (dice: number, ind) => (
-                                                    // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
-                                                    <img
-                                                        key={ind}
-                                                        src={`/assets/dices/${dice}.png`}
-                                                        alt={`dice${dice}`}
-                                                        className="size-[50px] object-contain"
-                                                    />
-                                                )
-                                            )}
-                                        </div>
-                                    )}
+                                    {/* New Turn Stage Dices */}
+                                    {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
+                                        (
+                                            <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
+                                                {newTurn_advancedDays?.dices.map(
+                                                    (dice: number) => (
+                                                        // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
+                                                        <img
+                                                            key={dice}
+                                                            src={`/assets/dices/${dice}.png`}
+                                                            alt={`dice${dice}`}
+                                                            className="size-[50px] object-contain"
+                                                        />
+                                                    )
+                                                )}
+                                            </div>
+                                        )}
 
-                                {
-                                    preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
-                                    newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month && 
-                                    !newTurn_localPlayerStoredData.is_ready_to_face_event &&
-                                    (
-                                        <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan`)}>
-                                            {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                    {
+                                        preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
+                                        newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
+                                        !newTurn_localPlayerStoredData.is_ready_to_face_event &&
+                                        (
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan`)}>
+                                                {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
                                                 }
                                             </span> */}
-                                            <div className="flex gap-2">
-                                                <figure className="size-12">
-                                                    <img
-                                                        src={'/assets/icons/action-plan.png'}
-                                                        alt="Icon"
-                                                        className="object-contain aspect-square h-full w-full size-12"
-                                                    />
-                                                </figure>
-                                                <div className="grow max-w-64">
-                                                    <h4 className="text-sm font-easvhs">
-                                                        Plan de acción
-                                                    </h4>
-                                                    <p className="text-xs font-rajdhani font-semibold">
-                                                        ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </WhiteContainer>
-                                    )
-                                }
-                                {
-                                    (preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays || submitPlan_isReadyToFaceEvent) &&
-                                    hasPlayerSubmittedPlan  &&
-                                    !newTurn_localPlayerStoredData.time_manager.is_weekend &&
-                                    (
-                                        <>
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
-                                                {/* <span className="text-sm text-zinc font-dogica-bold px-5">
-                                                    {
-                                                        "¡Es hora de planificar!"
-                                                    }
-                                                </span> */}
                                                 <div className="flex gap-2">
                                                     <figure className="size-12">
                                                         <img
-                                                            src={'/assets/icons/evento.png'}
+                                                            src={'/assets/icons/action-plan.png'}
                                                             alt="Icon"
-                                                            className="object-contain aspect-square size-12 min-w-12"
+                                                            className="object-contain aspect-square h-full w-full size-12"
                                                         />
                                                     </figure>
-                                                    <div className="grow">
+                                                    <div className="grow max-w-64">
                                                         <h4 className="text-sm font-easvhs">
-                                                            ¡Es hora de enfrentar el evento!
+                                                            Plan de acción
                                                         </h4>
-                                                        <p className="text-xs font-rajdhani font-bold">
-                                                            ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
-                                                            Da CLICK en el botón para ver el resultado.
+                                                        <p className="text-xs font-rajdhani font-semibold">
+                                                            ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                         </p>
                                                     </div>
                                                 </div>
                                             </WhiteContainer>
-                                            <ActionButtonManager
-                                                method="turn_event_flow"
-                                                wsActionTriggerer={triggerStartEventFlow}
-                                                message={
-                                                    currentPlayerTurnId ===
-                                                    localPlayer?.id
-                                                        ? (navigation.state==="submitting"?"Enviando...":"Enfrentar evento")
-                                                        : "Esperar..."
-                                                }
-                                                disabled={
-                                                    (currentPlayerTurnId !==
-                                                    localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
-                                                }
-                                            />
-                                        </>
-                                    )
-                                }
-                                
-                                {
-                                     (newTurn_localPlayerStoredData?.is_ready_to_face_event||submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent || preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays) && 
-                                     hasPlayerSubmittedPlan &&
-                                     newTurn_localPlayerStoredData.time_manager.is_weekend &&
-                                     (
-                                        <>
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
-                                                {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                        )
+                                    }
+                                    {
+                                        (preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays || submitPlan_isReadyToFaceEvent) &&
+                                        hasPlayerSubmittedPlan &&
+                                        !newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                        (
+                                            <>
+                                                <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
+                                                    {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                     {
                                                         "¡Es hora de planificar!"
                                                     }
                                                 </span> */}
-                                                <div className="flex gap-2">
-                                                    <figure className="size-12">
-                                                        <img
-                                                            src={'/assets/icons/weekend-rest.png'}
-                                                            alt="Icon"
-                                                            className="object-contain aspect-square size-12"
-                                                        />
-                                                    </figure>
-                                                    <div className="grow">
-                                                        <h4 className="text-sm font-easvhs">
-                                                            ¡Es fin de semana!
-                                                        </h4>
-                                                        <p className="text-xs font-rajdhani font-bold">
-                                                            ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
-                                                        </p>
+                                                    <div className="flex gap-2">
+                                                        <figure className="size-12">
+                                                            <img
+                                                                src={'/assets/icons/evento.png'}
+                                                                alt="Icon"
+                                                                className="object-contain aspect-square size-12 min-w-12"
+                                                            />
+                                                        </figure>
+                                                        <div className="grow">
+                                                            <h4 className="text-sm font-easvhs">
+                                                                ¡Es hora de enfrentar el evento!
+                                                            </h4>
+                                                            <p className="text-xs font-rajdhani font-bold">
+                                                                ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
+                                                                Da CLICK en el botón para ver el resultado.
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </WhiteContainer>
+                                                </WhiteContainer>
+                                                <ActionButtonManager
+                                                    method="turn_event_flow"
+                                                    wsActionTriggerer={triggerStartEventFlow}
+                                                    message={
+                                                        currentPlayerTurnId ===
+                                                            localPlayer?.id
+                                                            ? (navigation.state === "submitting" ? "Enviando..." : "Enfrentar evento")
+                                                            : "Esperar..."
+                                                    }
+                                                    disabled={
+                                                        (currentPlayerTurnId !==
+                                                            localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
+                                                    }
+                                                />
+                                            </>
+                                        )
+                                    }
+
+                                    {
+                                        (newTurn_localPlayerStoredData?.is_ready_to_face_event || submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent || preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays) &&
+                                        hasPlayerSubmittedPlan &&
+                                        newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                        (
+                                            <>
+                                                <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
+                                                    {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                                    {
+                                                        "¡Es hora de planificar!"
+                                                    }
+                                                </span> */}
+                                                    <div className="flex gap-2">
+                                                        <figure className="size-12">
+                                                            <img
+                                                                src={'/assets/icons/weekend-rest.png'}
+                                                                alt="Icon"
+                                                                className="object-contain aspect-square size-12"
+                                                            />
+                                                        </figure>
+                                                        <div className="grow">
+                                                            <h4 className="text-sm font-easvhs">
+                                                                ¡Es fin de semana!
+                                                            </h4>
+                                                            <p className="text-xs font-rajdhani font-bold">
+                                                                ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </WhiteContainer>
+                                                <ActionButtonManager
+                                                    method="next_turn"
+                                                    wsActionTriggerer={triggerSetNextTurn}
+                                                    message={
+                                                        currentPlayerTurnId ===
+                                                            localPlayer?.id
+                                                            ? "Pasar al siguiente turno"
+                                                            : "Esperar..."
+                                                    }
+                                                    disabled={
+                                                        currentPlayerTurnId !==
+                                                        localPlayer?.id
+                                                    }
+                                                />
+                                            </>
+                                        )
+                                    }
+
+                                    {
+                                        nextTurn_currentTurn && nextTurn_method == "next_turn" &&
+                                        !eventFlow_hasNavigated &&
+                                        (
                                             <ActionButtonManager
                                                 method="next_turn"
-                                                wsActionTriggerer={triggerSetNextTurn}
+                                                wsActionTriggerer={triggerStartNewTurn}
                                                 message={
                                                     currentPlayerTurnId ===
-                                                    localPlayer?.id
-                                                        ? "Pasar al siguiente turno"
+                                                        localPlayer?.id
+                                                        ? "Es tu turno. Comenzar"
                                                         : "Esperar..."
                                                 }
                                                 disabled={
@@ -683,60 +721,38 @@ export default function _layout() {
                                                     localPlayer?.id
                                                 }
                                             />
-                                        </>
-                                    )
-                                }
+                                        )
+                                    }
 
-                                {
-                                    nextTurn_currentTurn && nextTurn_method == "next_turn" && 
-                                    !eventFlow_hasNavigated &&
-                                    (
-                                        <ActionButtonManager
-                                            method="next_turn"
-                                            wsActionTriggerer={triggerStartNewTurn}
-                                            message={
-                                                currentPlayerTurnId ===
-                                                localPlayer?.id
-                                                    ? "Es tu turno. Comenzar"
-                                                    : "Esperar..."
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId !==
-                                                localPlayer?.id
-                                            }
-                                        />
-                                    )
-                                }
-
-                                {
-                                    eventFlow_hasNavigated && 
-                                    nextTurn_currentTurn == localPlayer?.id &&
-                                    (
-                                        <ActionButtonManager
-                                            method="next_turn"
-                                            wsActionTriggerer={triggerSetNextTurn}
-                                            message={
-                                                currentPlayerTurnId ===
-                                                localPlayer?.id
-                                                    ? "Terminar tu turno."
-                                                    : "Esperar..."
-                                            }
-                                            disabled={
-                                                (currentPlayerTurnId !==
-                                                    localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
-                                            }
-                                         />
-                                    )
-                                }
+                                    {
+                                        eventFlow_hasNavigated &&
+                                        nextTurn_currentTurn == localPlayer?.id &&
+                                        (
+                                            <ActionButtonManager
+                                                method="next_turn"
+                                                wsActionTriggerer={triggerSetNextTurn}
+                                                message={
+                                                    currentPlayerTurnId ===
+                                                        localPlayer?.id
+                                                        ? "Terminar tu turno."
+                                                        : "Esperar..."
+                                                }
+                                                disabled={
+                                                    (currentPlayerTurnId !==
+                                                        localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
+                                                }
+                                            />
+                                        )
+                                    }
 
 
-                            </div>
-                        </section>
-                    </article>
-                    <Outlet></Outlet>
-                </section>
-            </PageContainer>
-        </main>
+                                </div>
+                            </section>
+                        </article>
+                        <Outlet></Outlet>
+                    </section>
+                </PageContainer>
+            </main>
         </div>
     );
 }
@@ -1030,17 +1046,17 @@ export function ActionButtonManager(props: DynamicActionButtonProps) {
         case "start_game":
             return <DynamicActionButton {...rest} name={method} />;
         case "turn_order_stage":
-            return <DynamicActionButton {...rest} name={method}/>;
+            return <DynamicActionButton {...rest} name={method} />;
         case "start_new_turn":
-                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"  name={method}/>;
+            return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method} />;
         case "days_advanced":
-                return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method}/>;
+            return <DynamicActionButton {...rest} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" name={method} />;
         case "submit_plan":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
+            return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         case "turn_event_flow":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png"/>;
+            return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         case "next_turn":
-                return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
+            return <DynamicActionButton {...rest} name={method} buttonImgSrc="/assets/buttons/Button2.png" hoverImgSrc="/assets/buttons/Button2-hover.png" />;
         default:
             return null;
     }
@@ -1052,38 +1068,38 @@ const DynamicActionButton = ({
     type = "button",
     className,
     children,
-    buttonImgSrc="/assets/buttons/ButtonPurple.png",
-    hoverImgSrc="/assets/buttons/ButtonPurple-hover.png",
+    buttonImgSrc = "/assets/buttons/ButtonPurple.png",
+    hoverImgSrc = "/assets/buttons/ButtonPurple-hover.png",
     ...rest
 }: Omit<DynamicActionButtonProps, 'method'>) => {
     return (
         <button
-        {...rest}
-        className={twMerge(
-            "relative w-60 aspect-[4/1] flex items-center justify-center group overflow-hidden animate-jump-in",
-            "disabled:opacity-60",
-            className
-        )}
-        type={type}
-        onClick={wsActionTriggerer}
-    >
-     
-        <img
-            className="absolute inset-0 w-full h-full block group-hover:hidden"
-            src={buttonImgSrc}
-            alt="Button"
-        />
-       
-        <img
-            className="absolute inset-0 w-full h-full hidden group-hover:block"
-            src={hoverImgSrc}
-            alt="Button Hover"
-        />
-        
-        <p className="z-10 font-easvhs text-center text-white">
-            {message ?? children}
-        </p>
-    </button>
+            {...rest}
+            className={twMerge(
+                "relative w-60 aspect-[4/1] flex items-center justify-center group overflow-hidden animate-jump-in",
+                "disabled:opacity-60",
+                className
+            )}
+            type={type}
+            onClick={wsActionTriggerer}
+        >
+
+            <img
+                className="absolute inset-0 w-full h-full block group-hover:hidden"
+                src={buttonImgSrc}
+                alt="Button"
+            />
+
+            <img
+                className="absolute inset-0 w-full h-full hidden group-hover:block"
+                src={hoverImgSrc}
+                alt="Button Hover"
+            />
+
+            <p className="z-10 font-easvhs text-center text-white">
+                {message ?? children}
+            </p>
+        </button>
     );
 }
 
@@ -1103,30 +1119,30 @@ const LocalStateDynamicButton = ({
     type = "button",
     className,
     children,
-    buttonImgSrc="/assets/buttons/ButtonPurple.png",
-    darkText=false,
-    hoverImgSrc="/assets/buttons/ButtonPurple-hover.png",
+    buttonImgSrc = "/assets/buttons/ButtonPurple.png",
+    darkText = false,
+    hoverImgSrc = "/assets/buttons/ButtonPurple-hover.png",
     ...rest
 }: LocalStateDynamicButtonProps) => {
     return (
         <button {...rest} className={twMerge("relative w-60 aspect-[4/1] aspect flex items-center justify-center disabled:opacity-60 animate-jump-in", className)} type={type} onClick={onClick}>
-         
-        <img
-            className="absolute inset-0 w-full h-full block group-hover:hidden"
-            src={buttonImgSrc}
-            alt="Button"
-        />
-       
-        <img
-            className="absolute inset-0 w-full h-full hidden group-hover:block"
-            src={hoverImgSrc}
-            alt="Button Hover"
-        />
-        
-        <p className="z-10 font-easvhs text-center text-white">
-            {message ?? children}
-        </p>
-     </button>
+
+            <img
+                className="absolute inset-0 w-full h-full block group-hover:hidden"
+                src={buttonImgSrc}
+                alt="Button"
+            />
+
+            <img
+                className="absolute inset-0 w-full h-full hidden group-hover:block"
+                src={hoverImgSrc}
+                alt="Button Hover"
+            />
+
+            <p className="z-10 font-easvhs text-center text-white">
+                {message ?? children}
+            </p>
+        </button>
     );
 }
 

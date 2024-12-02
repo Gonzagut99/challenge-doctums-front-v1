@@ -10,7 +10,7 @@ import {
 } from "~/components/custom/ModifiersSmallTile";
 import SmallModal from "~/components/custom/SmallModal";
 import { globalWebSocketService } from "~/services/ws";
-import { efficienciesData, loadEfficiencies, loadProducts, productsData } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 
 // export type GameStartMessage = {
 //     method: string;
@@ -70,10 +70,12 @@ import { efficienciesData, loadEfficiencies, loadProducts, productsData } from "
 // }
 
 export const loader = async () => {
-    const domainProducts = productsData;
+    // const domainProducts = await loadProducts('app/data/products.csv');
     //const startGameResponse = globalWebSocketService.getResponseWhenGameStarted();
+    const domainProducts = initializedDataLoader.getProducts();
     const efficiencies = globalWebSocketService.localPlayerEfficiencies;
-    const efficiencyDomainData = efficienciesData;
+    // const efficiencyDomainData = await loadEfficiencies('app/data/efficiencies.csv');
+    const efficiencyDomainData = initializedDataLoader.getEfficiencies();
     const currentPlayerProducts = globalWebSocketService.localPlayerModifiers.products;
     const currentLocalPlayerData = globalWebSocketService.getLocalPlayerDynamicInfo();
     const playersProductsIds = currentPlayerProducts.map((product) => product.id);

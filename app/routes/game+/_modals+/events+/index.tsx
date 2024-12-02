@@ -3,7 +3,7 @@ import { json, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Modal from "~/components/custom/Modal";
-import { eventsData, loadEvents } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 
 export interface EventTableTileData {
     id: string;
@@ -12,7 +12,7 @@ export interface EventTableTileData {
 }
 
 export const loader = async () => {
-    const domainEvents = eventsData;
+    const domainEvents = initializedDataLoader.getEvents();
     const events: EventTableTileData[] = Object.values(domainEvents).map((efficiency) => ({
         id: efficiency.ID,
         description: efficiency.description,

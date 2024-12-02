@@ -6,7 +6,7 @@ import { MyEfficiencyTabletTile } from "~/components/custom/EfficiencyTabletTile
 import Modal from "~/components/custom/Modal";
 import { globalWebSocketService } from "~/services/ws";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
-import { efficienciesData, loadEfficiencies } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 
 // export interface EfficiencyTableTileData {
 //     id: number;
@@ -43,7 +43,8 @@ import { efficienciesData, loadEfficiencies } from "~/utils/dataLoader";
 // }));
 
 export const loader = async () => {
-    const efficiencies= efficienciesData;
+    // const efficiencies= await loadEfficiencies("app/data/efficiencies.csv");
+    const efficiencies = initializedDataLoader.getEfficiencies();
     const myEfficienciesStrengthData = globalWebSocketService.localPlayerEfficiencies;
     const myEfficiencies: EfficiencyTableTileData[] = Object.values(efficiencies).map((efficiency) => ({
         id: efficiency.ID,

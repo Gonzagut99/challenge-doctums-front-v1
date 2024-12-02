@@ -11,7 +11,7 @@ import {
 } from "~/components/custom/ModifiersSmallTile";
 import SmallModal from "~/components/custom/SmallModal";
 import { globalWebSocketService } from "~/services/ws";
-import { allLoadedData, loadAllModifiersData } from "~/utils/dataLoader";
+import { initializedDataLoader } from "~/utils/dataLoader";
 
 // export type ActionPlanPlayerState = {
 //     budget: number;
@@ -54,7 +54,8 @@ import { allLoadedData, loadAllModifiersData } from "~/utils/dataLoader";
 // }
 
 export const loader = async () => {
-    const { products, projects, resources } = allLoadedData;
+    // const { products, projects, resources } = await loadAllModifiersData();
+    const { products, projects, resources } = initializedDataLoader.getAllModifiersData();
     const currentLocalPlayerData =
         globalWebSocketService.getLocalPlayerDynamicInfo();
     const submitPlanResponse = globalWebSocketService.getSubmitPlanEffects();
