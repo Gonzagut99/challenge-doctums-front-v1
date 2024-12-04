@@ -89,16 +89,16 @@ export type TimeManager = {
 export type PlayerInitModifiers = {
   id: string;
   products: [{
-    product_id: number;
+    product_id: string;
     is_enabled: boolean;
     purchased_requirements: string[];
   }];
   projects:[{
-      project_id: number;
+      project_id: string;
       remaining_time: number;
   }];
   resources:[{
-      resource_id: number;
+      resource_id: string;
       remaining_time: number;
   }];
 }

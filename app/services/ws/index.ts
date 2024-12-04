@@ -509,7 +509,13 @@ class WebSocketService implements IWebSocketService {
     handleAdvanceDays(message: any) {
         if (message.method === 'days_advanced') {
             this.gameStateMessage = message;
-            console.log("advance days", message);
+            this.nextTurn_newTurnSettledInfo = {
+                ...this.nextTurn_newTurnSettledInfo,
+                turn_order: message.turn_order,
+                player: message.player
+            }
+            console.log("advance days", this.nextTurn_newTurnSettledInfo);
+            this.setLocalPlayerNewDynamicInfo()
             emitter.emit('game', message);
         }
     }
@@ -597,9 +603,14 @@ class WebSocketService implements IWebSocketService {
     handleNotifications(message: PlayersActionNotification) {
         if (message.method === 'notification') {
             this.gameStateMessage = message;
+            this.nextTurn_newTurnSettledInfo = {
+                ...this.nextTurn_newTurnSettledInfo,
+                turn_order: message.turn_order,
+            }
             if(message?.current_turn){
                 this.currentPlayerTurn = message.current_turn;
             }
+            //this.setLocalPlayerNewDynamicInfo()
 
             console.log("notification", message);
             emitter.emit('game', message);
@@ -614,9 +625,37 @@ class WebSocketService implements IWebSocketService {
             if(message.time_manager.is_first_turn_in_month){
                 this.submitActionPlanEffects = {};
             }
+            const noBaughtProducts = this.localPlayerModifiers.products.filter(product => !product.was_bought);
+            const noBoughtProductsIds = noBaughtProducts.map(product => product.id);
+            const localPlayerProducts = message.player.products.map(product => {
+                if(noBoughtProductsIds.includes(product.product_id)){
+                    return ({
+                        id: product.product_id,
+                        is_enabled: product.is_enabled,
+                        was_bought: false,
+                        purchased_requirements: product.purchased_requirements,
+                    });
+                }
+                return {
+                    id: product.product_id,
+                    is_enabled: product.is_enabled,
+                    was_bought: true,
+                    purchased_requirements: product.purchased_requirements,
+                };
+            }
+            );
 
+            this.localPlayerModifiers.products = localPlayerProducts.length > 0 ? localPlayerProducts : this.localPlayerModifiers.products;
+            this.localPlayerModifiers.projects = message.player.projects.map(project => ({
+                id: project.project_id,
+                remaining_time: project.remaining_time,
+            }));
+            this.localPlayerModifiers.resources = message.player.resources.map(resource => ({
+                id: resource.resource_id,
+                remaining_time: resource.remaining_time,
+            }));
 
-            console.log("New Turn Start", message);
+            console.log("New Turn Start", message.player.resources);
             emitter.emit('game', message);
         }
     }
@@ -658,14 +697,7 @@ class WebSocketService implements IWebSocketService {
             );
 
             this.localPlayerModifiers.products = localPlayerProducts.length > 0 ? localPlayerProducts : this.localPlayerModifiers.products;
-            this.localPlayerModifiers.projects = message.player.projects.map(project => ({
-                id: project.project_id,
-                remaining_time: project.remaining_time,
-            }));
-            this.localPlayerModifiers.resources = message.player.resources.map(resource => ({
-                id: resource.resource_id,
-                remaining_time: resource.remaining_time,
-            }));
+           
             console.log("Action Plan", JSON.stringify(message));
             emitter.emit('game', message);
         }
