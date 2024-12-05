@@ -16,7 +16,6 @@ const NotificationSound = ({ trigger, audioSrc }: NotificationSoundProps) => {
     console.log("[NotificationSound]: Audio inicializado con src:", audioSrc);
   }, [audioSrc]);
 
-  // Reproduce el sonido cuando trigger cambia
   useEffect(() => {
     if (trigger && isSoundOn) {
       if (audioRef.current) {

@@ -23,7 +23,7 @@ const GlobalMusic = () => {
       if (location.pathname === "/game/legacyRewards") {
         audioRef.current.volume = 0.05; 
       } else {
-        audioRef.current.volume = 0.2; 
+        audioRef.current.volume = 0.1; 
       }
     }
   }, [location.pathname]);

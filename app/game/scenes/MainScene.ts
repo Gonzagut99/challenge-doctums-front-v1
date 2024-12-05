@@ -276,7 +276,15 @@ export class MainScene extends Phaser.Scene {
         const casillaId = casilla.getData('id');
         if (this.visitedCasillas[playerId].has(casillaId)|| this.isStopped[playerId] || !this.isWithinTolerance(casilla, playerId)) return;
         
+        
         this.smoothSetBounds(130, -40, this.twelve.widthInPixels - 130, this.twelve.heightInPixels, 1000);
+
+        if (casillaId === this.diceRollResult[playerId] && this.isWeekend(casillaId)) {
+            this.playRestAnimation(playerId);
+            this.visitedCasillas[playerId].add(casillaId);
+            return;
+        }
+    
         if (casillaId === this.diceRollResult[playerId] || casillaId === 360) {
             this.stopCharacter(casillaId, playerId);
             return;
@@ -344,6 +352,12 @@ export class MainScene extends Phaser.Scene {
         this.oppositeDirectionIds = this.dayPositions.filter(pos => (pos.id - 1) % 7 === 0 && pos.id !== 1).map(pos => pos.id);
     }
 
+    isWeekend(casillaId: number): boolean {
+        const dayOfWeek = casillaId % 7;
+        return dayOfWeek === 0 || dayOfWeek === 6;
+    }
+
+
     stopCharacter(casillaId: number, playerId: string): void {
         const character = this.playersCharacter[playerId] as Phaser.Physics.Arcade.Sprite;
         const animationKey = this.getAnimKeyByPlayerId(playerId);
@@ -353,6 +367,16 @@ export class MainScene extends Phaser.Scene {
         this.isStopped[playerId] = true;
         this.currentCasillaId[playerId] = casillaId;
         this.promptDiceRoll();
+    }
+
+    playRestAnimation(playerId: string): void {
+        const character = this.playersCharacter[playerId] as Phaser.Physics.Arcade.Sprite;
+        const animationKey = this.getAnimKeyByPlayerId(playerId);
+        character.setVelocityX(0);
+        character.setVelocityY(0);
+        character.anims.play(animationKey.rest, true);
+        this.isStopped[playerId] = true;
+        this.promptDiceRoll(); 
     }
 
     isSpecialTile(casillaId: number) {

@@ -1,39 +1,6 @@
 {
     "anims": [
         {
-            "key": "idle_2",
-            "type": "frames",
-            "repeat": -1,
-            "frameRate": 1,
-            "frames": [
-                {
-                    "key": "character_1",
-                    "frame": "1"
-                }
-               
-            ]
-        },
-        {
-            "key": "rest_2",
-            "type": "frames",
-            "repeat": -1,
-            "frameRate": 3,
-            "frames": [
-                {
-                    "key": "character_2",
-                    "frame": "18"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "19"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "20"
-                }
-            ]
-        },
-        {
             "key": "walk_right_2",
             "type": "frames",
             "repeat": -1,
@@ -41,7 +8,7 @@
             "frames": [
                 {
                     "key": "character_2",
-                    "frame": "11"
+                    "frame": "9"
                 },
                 {
                     "key": "character_2",
@@ -49,7 +16,7 @@
                 },
                 {
                     "key": "character_2",
-                    "frame": "11"
+                    "frame": "9"
                 },
                 {
                     "key": "character_2",
@@ -61,11 +28,11 @@
             "key": "walk_left_2",
             "type": "frames",
             "repeat": -1,
-            "frameRate": 10,
+            "frameRate": 12,
             "frames": [
                 {
                     "key": "character_2",
-                    "frame": "5"
+                    "frame": "7"
                 },
                 {
                     "key": "character_2",
@@ -73,35 +40,11 @@
                 },
                 {
                     "key": "character_2",
-                    "frame": "5"
+                    "frame": "7"
                 },
                 {
                     "key": "character_2",
                     "frame": "8"
-                }
-            ]
-        },
-        {
-            "key": "walk_backward_2",
-            "type": "frames",
-            "repeat": -1,
-            "frameRate": 6,
-            "frames": [
-                {
-                    "key": "character_2",
-                    "frame": "14"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "15"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "16"
-                },
-                {
-                    "key": "character_2",
-                    "frame": "17"
                 }
             ]
         },
@@ -126,6 +69,66 @@
                 {
                     "key": "character_2",
                     "frame": "2"
+                }
+            ]
+        },
+        {
+            "key": "walk_backward_2",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_2",
+                    "frame": "14"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "15"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "14"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "17"
+                }
+            ]
+        },
+        {
+            "key": "rest_2",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 6,
+            "frames": [
+                {
+                    "key": "character_2",
+                    "frame": "18"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "19"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "20"
+                },
+                {
+                    "key": "character_2",
+                    "frame": "21"
+                }
+            ]
+        },
+        {
+            "key": "idle_2",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_2",
+                    "frame": "3"
                 }
             ]
         }
