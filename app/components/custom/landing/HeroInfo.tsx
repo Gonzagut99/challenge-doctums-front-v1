@@ -1,8 +1,8 @@
-import React from "react";
+import { Link } from "@remix-run/react";
 
 const HeroInfo = () => {
         return (
-            <section className="relative pt-8 mx-auto h-auto w-[90%] md:w-[85%] bg-white ">
+            <section className="relative pt-8 mx-auto h-auto w-[90%] md:w-[85%] bg-transparent ">
                 <div className="grid px-4 py-8 mx-2 lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
                     <div className="mr-auto md:mr-12 place-self-center lg:col-span-7 w-full">
                         <h1 className="max-w-2xl mb-8 text-4xl font-serif md:text-5xl xl:text-6xl">
@@ -12,12 +12,12 @@ const HeroInfo = () => {
                         Challenge ofrece a los educadores una herramienta avanzada que puede integrarse en su currículo como una simulación realista para desarrollar habilidades empresariales en estudiantes. Los docentes pueden elegir entre distintas modalidades para adaptar el juego a sus objetivos de aprendizaje.
                         </p>
                         
-                        <a
-                            href="#"
+                        <Link
+                            to="#"
                             className="inline-flex text-celeste items-center justify-center py-3 text-base font-medium underline decoration-2 font-montserrat text-center focus:ring-4 focus:ring-gray-100"
                         >
                             Prueba la Nueva Experiencia
-                        </a>
+                        </Link>
                     </div>
                     <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
                         <img

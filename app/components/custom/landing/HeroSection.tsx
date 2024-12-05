@@ -1,7 +1,7 @@
 const HeroSection = () => {
   return (
       <div 
-          className="absolute top-0 w-full h-[520px] md:h-[660px] bg-cover bg-center" 
+          className="absolute top-0 w-full h-[520px] md:h-[660px] bg-cover bg-center bg-transparent" 
           style={{ backgroundImage: 'url(/assets/landing/img/hero-section.png)' }}
       >
           <div className="absolute inset-0 bg-black opacity-50"></div> {/* Overlay */}

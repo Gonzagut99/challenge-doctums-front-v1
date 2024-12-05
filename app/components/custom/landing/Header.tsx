@@ -1,27 +1,57 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ButtonContact } from "./Buttons";
-import { Link } from "@remix-run/react";
+import { Link, NavLink } from "@remix-run/react";
+import { twMerge } from "tailwind-merge";
+import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
+
+const routes = [
+    {
+        name: "Beneficios",
+        href: "/landing-page#benefits",
+    },
+    {
+        name: "Precios",
+        href: "/landing-page#pricing",
+    },
+    {
+        name: "Reglas del juego",
+        href: "/landing-page/gameRules",
+    },
+    {
+        name: "Iniciar sesión",
+        href: "/landing-page/sign-in",
+    }
+]
 
 const Header = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="relative max-h-16 my-2 lg:w-[95%] mx-auto justify-center rounded-lg top-0 left-0 w-full z-20 backdrop-blur-md bg-black/80">
+    <header className={
+        twMerge(
+            "fixed inset-0 max-h-16 my-2 lg:w-[95%] mx-auto justify-center rounded-lg w-full z-20 backdrop-blur-md bg-black/60 ", !isOpen&& "w-fit lg:w-fit mx-0 ml-4"
+        )
+    }>
       <nav
-        className="mx-auto  flex max-w-7xl items-center justify-between px-6 py-2 lg:px-8"
+        className={
+            twMerge(
+                "mx-auto flex max-w-7xl items-center justify-between px-6 py-2 lg:px-8 transition-all duration-1000", !isOpen && "w-fit px-4 lg:px-4 justify-start mx-0"
+            )
+        }
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1">
+          <Link to={"/landing-page"} className="-m-1.5 p-1">
             <span className="sr-only">Your Company</span>
             <img
               className="h-8 w-auto"
               src="/assets/landing/logo_doctums.png"
               alt="Logo"
             />
-          {/*  */}</a>
+          {/*  */}</Link>
         </div>
         <div className="flex lg:hidden">
           <button
@@ -46,27 +76,33 @@ const Header = () => {
             </svg>
           </button>
         </div>
-        <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-lg font-light font-montserrat text-white">
-            Beneficios
-          </a>
-          <Link to="/landing-page/gameRules">
-          <a href="#" className="text-lg font-light font-montserrat text-white">
-            Reglas del juego
-          </a>
-          </Link>
-          
-          <a href="#" className="text-lg font-light font-montserrat text-white">
-            Precios
-          </a>
-          
-          <a href="#" className="text-lg font-light font-montserrat text-white">
-            Contacto
-          </a>
-        </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <ButtonContact>Contactanos</ButtonContact>
-        </div>
+        {
+            isOpen && <>
+                <div className="hidden lg:flex lg:gap-x-12">
+                    {routes.map((route) => (
+                        <NavLink
+                        key={route.href}
+                        to={route.href}
+                        className={
+                            ({ isActive }) => twMerge("text-base font-medium text-gray-300 hover:text-gray-50 transition-all font-montserrat", isActive ? "text-gray-50 font-bold" : "")
+                        }
+                        >
+                        {route.name}
+                        </NavLink>
+                    ))}
+                </div>
+                <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                <ButtonContact>Contactanos</ButtonContact>
+                </div>
+            </>
+        }
+        <button className="p-2 border-[3px] border-yellowDark bg-yellowDark hover:bg-zinc-900 text-zinc-900 hover:text-zinc-50 rounded-full transition-all ml-2" onClick={
+            ()=>setIsOpen((prev)=>!prev)
+        }>
+            {
+                isOpen ? <PanelRightOpen></PanelRightOpen> : <PanelLeftOpen></PanelLeftOpen>
+            }
+        </button>
       </nav>
     </header>
   );
