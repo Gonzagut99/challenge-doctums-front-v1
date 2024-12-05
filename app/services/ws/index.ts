@@ -53,6 +53,7 @@ class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
     private keepAliveInterval: NodeJS.Timeout | null = null;
+    private keepGameHallAliveInterval: NodeJS.Timeout | null = null;
     private localPlayerAvatarInfo: Player | null = null;
     public localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     public localPlayerPreviousEfficiencies: Record<string, number> = {
@@ -331,6 +332,7 @@ class WebSocketService implements IWebSocketService {
             // Send the message to the server
             this.sendMessage(joinMessage);
             this.listentoGameEvents();
+           
 
             // Optionally, listen for players' info update after joining
             // this.socket.onmessage = (event) => {
@@ -577,6 +579,7 @@ class WebSocketService implements IWebSocketService {
         // }
 
         if (message.status === 'success' && message.method == "join") {
+            //this.gameStateMessage = message;
             this.connectedPlayers = message.game.players;
             // export type ConnectedPlayer = {
             //     name: string;
@@ -597,6 +600,7 @@ class WebSocketService implements IWebSocketService {
             this.gameCanvasState = canvasPlayers;
             console.log("Updated Players List:", this.connectedPlayers);
             emitter.emit('players', this.connectedPlayers);
+            this.startGameHallKeepAlive()
         }
     }
 
@@ -762,6 +766,14 @@ class WebSocketService implements IWebSocketService {
         }, 30000); // Send ping every 30 seconds
     }
 
+    private startGameHallKeepAlive() {
+        this.keepGameHallAliveInterval = setInterval(() => {
+            if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
+                emitter.emit('players', "ping");
+            }
+        }, 30000); // Send ping every 30 seconds
+    }
+
     // Stop keepalive mechanism
     private stopKeepAlive() {
         if (this.keepAliveInterval) {
@@ -769,6 +781,8 @@ class WebSocketService implements IWebSocketService {
             this.keepAliveInterval = null;
         }
     }
+
+    
 }
 
 
