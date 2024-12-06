@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -7,7 +7,6 @@ import { Button2 } from "~/components/custom/Button2";
 import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
-import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyProductTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 // import { ModifiersTabletTileData } from "~/types/Modifiers";
@@ -24,7 +23,7 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     products: ProductFeature[];
 // }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
     // const domainProducts = await loadProducts("app/data/products.csv");
     const domainProducts = initializedDataLoader.getProducts();
     const products = Object.values(domainProducts);

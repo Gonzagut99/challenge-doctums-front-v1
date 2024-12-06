@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -11,7 +11,7 @@ import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyResourceTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
     // const domainResources = await loadResources("app/data/resources.csv");
     // const domainProducts = await loadProducts("app/data/products.csv");
 

@@ -30,7 +30,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     if(isGameStarted){
-        return redirect("/game");
+        return redirect(`/game?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     return json({ sessionCode, player, connectedPlayers });
 };
@@ -42,7 +42,7 @@ export const action = async({request}: ActionFunctionArgs) => {
     const playerId = url.searchParams.get("playerId") as string;
     const instance = getWebSocketService(sessionCode, playerId);
     instance?.startGame();
-    return replace(`/game`);
+    return replace(`/game?sessionCode=${sessionCode}&playerId=${playerId}`);
 }
 
 function Index() {

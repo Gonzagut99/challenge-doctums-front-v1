@@ -1,4 +1,5 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -6,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
-import { globalWebSocketService } from "~/services/ws";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { ModifiersTabletTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
@@ -15,7 +16,11 @@ interface MyProjectsTileData {
     generalData: ModifiersTabletTileData;
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
     // const domainProjectsObject = await loadProjects("app/data/projects.csv");
     // const domainProductsObject = await loadProducts("app/data/products.csv");
     const domainProjectsObject = initializedDataLoader.getProjects();

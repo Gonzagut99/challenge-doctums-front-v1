@@ -1,4 +1,5 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -9,7 +10,7 @@ import {
     ProductTileData,
 } from "~/components/custom/ModifiersSmallTile";
 import SmallModal from "~/components/custom/SmallModal";
-import { globalWebSocketService } from "~/services/ws";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
 // export type GameStartMessage = {
@@ -69,7 +70,11 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     }[];
 // }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService;
     // const domainProducts = await loadProducts('app/data/products.csv');
     //const startGameResponse = globalWebSocketService.getResponseWhenGameStarted();
     const domainProducts = initializedDataLoader.getProducts();

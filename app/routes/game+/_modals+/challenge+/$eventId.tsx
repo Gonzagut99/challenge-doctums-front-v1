@@ -11,7 +11,7 @@ import {
 } from "~/components/custom/EfficienyTile";
 import Modal from "~/components/custom/Modal";
 import { Separator } from "~/components/ui/separator";
-import { globalWebSocketService } from "~/services/ws";
+import { WebSocketService,getWebSocketService  } from "~/services/ws";
 // import { Efficiency } from "~/domain/entities";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { ModifierFeature } from "~/types/modifiers";
@@ -108,11 +108,16 @@ const resource_points_by_level = {
 //     modifiable_by_resources: string[];
 //   }
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({request, params }: LoaderFunctionArgs) => {
     const eventId = params.eventId;
     if (!eventId) {
         return redirect("/game");
     }
+
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
     // const domainEvents = await loadEvents("app/data/events.csv");
     const domainEvents = initializedDataLoader.getEvents();
     const selectedEvent = domainEvents[eventId];

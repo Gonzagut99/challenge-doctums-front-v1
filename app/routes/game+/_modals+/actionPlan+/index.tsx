@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -8,9 +8,8 @@ import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { Button2 } from "~/components/custom/Button2";
 import { GameControlButton } from "../../_layout";
 import { initializedDataLoader } from "~/utils/dataLoader";
-import { globalWebSocketService } from "~/services/ws";
-import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { PlanActions } from "~/types/methods_jsons";
+import { WebSocketService, getWebSocketService } from "~/services/ws";
 
 interface ModifiersCheckout {
     products: ProductCheckoutFeature[];
@@ -30,15 +29,19 @@ interface ResourceCheckoutFeature extends ModifiersCheackoutFeature {}
 
 interface ProjectCheckoutFeature extends ModifiersCheackoutFeature {}
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
     // const { products, projects, resources} = await loadAllModifiersData();
     const { products, projects, resources} = initializedDataLoader.getAllModifiersData();
 
-    const originalBudget = actionPlanState.getBudget() ?? 0;
+    const originalBudget = globalWebSocketService.actionPlanState.getBudget() ?? 0;
     // const originalBudget = actionPlanState.getBudget();
-    let potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();//pass to the index
-    if(potentialRemainingBudget === 0) actionPlanState.setPotentialRemainingBudget(originalBudget!);
-    potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();
+    let potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();//pass to the index
+    if(potentialRemainingBudget === 0) globalWebSocketService.actionPlanState.setPotentialRemainingBudget(originalBudget!);
+    potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();
     
     const submitPlan_localPlayerPlan = globalWebSocketService.submitPlan_localPlayerPlan;
     const productsCheckout = Object.values(products).filter((product) => (submitPlan_localPlayerPlan.products || []).includes(product.ID));
@@ -56,9 +59,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const remainingBudget = formData.get("remainingBudget");
     const parsedActionPlan = JSON.parse(actionPlan as string) as PlanActions;
 
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+
     globalWebSocketService.submitPlan(parsedActionPlan); //dont forget to reset the state after triggering the submit_actionplan event
-    actionPlanState.updateLocalPlayerBudget(Number(remainingBudget));
-    actionPlanState.resetPlan();
+    globalWebSocketService.actionPlanState.updateLocalPlayerBudget(Number(remainingBudget));
+    globalWebSocketService.actionPlanState.resetPlan();
     console.log("plan recibido", actionPlan);
     console.log("Plan enviado",parsedActionPlan);
     console.log("remainingBudget", remainingBudget);

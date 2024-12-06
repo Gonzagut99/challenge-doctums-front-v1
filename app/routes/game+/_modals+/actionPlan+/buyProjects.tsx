@@ -11,7 +11,7 @@ import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyProjectTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
     // const domainProjects = await loadProjects("app/data/projects.csv");
     // const domainProducts = await loadProducts("app/data/products.csv");
     const domainProjects = initializedDataLoader.getProjects();

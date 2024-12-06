@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import  { type LoaderFunctionArgs, type ActionFunctionArgs, json  } from "@remix-run/node";
-import { globalWebSocketService } from "~/services/ws";
 import { useLiveLoader } from "~/utils/use-live-loader";
 import { forwardRef, HTMLAttributes, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";

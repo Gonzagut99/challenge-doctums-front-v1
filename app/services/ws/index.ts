@@ -16,6 +16,7 @@ import { NextTurnResponse, PlanActions, PlayersActionNotification, SubmitPlanRes
 import { PlayerCanvasState } from "~/types/gameCanvasState";
 import { UpdatedPlayersPositions } from "~/types/methods_jsons/updatePlayersPositions";
 import { LocalPlayerModifiers } from "~/types/methods_jsons/submitPlan";
+import { ActionPlanStateMethods } from "./actionPlanState.server";
 
 
 
@@ -815,6 +816,67 @@ export class WebSocketService implements IWebSocketService {
         if (this.keepAliveInterval) {
             clearInterval(this.keepAliveInterval);
             this.keepAliveInterval = null;
+        }
+    }
+
+    // actionplan state
+    public actionPlanState: ActionPlanStateMethods = {
+        updatePlan: (
+            plan: PlanActions
+        ) => {
+            this.submitPlan_localPlayerPlan = plan;
+        },
+        updateProductPlan: (
+            products: string[]
+        ) => {
+            this.submitPlan_localPlayerPlan.products = products;
+        },
+        updateProjectPlan: (
+            projects: string[]
+        ) => {
+            this.submitPlan_localPlayerPlan.projects = projects;
+        },
+        updateResourcesPlan: (
+            resources: string[]
+        ) => {
+            this.submitPlan_localPlayerPlan.resources = resources;
+        },
+        resetPlan: () => {
+            this.submitPlan_localPlayerPlan = { products: [], projects: [], resources: [] };
+        },
+        getActionPlan : () => {
+            return this.submitPlan_localPlayerPlan;
+        },
+        getActionPlanSelectedProducts: () => {
+            return this.submitPlan_localPlayerPlan.products;
+        },
+        getActionPlanSelectedProjects: () => {
+            return this.submitPlan_localPlayerPlan.projects;
+        },
+        getActionPlanSelectedResources: () => {
+            return this.submitPlan_localPlayerPlan.resources;
+        },
+        getAlreadyAcquiredModifiers: () => {
+            return this.localPlayerModifiers;
+        },
+        getBudget: () => {
+            return this.localPlayerDynamicInfo?.budget;
+        },
+        updateBudget: (remainingBudget: number) => {
+            // globalWebSocketService.localPlayerDynamicInfo!.budget = remainingBudget;
+            this.submitPlan_potentialRemainingBudget = remainingBudget;
+        },
+        updateLocalPlayerBudget: (remainingBudget: number) => {
+            this.localPlayerDynamicInfo!.budget = remainingBudget;
+        },
+        getPotentialRemainingBudget: () => {
+            return this.submitPlan_potentialRemainingBudget;
+        },
+        setPotentialRemainingBudget: (potentialBudget: number) => {
+            this.submitPlan_potentialRemainingBudget = potentialBudget;
+        },
+        updatePotentialRemainingBudget: (potentialBudget: number) => {
+            this.submitPlan_potentialRemainingBudget = potentialBudget;
         }
     }
 

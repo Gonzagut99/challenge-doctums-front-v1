@@ -1,10 +1,11 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { MyEfficiencyTabletTile } from "~/components/custom/EfficiencyTabletTile";
 import Modal from "~/components/custom/Modal";
-import { globalWebSocketService } from "~/services/ws";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { EfficiencyTableTileData } from "~/types/efficiencies";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
@@ -42,7 +43,12 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     strength_score: myStreamedEfficiencyData[efficiency.ID],
 // }));
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+
     // const efficiencies= await loadEfficiencies("app/data/efficiencies.csv");
     const efficiencies = initializedDataLoader.getEfficiencies();
     const myEfficienciesStrengthData = globalWebSocketService.localPlayerEfficiencies;

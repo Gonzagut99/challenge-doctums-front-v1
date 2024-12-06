@@ -29,62 +29,62 @@ export type ActionPlanStateMethods ={
     updatePotentialRemainingBudget: (potentialBudget:number) => void
 }
 
-export const actionPlanState: ActionPlanStateMethods = {
-    updatePlan: (
-        plan: PlanActions
-    ) => {
-        globalWebSocketService.submitPlan_localPlayerPlan = plan;
-    },
-    updateProductPlan: (
-        products: string[]
-    ) => {
-        globalWebSocketService.submitPlan_localPlayerPlan.products = products;
-    },
-    updateProjectPlan: (
-        projects: string[]
-    ) => {
-        globalWebSocketService.submitPlan_localPlayerPlan.projects = projects;
-    },
-    updateResourcesPlan: (
-        resources: string[]
-    ) => {
-        globalWebSocketService.submitPlan_localPlayerPlan.resources = resources;
-    },
-    resetPlan: () => {
-        globalWebSocketService.submitPlan_localPlayerPlan = { products: [], projects: [], resources: [] };
-    },
-    getActionPlan : () => {
-        return globalWebSocketService.submitPlan_localPlayerPlan;
-    },
-    getActionPlanSelectedProducts: () => {
-        return globalWebSocketService.submitPlan_localPlayerPlan.products;
-    },
-    getActionPlanSelectedProjects: () => {
-        return globalWebSocketService.submitPlan_localPlayerPlan.projects;
-    },
-    getActionPlanSelectedResources: () => {
-        return globalWebSocketService.submitPlan_localPlayerPlan.resources;
-    },
-    getAlreadyAcquiredModifiers: () => {
-        return globalWebSocketService.localPlayerModifiers;
-    },
-    getBudget: () => {
-        return globalWebSocketService.localPlayerDynamicInfo?.budget;
-    },
-    updateBudget: (remainingBudget: number) => {
-        // globalWebSocketService.localPlayerDynamicInfo!.budget = remainingBudget;
-        globalWebSocketService.submitPlan_potentialRemainingBudget = remainingBudget;
-    },
-    updateLocalPlayerBudget: (remainingBudget: number) => {
-        globalWebSocketService.localPlayerDynamicInfo!.budget = remainingBudget;
-    },
-    getPotentialRemainingBudget: () => {
-        return globalWebSocketService.submitPlan_potentialRemainingBudget;
-    },
-    setPotentialRemainingBudget: (potentialBudget: number) => {
-        globalWebSocketService.submitPlan_potentialRemainingBudget = potentialBudget;
-    },
-    updatePotentialRemainingBudget: (potentialBudget: number) => {
-        globalWebSocketService.submitPlan_potentialRemainingBudget = potentialBudget;
-    }
-}
+// export const actionPlanState: ActionPlanStateMethods = {
+//     updatePlan: (
+//         plan: PlanActions
+//     ) => {
+//         globalWebSocketService.submitPlan_localPlayerPlan = plan;
+//     },
+//     updateProductPlan: (
+//         products: string[]
+//     ) => {
+//         globalWebSocketService.submitPlan_localPlayerPlan.products = products;
+//     },
+//     updateProjectPlan: (
+//         projects: string[]
+//     ) => {
+//         globalWebSocketService.submitPlan_localPlayerPlan.projects = projects;
+//     },
+//     updateResourcesPlan: (
+//         resources: string[]
+//     ) => {
+//         globalWebSocketService.submitPlan_localPlayerPlan.resources = resources;
+//     },
+//     resetPlan: () => {
+//         globalWebSocketService.submitPlan_localPlayerPlan = { products: [], projects: [], resources: [] };
+//     },
+//     getActionPlan : () => {
+//         return globalWebSocketService.submitPlan_localPlayerPlan;
+//     },
+//     getActionPlanSelectedProducts: () => {
+//         return globalWebSocketService.submitPlan_localPlayerPlan.products;
+//     },
+//     getActionPlanSelectedProjects: () => {
+//         return globalWebSocketService.submitPlan_localPlayerPlan.projects;
+//     },
+//     getActionPlanSelectedResources: () => {
+//         return globalWebSocketService.submitPlan_localPlayerPlan.resources;
+//     },
+//     getAlreadyAcquiredModifiers: () => {
+//         return globalWebSocketService.localPlayerModifiers;
+//     },
+//     getBudget: () => {
+//         return globalWebSocketService.localPlayerDynamicInfo?.budget;
+//     },
+//     updateBudget: (remainingBudget: number) => {
+//         // globalWebSocketService.localPlayerDynamicInfo!.budget = remainingBudget;
+//         globalWebSocketService.submitPlan_potentialRemainingBudget = remainingBudget;
+//     },
+//     updateLocalPlayerBudget: (remainingBudget: number) => {
+//         globalWebSocketService.localPlayerDynamicInfo!.budget = remainingBudget;
+//     },
+//     getPotentialRemainingBudget: () => {
+//         return globalWebSocketService.submitPlan_potentialRemainingBudget;
+//     },
+//     setPotentialRemainingBudget: (potentialBudget: number) => {
+//         globalWebSocketService.submitPlan_potentialRemainingBudget = potentialBudget;
+//     },
+//     updatePotentialRemainingBudget: (potentialBudget: number) => {
+//         globalWebSocketService.submitPlan_potentialRemainingBudget = potentialBudget;
+//     }
+// }
