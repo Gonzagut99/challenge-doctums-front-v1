@@ -77,7 +77,24 @@
             "type": "frames",
             "repeat": -1,
             "frameRate": 12,
-            "frames": []
+            "frames": [
+                {
+                    "key": "character_1",
+                    "frame": "15"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "16"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "15"
+                },
+                {
+                    "key": "character_1",
+                    "frame": "18"
+                }
+            ]
         },
         {
             "key": "rest_1",
