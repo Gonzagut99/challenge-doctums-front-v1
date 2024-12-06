@@ -616,7 +616,7 @@ export default function _layout() {
                                         newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
                                         !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                         (
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan`)}>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan?sessionCode=${sessionCode}&playerId=${playerId}`)}>
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"
