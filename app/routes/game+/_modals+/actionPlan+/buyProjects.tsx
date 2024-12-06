@@ -7,6 +7,7 @@ import { Button2 } from "~/components/custom/Button2";
 import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyProjectTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
@@ -51,8 +52,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const remainingBudget = formData.get("remainingBudget");
     const parsedProjects = JSON.parse(selectedProjects as string) as string[];
 
-    actionPlanState.updateProjectPlan(parsedProjects); //dont forget to reset the state after triggering the submit_actionplan event
-    actionPlanState.updateBudget(Number(remainingBudget));
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+
+    globalWebSocketService.actionPlanState.updateProjectPlan(parsedProjects); //dont forget to reset the state after triggering the submit_actionplan event
+    globalWebSocketService.actionPlanState.updateBudget(Number(remainingBudget));
     console.log("selectedProjects", selectedProjects);
     console.log(parsedProjects);
     console.log("remainingBudget", remainingBudget);

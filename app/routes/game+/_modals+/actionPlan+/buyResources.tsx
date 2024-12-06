@@ -7,6 +7,7 @@ import { Button2 } from "~/components/custom/Button2";
 import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyResourceTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
@@ -18,6 +19,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const domainResources = initializedDataLoader.getResources();
     const domainProducts = initializedDataLoader.getProducts();
     const resources = Object.values(domainResources);
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
 
     const tileResources: BuyResourceTableTileData[] = resources.map(
         (resource) => ({
@@ -34,11 +39,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         })
     );
 
-    const potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();
-    const alreadySelectedResources = actionPlanState.getActionPlanSelectedResources() || [];
+    const potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();
+    const alreadySelectedResources = globalWebSocketService.actionPlanState.getActionPlanSelectedResources() || [];
     const alreadyAcquiredResources =
         actionPlanState.getAlreadyAcquiredModifiers().resources;
-    const alreadyAcquiredProducts = actionPlanState.getAlreadyAcquiredModifiers().products;
+    const alreadyAcquiredProducts = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().products;
 
     return json({
         tileResources,
@@ -55,8 +60,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const remainingBudget = formData.get("remainingBudget");
     const parsedResources = JSON.parse(selectedResources as string) as string[];
 
-    actionPlanState.updateResourcesPlan(parsedResources); //dont forget to reset the state after triggering the submit_actionplan event
-    actionPlanState.updateBudget(Number(remainingBudget));
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+
+    globalWebSocketService.actionPlanState.updateResourcesPlan(parsedResources); //dont forget to reset the state after triggering the submit_actionplan event
+    globalWebSocketService.actionPlanState.updateBudget(Number(remainingBudget));
     console.log("selectedProducts", selectedResources);
     console.log(parsedResources);
     console.log("remainingBudget", remainingBudget);
