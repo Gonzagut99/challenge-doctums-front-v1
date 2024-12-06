@@ -8,10 +8,10 @@ import { initializeWebSocket } from "~/services/ws";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
-    const gameSession = response?.data
-    if(gameSession){
-        initializeWebSocket(gameSession.id);
-    }
+    //const gameSession = response?.data
+    // if(gameSession){
+    //     initializeWebSocket(gameSession.id);
+    // }
     // if (!response) {
     //     return json({ error: "No se pudo crear la sesión de juego" }, { status: 500 });
     // }

@@ -7,7 +7,7 @@ import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
 import { charactersData } from "~/data/characters";
-import { globalWebSocketService } from "~/services/ws";
+import { globalWebSocketService, instancesManager } from "~/services/ws";
 import { useLiveLoader } from "~/utils/use-live-loader";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { useSoundContext } from "~/components/custom/music/SoundContext";
@@ -19,9 +19,11 @@ import { useSoundContext } from "~/components/custom/music/SoundContext";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const url = new URL(request.url);
     const sessionCode = url.searchParams.get("sessionCode");
-    const connectedPlayers = globalWebSocketService.getConnectedPlayers();
-    const player = globalWebSocketService.getLocalPlayerAvatarInfo();
-    const isGameStarted = globalWebSocketService.isGameStarted();
+    const playerId = url.searchParams.get("playerId") as string;
+    const instance = instancesManager.find(instance => instance.gameId === sessionCode && instance.playerId === playerId);
+    const connectedPlayers = instance?.webSocketService.getConnectedPlayers() ?? [];
+    const player = instance?.webSocketService.getLocalPlayerAvatarInfo();
+    const isGameStarted = instance?.webSocketService.isGameStarted();
 
     if (!sessionCode) {
         return redirect("/home");
@@ -74,7 +76,7 @@ function Index() {
         previousPlayersCount.current = connectedPlayers.length; // Actualiza el conteo
     }, [connectedPlayers, isSoundOn]); // Escucha cambios en connectedPlayers e isSoundOn
 
-
+    console.log(currentUserId)
     const isHost = connectedPlayers.find(
         (player) => player.id === currentUserId
     )?.isHost;

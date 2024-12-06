@@ -107,6 +107,9 @@ class WebSocketService implements IWebSocketService {
     private nextTurn_newTurnSettledInfo: NextTurnResponse;
     private gameStateMessage: any;
     private currentPlayerTurn: string;
+    private retryInterval: number = 5000; // Retry interval in milliseconds
+    private maxRetries: number = 10; // Maximum number of retries
+    private retryCount: number = 0;
     //private messageHandler: (message: string | object) => void;
 
     // // 'message' can be string or a JSON object
@@ -180,6 +183,11 @@ class WebSocketService implements IWebSocketService {
     }
 
     setPlayer(player: Player) {
+        console.log("New playeeer in", player.id)
+        console.log("Old playeeer in", this.localPlayerAvatarInfo?.id)
+        if(this.localPlayerAvatarInfo) {
+            return
+        }
         this.localPlayerAvatarInfo = player;
     }
 
@@ -213,6 +221,10 @@ class WebSocketService implements IWebSocketService {
             date: this.nextTurn_newTurnSettledInfo?.player.date ?? '',
             //modifiers: this.turnStartInfo?. ?? {},
         };
+    }
+
+    getConnectedPlayers() {
+        return this.connectedPlayers;
     }
 
     getLocalPlayerDynamicInfo() {
@@ -290,15 +302,42 @@ class WebSocketService implements IWebSocketService {
         };
     }
 
+    // Retry connection
+    private retryConnection() {
+        if (this.retryCount < this.maxRetries) {
+            this.retryCount++;
+            console.log(`Retrying connection (${this.retryCount}/${this.maxRetries})...`);
+            setTimeout(() => {
+                this.connect();
+            }, this.retryInterval);
+        } else {
+            console.error("Max retries reached. Unable to establish WebSocket connection.");
+        }
+    }
+
     // 'message' can be string or a JSON object
     sendMessage(message: string | object) {
-        if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
-            this.socket.send(JSON.stringify(message));
+        if (this.socket) {
+            switch (this.socket.readyState) {
+                case ServerWebSocket.CONNECTING:
+                    console.error("WebSocket is still connecting. Please wait.");
+                    break;
+                case ServerWebSocket.OPEN:
+                    this.socket.send(JSON.stringify(message));
+                    break;
+                case ServerWebSocket.CLOSING:
+                    console.error("WebSocket is closing. Cannot send message.");
+                    break;
+                case ServerWebSocket.CLOSED:
+                    console.error("WebSocket is closed. Cannot send message.");
+                    this.retryConnection();
+                    break;
+                default:
+                    console.error("Unknown WebSocket state:", this.socket.readyState);
+                    break;
+            }
         } else {
-            console.error(
-                "WebSocket is not open. Ready state:",
-                this.socket?.readyState
-            );
+            console.error("WebSocket is not initialized.");
         }
     }
 
@@ -745,10 +784,7 @@ class WebSocketService implements IWebSocketService {
     //     }
     // }
 
-    // Get the current list of players
-    getConnectedPlayers() {
-        return this.connectedPlayers;
-    }
+    
 
 
     disconnect() {
@@ -785,14 +821,20 @@ class WebSocketService implements IWebSocketService {
     
 }
 
-
+// eslint-disable-next-line no-var
+export var instancesManager:{
+    playerId: string, 
+    gameId: string,
+    webSocketService: WebSocketService
+}[] = []
 // eslint-disable-next-line no-var
 export var globalWebSocketService: WebSocketService;
 
-export function initializeWebSocket(gameId: string) {
-    globalWebSocketService = new WebSocketService();
-    globalWebSocketService.setGameId(gameId);
-    globalWebSocketService.connect();
+export function initializeWebSocket(gameId: string, playerId: string) {
+    instancesManager.push({gameId, playerId, webSocketService: new WebSocketService()});
+    const instance = instancesManager.find(instance => instance.gameId === gameId && instance.playerId === playerId);
+    instance?.webSocketService.setGameId(gameId);
+    instance?.webSocketService.connect()
 }
 
 //export default WebSocketService;

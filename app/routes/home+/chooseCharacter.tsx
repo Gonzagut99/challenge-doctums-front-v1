@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
 import { charactersData } from "~/data/characters";
 import { createPlayer } from "~/services/http/player";
+import { initializeWebSocket, instancesManager } from "~/services/ws";
 import { CharacterData } from '~/types/character';
 import { z } from "zod";
 import { redirect, replace, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
@@ -13,7 +14,6 @@ import {
     useRemixForm,
 } from "remix-hook-form";
 import { useEffect, useRef, useState } from "react";
-import { globalWebSocketService } from "~/services/ws";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { useSoundContext } from "~/components/custom/music/SoundContext";
 
@@ -50,13 +50,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     const createdPlayer = await createPlayer({ name: data.playerName, game_session_id: data.sessionCode, avatar_id: data.characterId.toString() });
 
-    if (createdPlayer.data == undefined) {
+    if (createdPlayer.data == undefined ) {
         return json({ error: "No se pudo crear el jugador" }, { status: 500 });
     }
 
-    globalWebSocketService.setPlayer(createdPlayer.data);
-    globalWebSocketService.joinGame();
-    return replace(`/game-hall?sessionCode=${data.sessionCode}`);
+    initializeWebSocket(data.sessionCode, createdPlayer.data.id);
+    const ws = instancesManager.find(instance => 
+        instance.playerId === createdPlayer.data?.id && instance.gameId === data.sessionCode
+    );
+    
+    
+    setTimeout(() => {
+        ws.webSocketService.setPlayer(createdPlayer.data);
+        ws.webSocketService.joinGame();
+    }, 2000);
+    // replace(`/game-hall?sessionCode=${data.sessionCode}&playerId=${createdPlayer.data?.id}`);
+    // return null
+    return redirect(`/game-hall?sessionCode=${data.sessionCode}&playerId=${createdPlayer.data?.id}`);
 };
 
 function ChooseCharacter() {

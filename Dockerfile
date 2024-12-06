@@ -1,50 +1,23 @@
-# base node image
-FROM node:18-bullseye-slim as base
+# Use the official Node.js image with an Alpine base for a lightweight setup
+FROM node:21-alpine
 
-# set for base and all layer that inherit from it
-ENV NODE_ENV production
+# Set the working directory inside the container
+WORKDIR /app
 
-# Install all node_modules, including dev dependencies
-FROM base as deps
+# Install necessary tools for development (bash, etc.)
+RUN apk add --no-cache bash git
 
-WORKDIR /myapp
+# Copy the package.json and package-lock.json files first to leverage Docker caching
+COPY package*.json ./
 
-ADD package.json ./
-RUN npm install --include=dev
+# Install dependencies
+RUN npm install
 
-# Setup production node_modules
-FROM base as production-deps
+# Copy the rest of the application code
+COPY . .
 
-WORKDIR /myapp
+# Expose the Remix development server port (default is 3000)
+EXPOSE 8085
 
-COPY --from=deps /myapp/node_modules /myapp/node_modules
-ADD package.json ./
-RUN npm prune --omit=dev
-
-# Build the app
-FROM base as build
-
-WORKDIR /myapp
-
-COPY --from=deps /myapp/node_modules /myapp/node_modules
-
-ADD . .
-RUN npm run build
-
-# Finally, build the production image with minimal footprint
-FROM base
-
-ENV PORT="8080"
-ENV NODE_ENV="production"
-ENV API_HTTP_BASE_URL: "http://localhost:8000/api"
-ENV API_WS_BASE_URL: "ws://localhost:8000/ws"
-
-WORKDIR /myapp
-
-COPY --from=production-deps /myapp/node_modules /myapp/node_modules
-
-COPY --from=build /myapp/build /myapp/build
-COPY --from=build /myapp/public /myapp/public
-COPY --from=build /myapp/package.json /myapp/package.json
-
-CMD [ "npm", "run", "start" ]
+# Command to run Remix in dev mode
+CMD ["npm", "run", "dev"]
