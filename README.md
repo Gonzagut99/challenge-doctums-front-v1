@@ -23,7 +23,7 @@
 
 ## Descripción
 
-El presente proyecto es un videojuego de mesa con temática educacional para fomentar el entrenamiento en la toma de buenas decisiones empresariales. Este proyecto es nuestra participación en una competencia propuesta por la empresa Doctums Certus.
+El presente proyecto es un videojuego de mesa con temática educacional para fomentar el entrenamiento en la toma de buenas decisiones empresariales. Este proyecto es nuestra participación en una competencia propuesta por la empresa Doctums y Certus.
 
 ![Inicio del Juego](public/assets/Readme/GameHome.png)
 
