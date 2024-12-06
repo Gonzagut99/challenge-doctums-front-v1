@@ -132,4 +132,4 @@ Este proyecto está licenciado bajo la Licencia MIT. Para más detalles, consult
 
 ## Agradecimientos
 
-Agradecemos a Doctums Certus por la oportunidad de participar en esta competencia y a todos los miembros del equipo por su dedicación y esfuerzo en el desarrollo de este proyecto.
+Agradecemos a Doctums, a Certus por la oportunidad de participar en esta competencia y a todos los miembros del equipo por su dedicación y esfuerzo en el desarrollo de este proyecto.
