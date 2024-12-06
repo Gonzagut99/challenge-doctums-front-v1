@@ -19,7 +19,7 @@ import {
 } from "@remix-run/react";
 
 import { Player } from "~/services/http/player";
-import { globalWebSocketService, LocalPlayerDynamicInfo } from "~/services/ws";
+import { WebSocketService, LocalPlayerDynamicInfo, getWebSocketService } from "~/services/ws";
 
 
 import {
@@ -51,7 +51,7 @@ import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
 import { initializedDataLoader } from "~/utils/dataLoader";
 import NotificationSound from "~/components/custom/music/NotificationSound";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
-const isServer = typeof window === "undefined";
+let globalWebSocketService: WebSocketService;
 
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
@@ -67,6 +67,14 @@ const gameStateHandlers = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const sessionCode = request.headers.get("sessionCode") as string;
+    const playerId = request.headers.get("playerId") as string;
+    globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+    
+    if(!globalWebSocketService){
+        return json({ error: "Invalid session code" }, { status: 400 });
+    }
+    
     const gamePlayersPositions = globalWebSocketService.getGameStateCanvas();
     const localPlayer = globalWebSocketService.getLocalPlayerAvatarInfo();
     const gameStateMethod = globalWebSocketService.getStageMethod();
@@ -108,6 +116,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     // GET THE DATA FROM THE submit called in the component
     const formData = await request.formData();
     const method = formData.get("method");
+    const sessionCode = request.headers.get("sessionCode") as string;
+    const playerId = request.headers.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId);
+    if(!globalWebSocketService){
+        return json({ error: "Invalid session code" }, { status: 400 });
+    }
 
     if (method == "turn_order_stage") {
         globalWebSocketService.rollDices();

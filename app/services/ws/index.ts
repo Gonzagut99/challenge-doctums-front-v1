@@ -49,7 +49,7 @@ export interface IWebSocketService {
     startGame(): void;
 }
 
-class WebSocketService implements IWebSocketService {
+export class WebSocketService implements IWebSocketService {
     private socket: ServerWebSocket | null = null;
     private gameId: string;
     private keepAliveInterval: NodeJS.Timeout | null = null;
@@ -828,13 +828,18 @@ export var instancesManager:{
     webSocketService: WebSocketService
 }[] = []
 // eslint-disable-next-line no-var
-export var globalWebSocketService: WebSocketService;
+//export var globalWebSocketService: WebSocketService;
 
 export function initializeWebSocket(gameId: string, playerId: string) {
     instancesManager.push({gameId, playerId, webSocketService: new WebSocketService()});
     const instance = instancesManager.find(instance => instance.gameId === gameId && instance.playerId === playerId);
     instance?.webSocketService.setGameId(gameId);
     instance?.webSocketService.connect()
+}
+
+export function getWebSocketService(gameId: string, playerId: string) {
+    const instance = instancesManager.find(instance => instance.gameId === gameId && instance.playerId === playerId);
+    return instance?.webSocketService;
 }
 
 //export default WebSocketService;

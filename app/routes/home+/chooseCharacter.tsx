@@ -3,10 +3,10 @@ import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
 import { charactersData } from "~/data/characters";
 import { createPlayer } from "~/services/http/player";
-import { initializeWebSocket, instancesManager } from "~/services/ws";
+import { getWebSocketService, initializeWebSocket } from "~/services/ws";
 import { CharacterData } from '~/types/character';
 import { z } from "zod";
-import { redirect, replace, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     getValidatedFormData,
@@ -55,14 +55,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     initializeWebSocket(data.sessionCode, createdPlayer.data.id);
-    const ws = instancesManager.find(instance => 
-        instance.playerId === createdPlayer.data?.id && instance.gameId === data.sessionCode
-    );
+    const ws = getWebSocketService(data.sessionCode, createdPlayer.data?.id);
     
-    
+
     setTimeout(() => {
-        ws.webSocketService.setPlayer(createdPlayer.data);
-        ws.webSocketService.joinGame();
+        ws?.setPlayer(createdPlayer.data);
+        ws?.joinGame();
     }, 2000);
     // replace(`/game-hall?sessionCode=${data.sessionCode}&playerId=${createdPlayer.data?.id}`);
     // return null

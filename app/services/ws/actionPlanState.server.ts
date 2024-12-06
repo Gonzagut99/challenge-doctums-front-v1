@@ -1,5 +1,4 @@
 import { PlanActions } from '~/types/methods_jsons';
-import { globalWebSocketService } from '.';
 import { LocalPlayerModifiers } from '~/types/methods_jsons/submitPlan';
 
 export type ActionPlanStateMethods ={
@@ -29,6 +28,7 @@ export type ActionPlanStateMethods ={
     setPotentialRemainingBudget: (potentialBudget:number) => void,
     updatePotentialRemainingBudget: (potentialBudget:number) => void
 }
+
 export const actionPlanState: ActionPlanStateMethods = {
     updatePlan: (
         plan: PlanActions

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
-import { initializeWebSocket } from "~/services/ws";
 // import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
