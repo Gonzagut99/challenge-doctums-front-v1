@@ -1,0 +1,136 @@
+{
+    "anims": [
+        {
+            "key": "walk_backward_3",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_3",
+                    "frame": "17"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "16"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "17"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "18"
+                }
+            ]
+        },
+        {
+            "key": "walk_forward_3",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_3",
+                    "frame": "3"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "4"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "3"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "2"
+                }
+            ]
+        },
+        {
+            "key": "rest_3",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 2,
+            "frames": [
+                {
+                    "key": "character_3",
+                    "frame": "19"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "20"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "21"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "22"
+                }
+            ]
+        },
+        {
+            "key": "walk_right_3",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_3",
+                    "frame": "10"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "11"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "12"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "13"
+                }
+            ]
+        },
+        {
+            "key": "walk_left_3",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_3",
+                    "frame": "5"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "6"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "7"
+                },
+                {
+                    "key": "character_3",
+                    "frame": "8"
+                }
+            ]
+        },
+        {
+            "key": "idle_3",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "character_3",
+                    "frame": "3"
+                }
+            ]
+        }
+    ]
+}

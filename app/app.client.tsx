@@ -18,7 +18,7 @@ function App()
         {     
             const scene = phaserRef.current.scene as MainMenu;
             
-            if (scene)
+           if (scene)
             {
                 scene.changeScene();
             }
@@ -80,7 +80,6 @@ function App()
         setCanMoveSprite(scene.scene.key !== 'MainMenu');
         
     }
-
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />

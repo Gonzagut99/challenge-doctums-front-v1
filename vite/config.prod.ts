@@ -10,9 +10,13 @@ const subfolder = '/';
 
 export default defineConfig({
     base: subfolder,
+    build: {
+        target: 'esnext'
+        
+    },
     plugins: [
         remix({
-            ssr: false,
+            ssr: true,
             basename: subfolder,
             
             buildEnd: () => {

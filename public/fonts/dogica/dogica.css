@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Dogica';
+    src: url('/fonts/dogica/dogica.ttf')format('truetype');
+    /* font-weight: 500; */
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'DogicaBold';
+    src: url('/fonts/dogica/dogicabold.ttf')format('truetype');
+    /* font-weight: 900; */
+    font-style: normal;
+  }
