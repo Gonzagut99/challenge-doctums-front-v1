@@ -104,7 +104,7 @@ Sigue estos pasos para configurar el proyecto localmente:
 
 ```bash
 # Clona el repositorio
-git clone https://github.com/tu-usuario/tu-proyecto.git
+git clone https://github.com/Gonzagut99/challenge-doctums-front-v1.git
 
 # Instala las dependencias
 npm install
