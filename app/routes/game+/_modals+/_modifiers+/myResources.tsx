@@ -56,11 +56,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         myResourcesTileData = [];
         alreadyAcquiredProductsIds = [];
     }
-    return json({ myResourcesTileData, alreadyAcquiredProductsIds });
+    return json({ myResourcesTileData, alreadyAcquiredProductsIds, sessionCode, playerId });
 };
 
 export default function MyResources() {
-    const { myResourcesTileData: myResources, alreadyAcquiredProductsIds } =
+    const { myResourcesTileData: myResources, alreadyAcquiredProductsIds, sessionCode, playerId } =
         useLoaderData<typeof loader>();
     const maxMonths = 1;
     const [isModalOpen, setIsModalOpen] = useState(true);
@@ -76,7 +76,7 @@ export default function MyResources() {
     }
 
     function goToResourceCatalogue() {
-        navigate("/game/allResources");
+        navigate( `/game/allResources?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     return (
         <AnimatePresence onExitComplete={handleExitComplete}>

@@ -60,11 +60,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return json({
         productsTabletTileData,
         alreadyAcquiredProductsIds,
+        sessionCode,
+        playerId
     });
 };
 
 function MyProducts() {
-    const { productsTabletTileData: myProducts, alreadyAcquiredProductsIds } =
+    const { productsTabletTileData: myProducts, alreadyAcquiredProductsIds, sessionCode, playerId } =
         useLoaderData<typeof loader>();
     const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -78,7 +80,7 @@ function MyProducts() {
         navigate(-1);
     }
     function goToProductCatalogue() {
-        navigate('/game/allProducts')
+        navigate(`/game/allProducts?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     console.log('MyProducts', myProducts);
     console.log('alreadyAcquiredProductsIds', alreadyAcquiredProductsIds);

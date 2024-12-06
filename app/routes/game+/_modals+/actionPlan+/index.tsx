@@ -50,7 +50,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const totalPrice = productsCheckout.reduce((acc, product) => acc + product.cost, 0) + resourcesCheckout.reduce((acc, resource) => acc + resource.cost, 0) + projectsCheckout.reduce((acc, project) => acc + project.cost, 0);    
 
-    return json({ productsCheckout, resourcesCheckout, projectsCheckout, totalPrice, originalBudget, submitPlan_localPlayerPlan, potentialRemainingBudget });
+    return json({ productsCheckout, resourcesCheckout, projectsCheckout, totalPrice, originalBudget, submitPlan_localPlayerPlan, potentialRemainingBudget, sessionCode, playerId });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -74,7 +74,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function ActionPlan() {
-    const { productsCheckout, resourcesCheckout, projectsCheckout, totalPrice:originalTotalPrice, submitPlan_localPlayerPlan, potentialRemainingBudget } = useLoaderData<typeof loader>(); // Logic for discarding product must be implemented in de future
+    const { productsCheckout, resourcesCheckout, projectsCheckout, totalPrice:originalTotalPrice, submitPlan_localPlayerPlan, potentialRemainingBudget, sessionCode, playerId } = useLoaderData<typeof loader>(); // Logic for discarding product must be implemented in de future
 
     const modifiersCheckout: ModifiersCheckout = {
         products: productsCheckout.map((product) => ({
@@ -140,7 +140,7 @@ export default function ActionPlan() {
                                     <WhiteContainer
                                         key={button.control}
                                         onClick={() =>
-                                            navigate(`/game/actionPlan/${button.control}`)
+                                            navigate(`/game/actionPlan/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
                                         }
                                         className="max-w-80 cursor-pointer hover:scale-105 transform transition-transform duration-300"
                                     >

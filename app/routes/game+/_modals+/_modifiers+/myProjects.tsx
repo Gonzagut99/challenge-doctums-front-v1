@@ -61,6 +61,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return json({
         myProjectsTileData,
         alreadyAcquiredProductsIds,
+        sessionCode,
+        playerId,
+
     });
 
     // const domainProjectsValues = Object.values(domainProjectsObject);
@@ -99,7 +102,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function MyProjects() {
-    const { myProjectsTileData: myProjects, alreadyAcquiredProductsIds } =
+    const { myProjectsTileData: myProjects, alreadyAcquiredProductsIds, sessionCode, playerId } =
         useLoaderData<typeof loader>();
     const maxMonths = 3;
     const [isModalOpen, setIsModalOpen] = useState(true);
@@ -114,7 +117,7 @@ export default function MyProjects() {
         navigate(-1);
     }
     function goToProjectCatalogue() {
-        navigate("/game/allProjects");
+        navigate(`/game/allProjects?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     return (
         <AnimatePresence onExitComplete={handleExitComplete}>
