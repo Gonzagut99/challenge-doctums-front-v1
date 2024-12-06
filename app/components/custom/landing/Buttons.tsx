@@ -36,7 +36,7 @@ export function ButtonContact({ children }: { children: React.ReactNode }) {
     <button
       className={twMerge(buttonVariants({
         variant: "outline",
-        className: "relative border-[2.5px] bg-yellowDark w-full py-4 md:py-none md:py-5 px-2 md:px-4 min-w-32 md:min-w-32 md:max-w-40 border-yellowDark text-black font-montserrat hover:bg-yellowDark hover:text-white",
+        className: "relative border-[2.5px] bg-yellowDark w-full py-4 md:py-none md:py-5 px-2 md:px-4 min-w-32 md:min-w-32 md:max-w-40 border-yellowDark text-black font-montserrat hover:bg-zinc-900 hover:text-white",
       }))}
     >
       <p className="text-md md:text-[16px] font-montserrat font-semibold">

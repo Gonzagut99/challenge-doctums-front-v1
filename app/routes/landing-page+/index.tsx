@@ -1,4 +1,3 @@
-import { Header} from '~/components/custom/landing/Header'; 
 import HeroSection from '~/components/custom/landing/HeroSection';
 import BenefitsSection from '~/components/custom/landing/BenefitsSection';
 import { useEffect, useState } from 'react';
@@ -17,9 +16,7 @@ function Index() {
     return (
         <>
         
-        <div className='h-[500px] md:h-[660px]'>
-        <Header />
-        
+        <div className='h-[500px] md:h-[660px]'>        
         <HeroSection/>
         </div>
         <div className='relative mx-2'>

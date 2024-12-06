@@ -47,7 +47,7 @@ function classNames(...classes: string[]) {
 }
 export default function Example() {
   return (
-    <div className="relative isolate mx-auto mb-16 h-auto w-[90%] md:w-[85%] bg-white py-8 md:py-24 sm:py-16 lg:px-0">
+    <div id="pricing" className="relative isolate mx-auto mb-16 h-auto w-[90%] md:w-[85%] bg-transparent py-8 md:py-24 sm:py-16 lg:px-0">
       <div className="w-[75%] m-2 md:pb-12">
         <p className="mt-2 text-balance text-4xl md:text-5xl xl:text-6xl font-regular font-serif tracking-tight">
         Planes para <span className="text-celeste">Instituciones Educativas y Universidades</span>
@@ -59,7 +59,7 @@ export default function Example() {
           <div
             key={tier.id}
             className={classNames(
-              'relative transition-transform duration-300 my-4 md:my-6 lg:my-2', // Para animar el translate
+              'relative transition-transform duration-300 my-4 md:my-6 lg:my-2 bg-zinc-50/60 backdrop-blur-md', // Para animar el translate
               // Hover dinámico
               tier.featured
                 ? 'shadow-2xl shadow-celeste-soft  group-hover:translate-y-0'
@@ -86,7 +86,6 @@ export default function Example() {
               </h3>
               <hr className="m-4 border-t border-gray-300" />
               <ul
-                role="list"
                 className={classNames(
                   'my-4 space-y-3 text-sm/6 sm:mt-8',
                 )}
@@ -109,7 +108,7 @@ export default function Example() {
                 tier.featured
                   ? 'border-celeste border text-black font-montserrat hover:bg-celeste hover:text-white'
                   : 'text-black font-montserrat border border-black ',
-                'flex justify-center w-full lg:w-64 mx-auto mb-4 sm:mb-0  mt-auto block rounded-md py-2.5  text-center text-sm font-semibold',
+                'flex justify-center w-full lg:w-64 mx-auto mb-4 sm:mb-0  mt-auto rounded-md py-2.5  text-center text-sm font-semibold',
               )}
             >
               Cotizar este Plan
