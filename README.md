@@ -29,7 +29,7 @@ El presente proyecto es un videojuego de mesa con temática educacional para fom
 
 ## Detalles del juego y reglas
 ### Explicación del Juego
-Challenge Doctums es un juego donde cada jugador asume el rol de líder de proyecto para una empresa, simulando la toma de decisiones estratégicas. Los jugadores deberán administrar su presupuesto y recursos estratégicamente para obtener los mayores beneficios durante toda la partida.
+Challenge Doctums es un juego donde cada jugador asume el rol de líder de proyecto para una empresa, simulando la toma de decisiones estratégicas. Los jugadores deberán administrar su presupuesto y recursos sabiamente para obtener los mayores beneficios durante toda la partida.
 
 ![Escoger personaje](public/assets/Readme/ChooseCharacter.png)
 
