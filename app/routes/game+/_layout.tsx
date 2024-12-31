@@ -444,7 +444,7 @@ export default function _layout() {
                                         <WhiteContainer
                                             key={button.control}
                                             onClick={() =>
-                                                navigate(`/game/${button.control}`)
+                                                navigate(`/game/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
                                             }
                                             className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
                                         >

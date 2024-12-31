@@ -19,6 +19,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const domainProducts = initializedDataLoader.getProducts();
     const projects = Object.values(domainProjects);
 
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+
     const tileProjects: BuyProjectTableTileData[] = projects.map((project) => ({
         id: project.ID,
         title: project.name,
@@ -32,10 +37,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         })),
     }));
 
-    const potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();
-    const alreadySelectedProjects = actionPlanState.getActionPlanSelectedProjects() || [];
-    const alreadyAcquiredProjects = actionPlanState.getAlreadyAcquiredModifiers().projects;
-    const alreadyAcquiredProducts = actionPlanState.getAlreadyAcquiredModifiers().products;
+    const potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();
+    const alreadySelectedProjects = globalWebSocketService.actionPlanState.getActionPlanSelectedProjects() || [];
+    const alreadyAcquiredProjects = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().projects;
+    const alreadyAcquiredProducts = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().products;
 
     return json({
         tileProjects,
