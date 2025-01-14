@@ -10,10 +10,10 @@ function LandingLayout() {
   return (
     <div style={
         {
-            backgroundImage: "url(/assets/landing/img/gradiente.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundAttachment: "fixed",
+          backgroundImage: "url(/assets/landing/img/gradiente.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
         }
     }>
         <Header />
