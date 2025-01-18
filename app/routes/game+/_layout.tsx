@@ -19,7 +19,7 @@ import {
 } from "@remix-run/react";
 
 import { Player } from "~/services/http/player";
-import { globalWebSocketService, LocalPlayerDynamicInfo } from "~/services/ws";
+import { WebSocketService, LocalPlayerDynamicInfo, getWebSocketService } from "~/services/ws";
 
 
 import {
@@ -41,7 +41,6 @@ import {
     NextTurnResponse
 } from "~/types/methods_jsons";
 
-
 import GameCanvas from "./_gameCanvas/index";
 import { Header } from "~/components/custom/landing/Header";
 import { emitter } from "~/utils/emitter.client";
@@ -51,7 +50,7 @@ import { NextTurnPlayerOrderStats } from "~/types/methods_jsons/nextTurn";
 import { initializedDataLoader } from "~/utils/dataLoader";
 import NotificationSound from "~/components/custom/music/NotificationSound";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
-const isServer = typeof window === "undefined";
+let globalWebSocketService: WebSocketService;
 
 const gameStateHandlers = {
     start_game: () => globalWebSocketService.getGameState<GameStartMessage>(),
@@ -67,19 +66,24 @@ const gameStateHandlers = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-    const gamePlayersPositions = globalWebSocketService.getGameStateCanvas();
-    const localPlayer = globalWebSocketService.getLocalPlayerAvatarInfo();
-    const gameStateMethod = globalWebSocketService.getStageMethod();
-    const currentPlayerTurnId = globalWebSocketService.getCurrentPlayerTurn();
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+    
+    const gamePlayersPositions = globalWebSocketService?.getGameStateCanvas();
+    const localPlayer = globalWebSocketService?.getLocalPlayerAvatarInfo();
+    const gameStateMethod = globalWebSocketService?.getStageMethod();
+    const currentPlayerTurnId = globalWebSocketService?.getCurrentPlayerTurn();
     const localPlayerDynamicInfo =
-        globalWebSocketService.getLocalPlayerDynamicInfo();
-    const playersTurnOrder = globalWebSocketService.getDefinedTurnsOrder(); //0 if turnOrderStage has not started
-    const newTurn_localPlayerAdvancedDays = globalWebSocketService.newTurn_getStoredLocalPlayerDaysAdvanced()
-    const newTurn_localPlayerStoredData = globalWebSocketService.newTurn_getStoredLocalPlayerData()
+        globalWebSocketService?.getLocalPlayerDynamicInfo();
+    const playersTurnOrder = globalWebSocketService?.getDefinedTurnsOrder(); //0 if turnOrderStage has not started
+    const newTurn_localPlayerAdvancedDays = globalWebSocketService?.newTurn_getStoredLocalPlayerDaysAdvanced()
+    const newTurn_localPlayerStoredData = globalWebSocketService?.newTurn_getStoredLocalPlayerData()
 
-    const hasPositionsUpdated = globalWebSocketService.getHasPositionsUpdated();
-    const hasPlayerSubmittedPlan = globalWebSocketService.getHasPlayerSubmittedPlan();
-    const localPlayerProjectsData = globalWebSocketService.localPlayerModifiers.projects;
+    const hasPositionsUpdated = globalWebSocketService?.getHasPositionsUpdated();
+    const hasPlayerSubmittedPlan = globalWebSocketService?.getHasPlayerSubmittedPlan();
+    const localPlayerProjectsData = globalWebSocketService?.localPlayerModifiers.projects;
 
     if (!gameStateMethod || !(gameStateMethod in gameStateHandlers)) {
         return json({ error: "Invalid game state method" }, { status: 400 });
@@ -101,6 +105,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         hasPlayerSubmittedPlan,
         localPlayerProjectsData,
         csvLoadedProjects: initializedDataLoader.getProjects(),
+        sessionCode,
+        playerId
     });
 };
 
@@ -108,6 +114,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     // GET THE DATA FROM THE submit called in the component
     const formData = await request.formData();
     const method = formData.get("method");
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId);
+    if(!globalWebSocketService){
+        return json({ error: "Invalid session code" }, { status: 400 });
+    }
 
     if (method == "turn_order_stage") {
         globalWebSocketService.rollDices();
@@ -141,6 +154,8 @@ export default function _layout() {
 
     const loaderData: any = useLiveLoader<typeof loader>();
     const loadedProjects = loaderData.csvLoadedProjects;
+    const sessionCode = loaderData.sessionCode
+    const playerId = loaderData.playerId
 
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn | SubmitPlanResponse | TurnEventResults | NextTurnResponse =
         loaderData.gameState;
@@ -224,7 +239,7 @@ export default function _layout() {
     useEffect(() => {
         if (showLegacyModal && !legacyModal_hasNavigated) {
             legacyModal_setHasNavigated(true);
-            navigate(`/game/legacyRewards`);
+            navigate(`/game/legacyRewards?sessionCode=${sessionCode}&playerId=${playerId}`);
         }
     }, [showLegacyModal, legacyModal_hasNavigated, navigate]);
 
@@ -234,7 +249,7 @@ export default function _layout() {
     useEffect(() => {
         if (submitPlan_showModal && submitPlan_isReadyToFaceEvent && !submitPlan_hasNavigated) {
             submitPlan_setHasNavigated(true);
-            navigate(`/game/submitPlanSuccess`);
+            navigate(`/game/submitPlanSuccess?sessionCode=${sessionCode}&playerId=${playerId}`);
         }
     }, [submitPlan_showModal, submitPlan_isReadyToFaceEvent, submitPlan_hasNavigated]);
 
@@ -243,7 +258,7 @@ export default function _layout() {
     useEffect(() => {
         if (eventFlow_showEvent && !eventFlow_hasNavigated) {
             eventFlow_setHasNavigated(true);
-            navigate(`/game/challenge/${eventFlow_eventId}`);
+            navigate(`/game/challenge/${eventFlow_eventId}?sessionCode=${sessionCode}&playerId=${playerId}`);
         }
 
         if (eventFlow_hasNavigated && nextTurn_currentTurn != localPlayer?.id) {
@@ -429,7 +444,7 @@ export default function _layout() {
                                         <WhiteContainer
                                             key={button.control}
                                             onClick={() =>
-                                                navigate(`/game/${button.control}`)
+                                                navigate(`/game/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
                                             }
                                             className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
                                         >
@@ -601,7 +616,7 @@ export default function _layout() {
                                         newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
                                         !newTurn_localPlayerStoredData.is_ready_to_face_event &&
                                         (
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan`)}>
+                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan?sessionCode=${sessionCode}&playerId=${playerId}`)}>
                                                 {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                 {
                                                     "¡Es hora de planificar!"

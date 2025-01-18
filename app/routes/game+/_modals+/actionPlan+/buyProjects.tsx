@@ -7,16 +7,22 @@ import { Button2 } from "~/components/custom/Button2";
 import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyProjectTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
     // const domainProjects = await loadProjects("app/data/projects.csv");
     // const domainProducts = await loadProducts("app/data/products.csv");
     const domainProjects = initializedDataLoader.getProjects();
     const domainProducts = initializedDataLoader.getProducts();
     const projects = Object.values(domainProjects);
+
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
 
     const tileProjects: BuyProjectTableTileData[] = projects.map((project) => ({
         id: project.ID,
@@ -31,10 +37,10 @@ export const loader = async () => {
         })),
     }));
 
-    const potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();
-    const alreadySelectedProjects = actionPlanState.getActionPlanSelectedProjects() || [];
-    const alreadyAcquiredProjects = actionPlanState.getAlreadyAcquiredModifiers().projects;
-    const alreadyAcquiredProducts = actionPlanState.getAlreadyAcquiredModifiers().products;
+    const potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();
+    const alreadySelectedProjects = globalWebSocketService.actionPlanState.getActionPlanSelectedProjects() || [];
+    const alreadyAcquiredProjects = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().projects;
+    const alreadyAcquiredProducts = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().products;
 
     return json({
         tileProjects,
@@ -51,8 +57,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const remainingBudget = formData.get("remainingBudget");
     const parsedProjects = JSON.parse(selectedProjects as string) as string[];
 
-    actionPlanState.updateProjectPlan(parsedProjects); //dont forget to reset the state after triggering the submit_actionplan event
-    actionPlanState.updateBudget(Number(remainingBudget));
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+
+    globalWebSocketService.actionPlanState.updateProjectPlan(parsedProjects); //dont forget to reset the state after triggering the submit_actionplan event
+    globalWebSocketService.actionPlanState.updateBudget(Number(remainingBudget));
     console.log("selectedProjects", selectedProjects);
     console.log(parsedProjects);
     console.log("remainingBudget", remainingBudget);

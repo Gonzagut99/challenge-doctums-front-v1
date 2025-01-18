@@ -3,15 +3,14 @@ import { useEffect, useState } from "react";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
-import { initializeWebSocket } from "~/services/ws";
 // import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
     const response = await gameSessionService.createGameSession();
-    const gameSession = response?.data
-    if(gameSession){
-        initializeWebSocket(gameSession.id);
-    }
+    //const gameSession = response?.data
+    // if(gameSession){
+    //     initializeWebSocket(gameSession.id);
+    // }
     // if (!response) {
     //     return json({ error: "No se pudo crear la sesión de juego" }, { status: 500 });
     // }

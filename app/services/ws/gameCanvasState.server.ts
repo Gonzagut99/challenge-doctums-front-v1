@@ -1,5 +1,4 @@
 import { PlayerCanvasState } from "~/types/gameCanvasState";
-import { globalWebSocketService } from ".";
 
 // export type PlayerCanvasState = {
 //     playerId: string
@@ -23,50 +22,50 @@ export type GameCanvasStateMethods = {
     ) => void,
 }
 
-export const gameCanvasState: GameCanvasStateMethods = {
-    updatePlayerPosition: (
-        playerId: string,
-        current_day: number
-    ) => {
-        globalWebSocketService.gameCanvasState.map((player) => {
-            if (player.playerId === playerId) {
-                player.currentDay = current_day;
-                player.previousPosition = player.currentPosition;
-                player.currentPosition = current_day;
-            }
-        }
-        );
-    },
+// export const gameCanvasState: GameCanvasStateMethods = {
+//     updatePlayerPosition: (
+//         playerId: string,
+//         current_day: number
+//     ) => {
+//         globalWebSocketService.gameCanvasState.map((player) => {
+//             if (player.playerId === playerId) {
+//                 player.currentDay = current_day;
+//                 player.previousPosition = player.currentPosition;
+//                 player.currentPosition = current_day;
+//             }
+//         }
+//         );
+//     },
 
-    getPlayerPosition: (
-        playerId: string,
-    ) => {
-        const gameCanvasState = globalWebSocketService.gameCanvasState;
-        if (!gameCanvasState) {
-            return;
-        }
-        return gameCanvasState.find(
-            (player) => player.playerId === playerId
-        );
-    },
+//     getPlayerPosition: (
+//         playerId: string,
+//     ) => {
+//         const gameCanvasState = globalWebSocketService.gameCanvasState;
+//         if (!gameCanvasState) {
+//             return;
+//         }
+//         return gameCanvasState.find(
+//             (player) => player.playerId === playerId
+//         );
+//     },
 
-    resetGameCanvasState: () => {
-        globalWebSocketService.gameCanvasState = [];
-    },
+//     resetGameCanvasState: () => {
+//         globalWebSocketService.gameCanvasState = [];
+//     },
 
-    removePlayer: (
-        playerId: string,
-    ) => {
-        const gameCanvasState = globalWebSocketService.gameCanvasState;
-        if (!gameCanvasState) {
-            return;
-        }
-        const playerIndex = gameCanvasState.findIndex(
-            (player) => player.playerId === playerId
-        );
-        if (playerIndex === -1) {
-            return;
-        }
-        gameCanvasState.splice(playerIndex, 1);
-    },
-}
+//     removePlayer: (
+//         playerId: string,
+//     ) => {
+//         const gameCanvasState = globalWebSocketService.gameCanvasState;
+//         if (!gameCanvasState) {
+//             return;
+//         }
+//         const playerIndex = gameCanvasState.findIndex(
+//             (player) => player.playerId === playerId
+//         );
+//         if (playerIndex === -1) {
+//             return;
+//         }
+//         gameCanvasState.splice(playerIndex, 1);
+//     },
+// }

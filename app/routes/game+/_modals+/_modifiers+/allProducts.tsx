@@ -1,4 +1,5 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -21,7 +22,7 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     enabled:boolean;
 // }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
     // const domainProductsObject = await loadProducts("app/data/products.csv");
     const domainProductsObject = initializedDataLoader.getProducts();
     const domainProductsValues = Object.values(domainProductsObject);

@@ -1,4 +1,5 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -10,7 +11,7 @@ import {
     ResourceTileData,
 } from "~/components/custom/ModifiersSmallTile";
 import SmallModal from "~/components/custom/SmallModal";
-import { globalWebSocketService } from "~/services/ws";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
 // export type ActionPlanPlayerState = {
@@ -53,7 +54,11 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     remaining_time: number;
 // }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
     // const { products, projects, resources } = await loadAllModifiersData();
     const { products, projects, resources } = initializedDataLoader.getAllModifiersData();
     const currentLocalPlayerData =

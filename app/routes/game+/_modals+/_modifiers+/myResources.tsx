@@ -1,4 +1,5 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -6,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { Button2 } from "~/components/custom/Button2";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
-import { globalWebSocketService } from "~/services/ws";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { ModifiersTabletTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
@@ -15,7 +16,11 @@ interface MyResourcesTileData {
     generalData: ModifiersTabletTileData;
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
     // const domainResourcesObject = await loadResources("app/data/resources.csv");
     // const domainProductsObject = await loadProducts("app/data/products.csv");
     const domainResourcesObject = initializedDataLoader.getResources();
@@ -51,11 +56,11 @@ export const loader = async () => {
         myResourcesTileData = [];
         alreadyAcquiredProductsIds = [];
     }
-    return json({ myResourcesTileData, alreadyAcquiredProductsIds });
+    return json({ myResourcesTileData, alreadyAcquiredProductsIds, sessionCode, playerId });
 };
 
 export default function MyResources() {
-    const { myResourcesTileData: myResources, alreadyAcquiredProductsIds } =
+    const { myResourcesTileData: myResources, alreadyAcquiredProductsIds, sessionCode, playerId } =
         useLoaderData<typeof loader>();
     const maxMonths = 1;
     const [isModalOpen, setIsModalOpen] = useState(true);
@@ -71,7 +76,7 @@ export default function MyResources() {
     }
 
     function goToResourceCatalogue() {
-        navigate("/game/allResources");
+        navigate( `/game/allResources?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     return (
         <AnimatePresence onExitComplete={handleExitComplete}>

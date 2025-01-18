@@ -1,11 +1,12 @@
 // import type { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Button2 } from "~/components/custom/Button2";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
-import { globalWebSocketService } from "~/services/ws";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { MyProductTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 // import { ModifiersTabletTileData } from "~/types/Modifiers";
@@ -22,7 +23,12 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     enabled:boolean;
 // }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
+    
     // const domainProductsObject = await loadProducts("app/data/products.csv");
     const domainProductsObject = initializedDataLoader.getProducts();
     //const domainProductsValues = Object.values(domainProductsObject)
@@ -54,11 +60,13 @@ export const loader = async () => {
     return json({
         productsTabletTileData,
         alreadyAcquiredProductsIds,
+        sessionCode,
+        playerId
     });
 };
 
 function MyProducts() {
-    const { productsTabletTileData: myProducts, alreadyAcquiredProductsIds } =
+    const { productsTabletTileData: myProducts, alreadyAcquiredProductsIds, sessionCode, playerId } =
         useLoaderData<typeof loader>();
     const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -72,7 +80,7 @@ function MyProducts() {
         navigate(-1);
     }
     function goToProductCatalogue() {
-        navigate('/game/allProducts')
+        navigate(`/game/allProducts?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     console.log('MyProducts', myProducts);
     console.log('alreadyAcquiredProductsIds', alreadyAcquiredProductsIds);

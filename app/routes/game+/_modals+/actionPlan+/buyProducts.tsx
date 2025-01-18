@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -7,7 +7,7 @@ import { Button2 } from "~/components/custom/Button2";
 import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
-import { actionPlanState } from "~/services/ws/actionPlanState.server";
+import { getWebSocketService, WebSocketService } from "~/services/ws";
 import { BuyProductTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 // import { ModifiersTabletTileData } from "~/types/Modifiers";
@@ -24,7 +24,11 @@ import { initializedDataLoader } from "~/utils/dataLoader";
 //     products: ProductFeature[];
 // }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
     // const domainProducts = await loadProducts("app/data/products.csv");
     const domainProducts = initializedDataLoader.getProducts();
     const products = Object.values(domainProducts);
@@ -46,10 +50,9 @@ export const loader = async () => {
     // let potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();//pass to the index
     // if(potentialRemainingBudget === 0) actionPlanState.setPotentialRemainingBudget(originalBudget!);
 
-    const potentialRemainingBudget = actionPlanState.getPotentialRemainingBudget();
-    const alreadySelectedProducts = actionPlanState.getActionPlanSelectedProducts() || [];
-    const alreadyAcquiredProducts =
-        actionPlanState.getAlreadyAcquiredModifiers().products;
+    const potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();
+    const alreadySelectedProducts = globalWebSocketService.actionPlanState.getActionPlanSelectedProducts() || [];
+    const alreadyAcquiredProducts = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().products;
 
     return json({
         tileProducts,
@@ -63,9 +66,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const selectedProducts = formData.get("selectedProducts");
     const remainingBudget = formData.get("remainingBudget");
     const parsedProducts = JSON.parse(selectedProducts as string) as string[];
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const globalWebSocketService = getWebSocketService(sessionCode, playerId) as WebSocketService ;
 
-    actionPlanState.updateProductPlan(parsedProducts); //dont forget to reset the state after triggering the submit_actionplan event
-    actionPlanState.updateBudget(Number(remainingBudget));
+    globalWebSocketService.actionPlanState.updateProductPlan(parsedProducts); //dont forget to reset the state after triggering the submit_actionplan event
+    globalWebSocketService.actionPlanState.updateBudget(Number(remainingBudget));
     console.log("selectedProducts", selectedProducts);
     console.log(parsedProducts);
     console.log("remainingBudget", remainingBudget);

@@ -7,7 +7,7 @@ import { ButtonSecondary } from "~/components/custom/ButtonSecondary";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
 import { charactersData } from "~/data/characters";
-import { globalWebSocketService } from "~/services/ws";
+import {  getWebSocketService, instancesManager } from "~/services/ws";
 import { useLiveLoader } from "~/utils/use-live-loader";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { useSoundContext } from "~/components/custom/music/SoundContext";
@@ -18,25 +18,31 @@ import { useSoundContext } from "~/components/custom/music/SoundContext";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const url = new URL(request.url);
-    const sessionCode = url.searchParams.get("sessionCode");
-    const connectedPlayers = globalWebSocketService.getConnectedPlayers();
-    const player = globalWebSocketService.getLocalPlayerAvatarInfo();
-    const isGameStarted = globalWebSocketService.isGameStarted();
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const instance = getWebSocketService(sessionCode, playerId);
+    const connectedPlayers = instance?.getConnectedPlayers() ?? [];
+    const player = instance?.getLocalPlayerAvatarInfo();
+    const isGameStarted = instance?.isGameStarted();
 
     if (!sessionCode) {
         return redirect("/home");
     }
 
     if(isGameStarted){
-        return redirect("/game");
+        return redirect(`/game?sessionCode=${sessionCode}&playerId=${playerId}`);
     }
     return json({ sessionCode, player, connectedPlayers });
 };
 
 
 export const action = async({request}: ActionFunctionArgs) => {
-    globalWebSocketService.startGame();
-    return replace(`/game`);
+    const url = new URL(request.url);
+    const sessionCode = url.searchParams.get("sessionCode") as string;
+    const playerId = url.searchParams.get("playerId") as string;
+    const instance = getWebSocketService(sessionCode, playerId);
+    instance?.startGame();
+    return replace(`/game?sessionCode=${sessionCode}&playerId=${playerId}`);
 }
 
 function Index() {
@@ -74,7 +80,7 @@ function Index() {
         previousPlayersCount.current = connectedPlayers.length; // Actualiza el conteo
     }, [connectedPlayers, isSoundOn]); // Escucha cambios en connectedPlayers e isSoundOn
 
-
+    console.log(currentUserId)
     const isHost = connectedPlayers.find(
         (player) => player.id === currentUserId
     )?.isHost;

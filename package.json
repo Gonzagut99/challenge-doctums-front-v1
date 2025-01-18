@@ -23,7 +23,7 @@
         "typescript"
     ],
     "scripts": {
-        "dev": "node log.js dev & remix vite:dev --config vite/config.dev.ts",
+        "dev": "node log.js dev & remix vite:dev --config vite/config.dev.ts --host 0.0.0.0",
         "build": "node log.js build & remix vite:build --config vite/config.prod.ts",
         "dev-nolog": "remix vite:dev --config vite/config.dev.ts",
         "build-nolog": "remix vite:build --config vite/config.prod.ts",

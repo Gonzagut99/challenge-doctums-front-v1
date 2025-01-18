@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:8085"
     volumes:
       - .:/app
       - /app/node_modules
     environment:
-      API_HTTP_BASE_URL: "http://localhost:8000/api"
-      API_WS_BASE_URL: "ws://localhost:8000/ws"
+      API_HTTP_BASE_URL: "https://3cef-2001-1388-1640-9067-6d49-597f-f468-475e.ngrok-free.app/api"
+      API_WS_BASE_URL: "https://3cef-2001-1388-1640-9067-6d49-597f-f468-475e.ngrok-free.app/ws"

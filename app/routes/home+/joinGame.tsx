@@ -8,7 +8,7 @@ import {
     useRemixForm,
 } from "remix-hook-form";
 import { Form } from "@remix-run/react";
-import { initializeWebSocket } from "~/services/ws";
+//import { initializeWebSocket } from "~/services/ws";
 
 const schema = z.object({
     sessionCode: z.string().min(36, "El código debe tener al menos 36 caractéres").max(36).uuid("No es un código válido"),
@@ -38,7 +38,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     //globalWebSocketService.setGameId(sessionCode);
     //globalWebSocketService.connect();
-    initializeWebSocket(sessionCode);
+    //initializeWebSocket(sessionCode);
     return redirect(`/home/chooseCharacter?sessionCode=${sessionCode}`);
 };
 
