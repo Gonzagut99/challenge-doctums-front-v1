@@ -9,12 +9,10 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
-        
-        - name: Log in to Docker Hub
-          uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-          with:
-            username: esclender # Replace when permissions to secrets is given lol
-            password: Enero20.* # Replace when permissions to secrets is given lol
+
+        - name: login to aws ecr
+          id: login-aws
+          run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 494746235894.dkr.ecr.us-east-1.amazonaws.com
 
         - name: build the docker image
           id: build-docker-image
