@@ -23,4 +23,4 @@ jobs:
             docker build . -f Dockerfile -t esclender/doctums-front:latest 
         - name: push the docker image
           id: push-docker-image
-          run: docker push esclender/doctums-front:latest 
+          run: docker push 494746235894.dkr.ecr.us-east-1.amazonaws.com/esclender/doctums:latest
