@@ -17,7 +17,8 @@
 
 | ID   | Fecha       | Descripción                                                                                             | Reproducibilidad | Estado         |
 |------|-------------|---------------------------------------------------------------------------------------------------------|------------------|----------------|
-| 001  | 2025-05-08 | Stutter: interrupción temporal en la fluidez del juego, donde las animaciones se "pegan" momentáneamente. | Ocasional        | 🟡 En análisis  |
+| 001  | 2025-05-08 | Stutter: interrupción temporal en la fluidez del juego, donde las animaciones se "pegan" momentáneamente. | Ocasional        | 🔴 Abierto    |
+| 003  | 2025-05-08 | El WebSocket service no mantiene el estado correctamente entre recargas.    | Implementar persistencia de estado usando localStorage y sincronización con el servidor. | 🔴 Abierto  
 | 004  | 2025-05-08  | Llamadas `fetch` redundantes desde `use-live-loader.ts`, causando lag y sobrecarga de red.              | Siempre          | 🔴 Abierto      |
 
 ---
@@ -34,7 +35,7 @@
 
 | ID   | Fecha       | Descripción                                                                 | Solución tentativa                                                                 |
 |------|-------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| 003  | 2025-05-08 | El WebSocket service no mantiene el estado correctamente entre recargas.    | Implementar persistencia de estado usando localStorage y sincronización con el servidor. |
+
 
 ---
 
