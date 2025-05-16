@@ -20,7 +20,16 @@
 | 001  | 2025-05-08 | Stutter: interrupción temporal en la fluidez del juego, donde las animaciones se "pegan" momentáneamente. | Ocasional        | 🔴 Abierto    |
 | 003  | 2025-05-08 | El WebSocket service no mantiene el estado correctamente entre recargas.    | Implementar persistencia de estado usando localStorage y sincronización con el servidor. | 🔴 Abierto  
 | 004  | 2025-05-08  | Llamadas `fetch` redundantes desde `use-live-loader.ts`, causando lag y sobrecarga de red.              | Siempre          | 🔴 Abierto      |
-| 005  | 2025-05-16  | Error de claves duplicadas en React: Se encontraron dos elementos hijos con la misma clave `5`. Este error ocurre en el componente PageContainer y puede causar problemas de renderizado y comportamiento inesperado en la interfaz. | Siempre          | 🔴 Abierto      |
+| 006 | 2025-05-16  | Error de claves duplicadas en React: Se encontraron dos elementos hijos con la misma clave `5`. Este error ocurre en el componente PageContainer y puede causar problemas de renderizado y comportamiento inesperado en la interfaz. | Siempre          | 🔴 Abierto      |
+| 007  | 2024-07-16  | Error al crear una partida (Lado del cliente, manejo incorrecto de `useState`).                           | Frecuente        | 🔴 Abierto      |
+| 008  | 2024-07-16  | El canvas del mapa del juego no renderiza cuando el host inicia una partida.                              | Frecuente        | 🔴 Abierto      |
+| 009  | 2024-07-16  | Error `TypeError: Cannot read properties of undefined (reading 'emit')` en eventos WebSocket.         | Ocasional        | 🔴 Abierto      |
+| 010  | 2024-07-16  | `app/routes/game+/_layout.tsx`: Estados (`avatarId`, etc.) mal manejados pueden afectar navegación/modales. | Potencial        | 🔴 Abierto      |
+| 011  | 2024-07-16  | `app/routes/game+/_layout.tsx`: Falla de `useLiveLoader` puede bloquear o causar comportamiento inesperado. | Potencial        | 🔴 Abierto      |
+| 012  | 2024-07-16  | `app/routes/game+/_gameCanvas/index.tsx`: Estado `grabbing` podría no actualizarse bien (deps `useEffect`). | Potencial        | 🔴 Abierto      |
+| 013  | 2024-07-16  | `app/routes/game+/_gameCanvas/index.tsx`: `localDivRef` no asignado correctamente puede romper el canvas.  | Potencial        | 🔴 Abierto      |
+| 014  | 2024-07-16  | `app/components/custom/music/SoundContext.tsx`: Falla en reproducción de audio por `audioRef` o archivo. | Potencial        | 🔴 Abierto      |
+| 015  | 2024-07-16  | `app/components/custom/music/SoundContext.tsx`: Alternar música/sonido podría no funcionar (contexto). | Potencial        | 🔴 Abierto      |
 
 ---
 

@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Game Routing Structure
+
+The application uses Remix's flat route convention with the `+` notation to organize routes.
+
+## Main Routes
+- [app/routes/_index.tsx](mdc:app/routes/_index.tsx) - Initial landing page
+- [app/routes/home+/](mdc:app/routes/home+) - Home page routes
+- [app/routes/game-hall+/](mdc:app/routes/game-hall+) - Game hall for joining/creating games
+- [app/routes/game+/](mdc:app/routes/game+) - Main game routes
+
+## Critical Game Routes
+- [app/routes/game+/_layout.tsx](mdc:app/routes/game+/_layout.tsx) - Main game layout that handles WebSocket connection, game state, and rendering
+- [app/routes/game+/_gameCanvas/index.tsx](mdc:app/routes/game+/_gameCanvas/index.tsx) - Phaser game canvas integration
+
+## Route Navigation
+Navigation between routes is managed through:
+1. `useNavigate()` hook from Remix
+2. State-based conditions that trigger navigation in useEffect hooks
+3. Modal-based navigation for special game events
+
+## Potential Issues
+- Incorrect navigation paths 
+- Missing URL parameters (sessionCode, playerId)
+- Navigation during async operations
+- Missing or incorrect state checks before navigation
+

@@ -1,0 +1,29 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# WebSocket Communication Guide
+
+The game relies heavily on WebSocket communication for real-time multiplayer functionality.
+
+## Key WebSocket Files
+- [app/services/ws/index.ts](mdc:app/services/ws/index.ts) - Main WebSocket service implementation
+- [app/store/useGameStore.ts](mdc:app/store/useGameStore.ts) - State management for game data from WebSocket
+
+## WebSocket Implementation
+The `WebSocketService` is initialized in [app/routes/game+/_layout.tsx](mdc:app/routes/game+/_layout.tsx) and provides game state synchronization through several methods:
+
+- `getGameState<T>()` - Gets current game state of type T
+- `rollDices()` - Sends dice roll action
+- `startNewTurn()` - Initiates a new turn
+- `advanceDays()` - Advances the game days
+- `getLocalPlayerAvatarInfo()` - Gets local player information
+
+## Potential Breakpoints
+- WebSocket connection failures
+- Race conditions in state updates
+- Invalid message handling
+- Reconnection issues
+
+Always ensure proper error handling around WebSocket operations and provide fallback mechanisms when connections fail.
