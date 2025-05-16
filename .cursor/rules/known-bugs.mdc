@@ -1,0 +1,34 @@
+---
+description: When user asks for information about currents bugs, when user fix any bugs present in this file, this file must be updated every time a bug is fixed or a new bug is found.
+globs: 
+alwaysApply: false
+---
+# Known Bugs and Issues
+
+This document outlines known bugs and issues in the application, based on the audit documentation.
+
+## Critical Issues
+
+1. **Game Creation Error**
+   - **Issue**: Error when creating a new game session
+   - **Location**: [app/routes/game+/_layout.tsx](mdc:app/routes/game+/_layout.tsx)
+   - **Cause**: Improper management of useState hooks
+   - **Details**: Documented in [auditorias/b_1.md](mdc:auditorias/b_1.md)
+
+2. **WebSocket Connection Failures**
+   - **Symptoms**: Game state not updating, errors in console
+   - **Location**: [app/services/ws/index.ts](mdc:app/services/ws/index.ts)
+   - **Potential Fix**: Implement better error handling and reconnection logic
+
+3. **Navigation Issues**
+   - **Symptoms**: Modals not showing correctly, incorrect routing
+   - **Location**: [app/routes/game+/_layout.tsx](mdc:app/routes/game+/_layout.tsx)
+   - **Cause**: State variables like `legacyModal_hasNavigated` and `submitPlan_hasNavigated` not properly managed
+
+## Implementation Recommendations
+
+- Add proper error boundaries for handling WebSocket failures
+- Implement fallback mechanisms for critical state management
+- Ensure proper conditions for navigation in useEffect hooks
+- Validate session and player IDs before making WebSocket calls
+

@@ -1,0 +1,30 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# React Hooks Guide
+
+This project uses React hooks extensively for state management and side effects. The most critical hooks are documented in `auditorias/UseStates.md`.
+
+## Critical useState Implementations
+
+1. [app/routes/game+/_layout.tsx](mdc:app/routes/game+/_layout.tsx) - Contains critical state management for game navigation and UI:
+   - `avatarId` - Manages the current player's avatar
+   - `legacyModal_hasNavigated` - Controls navigation to legacy rewards
+   - `submitPlan_hasNavigated` - Controls navigation to plan submission
+
+2. [app/routes/game+/_gameCanvas/index.tsx](mdc:app/routes/game+/_gameCanvas/index.tsx) - Manages game canvas interaction:
+   - `grabbing` - Controls cursor interaction state
+
+3. [app/components/custom/music/SoundContext.tsx](mdc:app/components/custom/music/SoundContext.tsx) - Manages audio states:
+   - `isMusicPlaying` - Controls background music state
+   - `isSoundOn` - Controls sound effects state
+
+## Potential Breakpoints
+
+When working with these hooks, be aware of the following potential issues:
+1. Incorrect state initialization
+2. Missing dependencies in useEffect hooks
+3. Race conditions in asynchronous state updates
+4. State updates during unmounted components
