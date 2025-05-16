@@ -1,4 +1,5 @@
 import { twMerge } from "tailwind-merge";
+import { forwardRef } from "react";
 
 interface WhiteContainerProps extends React.HTMLProps<HTMLDivElement> {
     children?: React.ReactNode;
@@ -27,14 +28,16 @@ export function WhiteContainerLarge({ children, className, ...rest }: WhiteConta
   )
 }
 
-export function WhiteContainerXL({ children, className, ...rest }: WhiteContainerProps) {
-  return (
-    <div {...rest} className={twMerge("relative", className)}>
-        <img src="/assets/components/WhiteContainerXL.png" alt="Container" className="absolute object-fill w-full h-full"/>
-        <div className="relative w-full h-full px-2 py-2">
-            {children}
-        </div>
-    </div>
-  )
-}
+export const WhiteContainerXL = forwardRef<HTMLDivElement, WhiteContainerProps>(
+  ({ children, className, ...rest }, ref) => {
+    return (
+      <div ref={ref} {...rest} className={twMerge("relative", className)}>
+          <img src="/assets/components/WhiteContainerXL.png" alt="Container" className="absolute object-fill w-full h-full"/>
+          <div className="relative w-full h-full px-2 py-2">
+              {children}
+          </div>
+      </div>
+    )
+  }
+);
 

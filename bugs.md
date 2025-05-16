@@ -21,6 +21,7 @@
 | 003  | 2025-05-08 | El WebSocket service no mantiene el estado correctamente entre recargas.    | Implementar persistencia de estado usando localStorage y sincronización con el servidor. | 🔴 Abierto  
 | 004  | 2025-05-08  | Llamadas `fetch` redundantes desde `use-live-loader.ts`, causando lag y sobrecarga de red.              | Siempre          | 🔴 Abierto      |
 | 005  | 2025-05-16  | Error de claves duplicadas en React: Se encontraron dos elementos hijos con la misma clave `5`. Este error ocurre en el componente PageContainer y puede causar problemas de renderizado y comportamiento inesperado en la interfaz. | Siempre          | 🔴 Abierto      |
+| 006  | 2025-05-16  | Error de ref en componentes funcionales: El componente WhiteContainerXL no puede recibir refs directamente. El error ocurre en la cadena de componentes LegacyRewards -> Modal -> WhiteContainerXL. | Siempre          | 🔴 Abierto      |
 
 ---
 
@@ -49,4 +50,5 @@
 - Los bugs en "Pendientes por verificar" ya tienen solución implementada, pero **requieren pruebas adicionales**.
 - El bug `004` puede estar causando stuttering, alto LCP y retrasos visibles al usuario. Se recomienda implementar *throttling* o revisar lógica de actualización.
 - Para el bug `005`, se recomienda revisar los componentes que renderizan listas dentro de PageContainer y asegurar que cada elemento tenga una clave única y estable. Evitar usar índices de array como keys cuando los elementos pueden cambiar de orden.
+- Para el bug `006`, se debe implementar React.forwardRef() en el componente WhiteContainerXL para permitir el paso correcto de refs desde el componente Modal. Esto es necesario para la correcta integración con Framer Motion y el sistema de animaciones.
 
