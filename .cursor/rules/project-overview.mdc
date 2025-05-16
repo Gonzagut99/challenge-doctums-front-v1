@@ -1,0 +1,25 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Project Overview
+
+This is a Phaser 3 game project built with Remix, React, and TypeScript. The application is a multiplayer game with WebSocket communication for real-time updates.
+
+## Main Entry Points
+- [app/root.tsx](mdc:app/root.tsx) - Main entry point for the Remix application
+- [app/entry.client.tsx](mdc:app/entry.client.tsx) - Client-side entry point
+- [app/entry.server.tsx](mdc:app/entry.server.tsx) - Server-side entry point
+
+## Key Application Files
+- [app/app.client.tsx](mdc:app/app.client.tsx) - Main client application component with Phaser game integration
+
+## Project Structure
+- `app/routes` - Contains all the application routes using the Remix flat routes convention
+- `app/components` - Reusable React components
+- `app/game` - Phaser game-related code
+- `app/services` - Services for API calls and WebSocket communication
+- `app/store` - State management using Zustand
+- `app/types` - TypeScript type definitions
+- `app/utils` - Utility functions
