@@ -30,7 +30,9 @@ export default defineConfig({
         // react()
     ],
     server: {
-        port: 8085
+        port: process.env.PORT ? parseInt(process.env.PORT) : 8085,
+        host: true,
+        strictPort: false
     },
     // build: {
     //     manifest: true,

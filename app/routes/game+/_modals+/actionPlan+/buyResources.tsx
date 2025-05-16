@@ -8,7 +8,6 @@ import { CostButton } from "~/components/custom/CostButton";
 import Modal from "~/components/custom/Modal";
 import { ModifierTabletTile } from "~/components/custom/ModifiersTabletTile";
 import { getWebSocketService, WebSocketService } from "~/services/ws";
-import { actionPlanState } from "~/services/ws/actionPlanState.server";
 import { BuyResourceTableTileData } from "~/types/modifiers";
 import { initializedDataLoader } from "~/utils/dataLoader";
 
@@ -42,7 +41,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const potentialRemainingBudget = globalWebSocketService.actionPlanState.getPotentialRemainingBudget();
     const alreadySelectedResources = globalWebSocketService.actionPlanState.getActionPlanSelectedResources() || [];
     const alreadyAcquiredResources =
-        actionPlanState.getAlreadyAcquiredModifiers().resources;
+        globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().resources;
     const alreadyAcquiredProducts = globalWebSocketService.actionPlanState.getAlreadyAcquiredModifiers().products;
 
     return json({
