@@ -1,0 +1,30 @@
+sequenceDiagram
+    autonumber
+    participant Server
+    participant SSE_Endpoint as "/stream"
+    participant Client_useEventSource as "useEventSource( )"
+    participant Client_useEffect as "useEffect([data])"
+    participant Client_revalidate as "revalidate( )"
+    participant Client_RemixLoader as "Remix Loader(s)"
+    participant Client_useLoaderData as "useLoaderData( )"
+
+    Note over Server,Client_useLoaderData: Flujo de Live Loader con SSE
+
+    rect rgb(240, 240, 240)
+        Server->>SSE_Endpoint: Envía Evento SSE
+        Note right of Server: Nuevo data disponible
+        SSE_Endpoint->>Client_useEventSource: Entrega evento
+        Client_useEventSource->>Client_useEffect: Activa efecto
+        Note over Client_useEffect: Detecta cambio en data
+    end
+
+    rect rgb(230, 245, 230)
+        Client_useEffect->>Client_revalidate: Llama a revalidate()
+        Client_revalidate->>Client_RemixLoader: Re-ejecuta loaders
+        Client_RemixLoader->>Server: Fetch datos actualizados
+        Server-->>Client_RemixLoader: Devuelve datos
+        Client_RemixLoader-->>Client_useLoaderData: Actualiza datos
+        Client_useLoaderData-->>Client_useEffect: UI se actualiza
+    end
+
+    Note over Client_useEffect,Client_useLoaderData: Actualización automática<br/>sin intervención del usuario

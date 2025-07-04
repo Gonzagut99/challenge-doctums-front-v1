@@ -1,0 +1,34 @@
+sequenceDiagram
+    autonumber
+    participant Server
+    participant SSE_Endpoint as "/stream"
+    participant Client_useEventSource as "useEventSource( )"
+    participant Client_DebounceLogic as "Debounce Logic"
+    participant Client_useEffect_Debounced as "useEffect"
+    participant Client_revalidate as "revalidate( )"
+    participant Client_RemixLoader as "Remix Loader(s)"
+    participant Client_useLoaderData as "useLoaderData( )"
+
+    Note over Server,Client_useLoaderData: Proceso de Debouncing para Eventos SSE
+    
+    Server->>SSE_Endpoint: Envía Evento SSE 1 (nuevo `data1`)
+    SSE_Endpoint->>Client_useEventSource: Entrega `data1`
+    Client_useEventSource->>Client_DebounceLogic: Pasa `data1`, inicia timer
+    
+    Server->>SSE_Endpoint: Envía Evento SSE 2 (nuevo `data2`)
+    SSE_Endpoint->>Client_useEventSource: Entrega `data2`
+    Client_useEventSource->>Client_DebounceLogic: Pasa `data2`, reinicia timer
+    
+    Note over Client_DebounceLogic: Timer espera X ms<br/>Ignora eventos intermedios
+    
+    rect rgb(240, 240, 240)
+        Client_DebounceLogic->>Client_useEffect_Debounced: Timer expira, emite último valor
+        Client_useEffect_Debounced->>Client_revalidate: Llama a revalidate()
+        Client_revalidate->>Client_RemixLoader: Re-ejecuta loaders
+        Client_RemixLoader->>Server: Fetch datos actualizados
+        Server-->>Client_RemixLoader: Devuelve datos
+        Client_RemixLoader-->>Client_useLoaderData: Actualiza datos
+        Client_useLoaderData-->>Client_useEffect_Debounced: UI se actualiza
+    end
+
+    Note over Client_DebounceLogic,Client_useEffect_Debounced: Solo una actualización después<br/>de múltiples eventos SSE

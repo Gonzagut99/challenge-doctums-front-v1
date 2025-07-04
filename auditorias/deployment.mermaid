@@ -1,0 +1,28 @@
+flowchart TD
+    subgraph CDN_Layer
+        CDN["CDN: Vercel/CloudFront"]
+    end
+
+    subgraph Frontend_Layer
+        FE["Remix App: Vercel/Netlify/Node"]
+    end
+
+    subgraph Backend_Layer
+        BE["FastAPI App: Docker - Cloud Run/ECS"]
+    end
+
+    subgraph Database_Layer
+        DB["Managed DB: Cloud SQL o RDS"]
+    end
+
+    subgraph Storage_Layer
+        S3["Assets Storage: S3 o GCS"]
+    end
+
+    User["Usuario"]
+    User-->|"HTTPS"|CDN
+    CDN-->|"HTTPS"|FE
+    FE-->|"API REST/WebSocket"|BE
+    BE-->|"SQL"|DB
+    FE-->|"Assets"|S3
+    BE-->|"Assets"|S3
