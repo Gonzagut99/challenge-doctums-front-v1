@@ -3,12 +3,9 @@
 import { envs } from "~/env/envs";
 import ServerWebSocket from "ws";
 import { ConnectedPlayer } from "~/types/connectedPlayer";
+import { emitter } from "~/utils/emitter.server";
 
 import { Player } from "../http/player";
-const isServer = typeof window === "undefined";
-const { emitter } = isServer
-    ? await import("~/utils/emitter.server")
-    : await import("~/utils/emitter.client");
 import { GameStartMessage } from "~/types/methods_jsons/startGameResponse";
 import { TurnOrderStage } from "~/types/methods_jsons/turnOrderStage";
 import { StartNewTurn } from "~/types/methods_jsons/startNewTurn";
@@ -56,6 +53,7 @@ export class WebSocketService implements IWebSocketService {
     private keepAliveInterval: NodeJS.Timeout | null = null;
     private keepGameHallAliveInterval: NodeJS.Timeout | null = null;
     private localPlayerAvatarInfo: Player | null = null;
+    private emitter: any = emitter;
     public localPlayerDynamicInfo: LocalPlayerDynamicInfo | null = null;
     public localPlayerPreviousEfficiencies: Record<string, number> = {
         "1": 0,
@@ -544,7 +542,7 @@ export class WebSocketService implements IWebSocketService {
     //     if (message.method === 'notification') {
     //         this.gameStateMessage = message;
     //         console.log("notification", message);
-    //         emitter.emit('game', message);
+    //         this.emitter?.emit('game', message);
     //     }
     // }
 
@@ -558,7 +556,7 @@ export class WebSocketService implements IWebSocketService {
             }
             console.log("advance days", this.nextTurn_newTurnSettledInfo);
             this.setLocalPlayerNewDynamicInfo()
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }
     }
 
@@ -579,7 +577,7 @@ export class WebSocketService implements IWebSocketService {
             this.localPlayerEfficiencies= message.player.efficiencies;
             this.setLocalPlayerDynamicInfo()
             console.log("Host started game", this.startGameResponse);
-            emitter.emit('players', this.connectedPlayers);
+            this.emitter?.emit('players', this.connectedPlayers);
         }
     }
 
@@ -592,8 +590,8 @@ export class WebSocketService implements IWebSocketService {
             //agregada
             const players = this.getPlayersFromTurnOrder(message);
             //agregada
-            emitter.emit('renderPlayersOnMap', players);
-            emitter.emit('game', message);
+                    this.emitter?.emit('renderPlayersOnMap', players);
+        this.emitter?.emit('game', message);
         }
     }
 
@@ -615,7 +613,7 @@ export class WebSocketService implements IWebSocketService {
         // if (message.status === 'success' && message.method == "join") {
         //     this.connectedPlayers = message.game.players;
         //     console.log("Updated Players List:", this.connectedPlayers);
-        //     emitter.emit('players', this.connectedPlayers);
+        //     this.emitter?.emit('players', this.connectedPlayers);
         // }
 
         if (message.status === 'success' && message.method == "join") {
@@ -639,7 +637,7 @@ export class WebSocketService implements IWebSocketService {
             }));
             this.gameCanvasState = canvasPlayers;
             console.log("Updated Players List:", this.connectedPlayers);
-            emitter.emit('players', this.connectedPlayers);
+            this.emitter?.emit('players', this.connectedPlayers);
             this.startGameHallKeepAlive()
         }
     }
@@ -657,7 +655,7 @@ export class WebSocketService implements IWebSocketService {
             //this.setLocalPlayerNewDynamicInfo()
 
             console.log("notification", message);
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }
     }
 
@@ -700,7 +698,7 @@ export class WebSocketService implements IWebSocketService {
             }));
 
             console.log("New Turn Start", message.player.resources);
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }
     }
 
@@ -709,7 +707,7 @@ export class WebSocketService implements IWebSocketService {
             console.log("Canvas Player Positions", message);
             this.updatedPlayersPositions = message;
             this.gameCanvasState = message.players_position;
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }   
     }
 
@@ -743,7 +741,7 @@ export class WebSocketService implements IWebSocketService {
             this.localPlayerModifiers.products = localPlayerProducts.length > 0 ? localPlayerProducts : this.localPlayerModifiers.products;
            
             console.log("Action Plan", JSON.stringify(message));
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }
     }
 
@@ -758,7 +756,7 @@ export class WebSocketService implements IWebSocketService {
             this.localPlayerPreviousEfficiencies = this.localPlayerEfficiencies;
             this.localPlayerEfficiencies = message.player.effiencies;
             console.log("Game Event", message);
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }
     }
 
@@ -773,7 +771,7 @@ export class WebSocketService implements IWebSocketService {
 
             this.setLocalPlayerNewDynamicInfo();
             console.log("Next Turn", message);
-            emitter.emit('game', message);
+            this.emitter?.emit('game', message);
         }
     }
 
@@ -781,7 +779,7 @@ export class WebSocketService implements IWebSocketService {
     //     if (message.method === 'canvas_player_positions') {
     //         this.gameCanvasState = message.players;
     //         console.log("Canvas Player Positions", message);
-    //         emitter.emit('canvasPlayers', message);
+    //         this.emitter?.emit('canvasPlayers', message);
     //     }
     // }
 
@@ -806,7 +804,7 @@ export class WebSocketService implements IWebSocketService {
     private startGameHallKeepAlive() {
         this.keepGameHallAliveInterval = setInterval(() => {
             if (this.socket && this.socket.readyState === ServerWebSocket.OPEN) {
-                emitter.emit('players', "ping");
+                this.emitter?.emit('players', "ping");
             }
         }, 30000); // Send ping every 30 seconds
     }
@@ -880,6 +878,13 @@ export class WebSocketService implements IWebSocketService {
         }
     }
 
+    // Add public methods for game event subscription
+    public onGameEvent(handler: (gameState: any) => void) {
+        this.emitter.on('game', handler);
+    }
+    public offGameEvent(handler: (gameState: any) => void) {
+        this.emitter.off('game', handler);
+    }
     
 }
 

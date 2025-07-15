@@ -1,8 +1,10 @@
-import { json, Link, useFetcher, useNavigate } from "@remix-run/react";
+import { json, Link, useFetcher, useNavigate, Outlet, useLocation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { Button } from "~/components/custom/Button";
 import { gameSessionService } from "~/services/http/GameSessionServices";
+import { Header } from "~/components/custom/landing/Header";
+import { PageContainer } from "~/components/custom/PageContainer";
 // import { useGameStore } from "~/store/useGameStore";
 
 export const action = async () => {
@@ -34,6 +36,10 @@ function Index() {
     const navigate = useNavigate();
     const fetcher = useFetcher<typeof action>();
     const [showStaticImage, setShowStaticImage] = useState(false);
+    const location = useLocation();
+    
+    // Check if we're on a nested route (chooseCharacter or joinGame)
+    const isNestedRoute = location.pathname.includes('/chooseCharacter') || location.pathname.includes('/joinGame');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -82,23 +88,43 @@ function Index() {
             }
         );
     };
+    
+    // If we're on a nested route, render the nested route content
+    if (isNestedRoute) {
+        return <Outlet />;
+    }
+    
+    // Otherwise, render the home page content
     return (
-        <>
+        <div
+            className="min-h-dvh grid grid-cols-1 relative"
+            style={{
+                backgroundImage: 'url(/assets/landing/img/gradiente.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+            }}
+        >
+            <Header />
+            <main className="flex justify-center items-center">
+                <PageContainer className="z-0 bg-white flex justify-center items-center">
+                    <section className="w-[950px] aspect-[3/2] relative flex flex-col gap-8 items-center">
+                        <img
+                            className="-z-10 aspect-[3/2] object-cover absolute inset-0"
+                            src="/assets/backgrounds/LandingBackground.png"
+                            alt="Landing Background"
+                        />
+                        <div className="absolute h-96 inset-0 bg-gradient-to-b from-black/75 via-purple-transparent to-transparent -z-10"></div>
+                        
+                        {/* Original content with the absolute positioning for controls */}
         <div className="absolute top-0 right-2">
             <MusicAndSoundControls />
         </div>
         <div className="flex flex-col h-full items-center w-full justify-center gap-10">
-                {/* <header className="px-4 py-2 backdrop-blur-lg w-2/3 rounded-sm">
-        <h1 className="text-yellow-50 text-2xl font-bold text-center text-balance font-dogica-bold shadow-slate-700 text-shadow-lg">
-            Bienvenido al challenge Doctums
-        </h1>
-    </header> */}
                 <header className="flex items-center justify-center w-full">
                     {showStaticImage ? (
-                        // Mostrar la imagen estática después de la animación
                         <img src="/assets/challenge-logo.png" alt="Logo estático" className="w-1/2" />
                     ) : (
-                        // Mostrar el GIF o animación inicialmente
                         <img src="/assets/challenge-animation.gif" alt="Animación inicial" className="w-1/2" />
                     )}
                 </header>
@@ -116,7 +142,11 @@ function Index() {
                         </Button>
                     </Link>
                 </div>
-            </div></>
+                        </div>
+                    </section>
+                </PageContainer>
+            </main>
+        </div>
     );
 }
 

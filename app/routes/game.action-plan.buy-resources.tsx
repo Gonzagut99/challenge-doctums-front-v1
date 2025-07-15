@@ -248,7 +248,8 @@ export default function BuyResources() {
                                                 product={{ id: resource.id, cost: resource.cost }}
                                                 handleSelectProduct={handleSelectResources}
                                                 modifierType="resources"
-                                            ></CostButton>
+                                            >
+                                            </CostButton>
                                             {/* <span className="text-green-500">
                                                     {product.cost}
                                             </span> */}
@@ -262,68 +263,47 @@ export default function BuyResources() {
                                         <span className="font-easvhs text-lg">
                                             Total de recursos:
                                         </span>
-                                        <span
-                                            className={twMerge(
-                                                "font-easvhs text-xl",
-                                                surpassMaxResources
-                                                    ? "text-red-500"
-                                                    : "text-green-500"
-                                            )}
-                                        >
-                                            {selectedResources.length}/ max(
-                                            {maxResourcesPerMonth})
+                                        <span className="font-easvhs text-lg text-red-500">
+                                            {selectedResources.length}
                                         </span>
                                     </div>
                                     <div className="flex gap-2 w-fit">
-                                        <span className="font-easvhs text-xl">
+                                        <span className="font-easvhs text-lg">
                                             Presupuesto restante:
                                         </span>
-                                        <div className="flex items-center gap-2 border-2 border-zinc-900 bg-zinc-300 px-2">
-                                            <figure
-                                                className={
-                                                    "px-1 h-full flex items-center w-fit"
-                                                }
-                                            >
-                                                <img
-                                                    src="/assets/icons/cashIcon.png"
-                                                    alt="Icon"
-                                                    className="size-6"
-                                                />
-                                            </figure>
-                                            <span className="font-easvhs text-lg">
-                                                {potentialRemainingBudgetState}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2 w-fit">
-                                        <span className="font-easvhs text-2xl">
-                                            Total:
+                                        <span
+                                            className={twMerge(
+                                                "font-easvhs text-lg",
+                                                surpassBudget &&
+                                                    "text-red-500"
+                                            )}
+                                        >
+                                            {potentialRemainingBudgetState}
                                         </span>
-                                        <div className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2">
-                                            <figure
-                                                className={
-                                                    "px-1 h-full flex items-center w-fit"
-                                                }
-                                            >
-                                                <img
-                                                    src="/assets/icons/cashIcon.png"
-                                                    alt="Icon"
-                                                    className="size-8"
-                                                />
-                                            </figure>
-                                            <span className="font-easvhs text-xl">
-                                                {totalCost}
-                                            </span>
-                                        </div>
                                     </div>
+                                    <p
+                                        className={twMerge(
+                                            "font-rajdhani font-semibold text-sm text-red-500",
+                                            !surpassMaxResources && "hidden"
+                                        )}
+                                    >
+                                        {`Solo puedes contratar ${maxResourcesPerMonth} recurso por mes`}
+                                    </p>
+                                    <p
+                                        className={twMerge(
+                                            "font-rajdhani font-semibold text-sm text-red-500",
+                                            !surpassBudget && "hidden"
+                                        )}
+                                    >
+                                        {`Tu presupuesto no es suficiente`}
+                                    </p>
                                     <Button2
-                                        className="btn btn-primary font-easvhs text-zinc-50 text-xl w-80 disabled:opacity-50 max-w-80 !max-h-14"
                                         onClick={handleSubmit}
                                         disabled={
-                                            surpassBudget || surpassMaxResources
+                                            surpassMaxResources || surpassBudget
                                         }
                                     >
-                                        Enviar
+                                        Guardar
                                     </Button2>
                                 </div>
                             </div>
@@ -333,4 +313,4 @@ export default function BuyResources() {
             )}
         </AnimatePresence>
     );
-}
+} 

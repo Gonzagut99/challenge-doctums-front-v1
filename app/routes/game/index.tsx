@@ -16,6 +16,7 @@ import {
     useNavigate,
     useNavigation,
     useSubmit,
+    useLoaderData,
 } from "@remix-run/react";
 
 import { Player } from "~/services/http/player";
@@ -152,10 +153,30 @@ export default function _layout() {
     // 1st frontstage - 1st backstage
     //charging loader data | gameInitData
 
-    const loaderData: any = useLiveLoader<typeof loader>();
+    const initialData = useLoaderData<typeof loader>();
+
+    if ("error" in initialData) {
+        return (
+            <PageContainer>
+                <div className="text-white">Error: {initialData.error}</div>
+            </PageContainer>
+        );
+    }
+    const loaderData: any = useLiveLoader<typeof loader>({
+        sessionCode: initialData.sessionCode,
+        playerId: initialData.playerId,
+    });
     const loadedProjects = loaderData.csvLoadedProjects;
     const sessionCode = loaderData.sessionCode
     const playerId = loaderData.playerId
+
+    // Log which player and session this client is for
+    console.log(`[game/index] Render for playerId=${playerId}, sessionCode=${sessionCode}`);
+
+    // Log every time loaderData changes (i.e., new SSE message received)
+    useEffect(() => {
+        console.log(`[game/index] loaderData updated for playerId=${playerId}, sessionCode=${sessionCode}:`, loaderData);
+    }, [loaderData, playerId, sessionCode]);
 
     const genericGameState: GameStartMessage | TurnOrderStage | StartNewTurn | SubmitPlanResponse | TurnEventResults | NextTurnResponse =
         loaderData.gameState;
@@ -239,32 +260,26 @@ export default function _layout() {
     useEffect(() => {
         if (showLegacyModal && !legacyModal_hasNavigated) {
             legacyModal_setHasNavigated(true);
-            navigate(`/game/legacyRewards?sessionCode=${sessionCode}&playerId=${playerId}`);
+            navigate(`/game/specialNotifications/legacyRewards?sessionCode=${sessionCode}&playerId=${playerId}`);
         }
-    }, [showLegacyModal, legacyModal_hasNavigated, navigate]);
+    }, [showLegacyModal, legacyModal_hasNavigated, navigate, sessionCode, playerId]);
 
 
     const [submitPlan_hasNavigated, submitPlan_setHasNavigated] = useState(false);
-
     useEffect(() => {
         if (submitPlan_showModal && submitPlan_isReadyToFaceEvent && !submitPlan_hasNavigated) {
             submitPlan_setHasNavigated(true);
-            navigate(`/game/submitPlanSuccess?sessionCode=${sessionCode}&playerId=${playerId}`);
+            navigate(`/game/specialNotifications/submitPlanSuccess?sessionCode=${sessionCode}&playerId=${playerId}`);
         }
-    }, [submitPlan_showModal, submitPlan_isReadyToFaceEvent, submitPlan_hasNavigated]);
+    }, [submitPlan_showModal, submitPlan_isReadyToFaceEvent, submitPlan_hasNavigated, navigate, sessionCode, playerId]);
 
-    //load EventFlowModal
     const [eventFlow_hasNavigated, eventFlow_setHasNavigated] = useState(false);
     useEffect(() => {
         if (eventFlow_showEvent && !eventFlow_hasNavigated) {
             eventFlow_setHasNavigated(true);
-            navigate(`/game/challenge/${eventFlow_eventId}?sessionCode=${sessionCode}&playerId=${playerId}`);
+            navigate(`/game/events/${eventFlow_eventId}?sessionCode=${sessionCode}&playerId=${playerId}`);
         }
-
-        if (eventFlow_hasNavigated && nextTurn_currentTurn != localPlayer?.id) {
-            eventFlow_setHasNavigated(false)
-        }
-    }, [ eventFlow_hasNavigated, eventFlow_showEvent, eventFlow_eventId]);
+    }, [eventFlow_showEvent, eventFlow_hasNavigated, navigate, eventFlow_eventId, sessionCode, playerId]);
 
     emitter.emit("updated_players_positions", playerPositions);
 
@@ -350,354 +365,272 @@ export default function _layout() {
 
     return (
         <div
-            className="min-h-dvh grid grid-cols-1 h-full"
-            style={{
-                backgroundImage: 'url(/assets/landing/img/gradiente.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              backgroundAttachment: 'fixed',
-          }}
+            id="game-container"
+            className="relative h-screen w-screen overflow-hidden"
         >
-            <Header />
+            <div
+                id="phaser-container"
+                className="absolute left-0 top-0 h-full w-full pointer-events-auto"
+            >
+                <Header />
 
-            <main className="min-h-dvh grid grid-cols-1 max-h-screen">
+                <main className="min-h-dvh grid grid-cols-1 max-h-screen">
 
-                <PageContainer className="z-0 bg-transparent flex justify-center items-center">
+                    <PageContainer className="z-0 bg-transparent flex justify-center items-center">
 
-                    <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
+                        <section className="w-[1120px] aspect-[5/3] relative z-10 flex flex-col gap-8 justify-center items-center">
 
-                        <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
-                            <section className="flex justify-center relative">
+                            <article className="relative z-20 h-full w-full bg-transparent p-2 flex flex-col gap-2">
+                                <section className="flex justify-center relative">
 
-                                <div className="absolute pb-2 top-0 right-2">
-                                    <MusicAndSoundControls />
-                                </div>
+                                    <div className="absolute pb-2 top-0 right-2">
+                                        <MusicAndSoundControls />
+                                    </div>
 
-                                <NotificationSound
-                                trigger={rollDiceTrigger || hasPlayersPositionsUpdated?.message || genericGameState}
-                                audioSrc={
-                                    rollDiceTrigger
-                                        ? "/assets/audios/sound-effects/dices-roll.mp3"
-                                        : "/assets/audios/sound-effects/notification1.mp3"
-                                }
-                            />
-                                <WhiteContainer className="animate-jump-in ">
-                                    <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
-                                        {
-                                            hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
-                                        }
-                                    </span>
-                                </WhiteContainer>
-                                <div className="absolute left-2 w-fit">
-
-                                    <button className="aspect-square min-h-12 relative rounded-lg animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[2px] outline-zinc-900" onClick={() => navigate('/game/events')}>
-                                        <img
-                                            src="/assets/icons/eventoNoBorder.png"
-                                            alt="Back Button"
-                                            className="size-12 min-h-10 absolute inset-0 rounded-lg object-cover aspect-square"
-                                            title="Ver catálogo de Eventos"
-                                        />
-                                    </button>
-                                </div>
-                            </section>
-                            <section className="flex">
-                                <GameCanvas
-                                    className="animate-fade animate-once"
-                                    canvasInitialState={playerPositions}
-                                    ref={gameCanvasRef}
-                                    avatarId={avatarId!}
-                                    diceResult={diceResult}
-                                ></GameCanvas>
-                                <div className="flex flex-col gap-1">
-                                    {turnsOrder?.map(
-                                        (turnPlayer: TurnOrderPlayer) => {
-                                            if (
-                                                turnPlayer?.playerId ===
-                                                localPlayer?.id
-                                            ) {
-                                                return (
-                                                    <LocalPlayerCard
-                                                        key={turnPlayer.playerId}
-                                                        player={
-                                                            localPlayerDynamicInfo
-                                                        }
-                                                        localPlayerProjects={localPlayerProjectsData}
-                                                        csvLoadedProjects={loadedProjects}
-                                                    />
-                                                );
-                                            } else {
-                                                return (
-                                                    <PlayerCard
-                                                        key={turnPlayer.playerId}
-                                                        player={turnPlayer}
-                                                    />
-                                                );
+                                    <NotificationSound
+                                    trigger={rollDiceTrigger || hasPlayersPositionsUpdated?.message || genericGameState}
+                                    audioSrc={
+                                        rollDiceTrigger
+                                            ? "/assets/audios/sound-effects/dices-roll.mp3"
+                                            : "/assets/audios/sound-effects/notification1.mp3"
+                                    }
+                                />
+                                    <WhiteContainer className="animate-jump-in ">
+                                        <span className="text-2xl text-zinc font-easvhs px-5 tracking-[0.1em]">
+                                            {
+                                                hasPlayersPositionsUpdated?.message || genericGameState?.message || ""
                                             }
-                                        }
-                                    )}
-                                </div>
-                            </section>
+                                        </span>
+                                    </WhiteContainer>
+                                    <div className="absolute left-2 w-fit">
 
-                            <section className="flex flex-col gap-2">
-                                <div className="grid grid-cols-4 gap-2">
-                                    {gameControlButtons?.map((button) => (
-                                        <WhiteContainer
-                                            key={button.control}
-                                            onClick={() =>
-                                                navigate(`/game/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
-                                            }
-                                            className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
-                                        >
-                                            <div className="flex gap-2">
-                                                <figure className="w-16 min-w-16">
-                                                    <img
-                                                        src={button.icon}
-                                                        alt="Icon"
-                                                        className="object-contain aspect-square !w-16"
-                                                    />
-                                                </figure>
-                                                <div className="grow">
-                                                    <h4 className="text-sm font-easvhs">
-                                                        {button.title}
-                                                    </h4>
-                                                    <p className="text-[12px] font-rajdhani font-semibold">
-                                                        {button.description}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </WhiteContainer>
-                                    ))}
-                                </div>
-
-                                {/* WS actions */}
-                                <div className="flex gap-4 justify-center">
-                                {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
-                                    <ActionButtonManager
-                                        method={genericGameState.method as keyof typeof gameStateHandlers}
-                                        wsActionTriggerer={triggerTurnOrderWithSound}
-                                        message={currentPlayerTurnId === localPlayer?.id ? "Lanza los dados" : "Esperar..."}
-                                        disabled={currentPlayerTurnId !== localPlayer?.id}
-                                    />
-                                )}
-
-                                    {/* ready to start regular turns */}
-                                    {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
-                                        <>
-                                            <ActionButtonManager
-                                                method="start_new_turn"
-                                                wsActionTriggerer={triggerStartNewTurn}
-                                                message={
-                                                    currentPlayerTurnId || turnStage_playerToStartNewTurn ===
-                                                        localPlayer?.id
-                                                        ? "Iniciar nuevo turno"
-                                                        : "Esperar"
-                                                }
-                                                disabled={
-                                                    currentPlayerTurnId || turnStage_playerToStartNewTurn !==
-                                                    localPlayer?.id
-                                                }
+                                        <button className="aspect-square min-h-12 relative rounded-lg animate-pulse animate-infinite animate-duration-[5000ms] animate-ease-in-out outline outline-[2px] outline-zinc-900" onClick={() => navigate('/game/events')}>
+                                            <img
+                                                src="/assets/icons/eventoNoBorder.png"
+                                                alt="Back Button"
+                                                className="size-12 min-h-10 absolute inset-0 rounded-lg object-cover aspect-square"
+                                                title="Ver catálogo de Eventos"
                                             />
-                                            {/* <NotificationSound
-                                                trigger={rollDiceTrigger}
-                                                audioSrc="/assets/audios/sound-effects/dices-roll.mp3"
-                                            /> */}
-
-                                        </>
-                                    )}
-
-                                    {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
-                                    {newturn_isStartNewTurnStage && (
-                                        <LocalStateDynamicButton
-                                            onClick={triggerAdvanceDaysMessage}
-                                            message={
-                                                currentPlayerTurnId ===
+                                        </button>
+                                    </div>
+                                </section>
+                                <section className="flex">
+                                    <GameCanvas
+                                        className="animate-fade animate-once pointer-events-auto"
+                                        canvasInitialState={playerPositions}
+                                        ref={gameCanvasRef}
+                                        avatarId={avatarId!}
+                                        diceResult={diceResult}
+                                    ></GameCanvas>
+                                    <div className="flex flex-col gap-1">
+                                        {turnsOrder?.map(
+                                            (turnPlayer: TurnOrderPlayer) => {
+                                                if (
+                                                    turnPlayer?.playerId ===
                                                     localPlayer?.id
-                                                    ? "Lanzar dados y avanza"
-                                                    : "Esperar..."
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId !==
-                                                localPlayer?.id
-                                            }
-                                            hoverImgSrc={"/assets/buttons/ButtonPurple-hover.png"}
-                                        />
-                                    )}
-
-                                    {/* {preNewTurnStage_isOver && (
-                                    <ActionButtonManager
-                                        method="days_advanced"
-                                        wsActionTriggerer={triggerAdvanceDaysMessage}
-                                        message={
-                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  ===
-                                            localPlayer?.id
-                                                ? "Avanzar dias"
-                                                : "Esperar"
-                                        }
-                                        disabled={
-                                            currentPlayerTurnId || turnStage_playerToStartNewTurn  !==
-                                            localPlayer?.id
-                                        }
-                                    />
-                                )}
-
-                                
-
-                                {turnStage_isTurnOrderStageOver &&
-                                    !preNewTurnStage_isOver &&
-                                    newTurnStage_isOver &&
-                                    newTurnStage_daysAdvanced && (
-                                        <LocalStateDynamicButton
-                                            onClick={handleLocallyRolledDices}
-                                            message={
-                                                currentPlayerTurnId ===
-                                                localPlayer?.id
-                                                    ? "Lanzar dados"
-                                                    : "Esperar"
-                                            }
-                                            disabled={
-                                                currentPlayerTurnId !==
-                                                localPlayer?.id
-                                            }
-                                        />
-                                    )} */}
-
-                                    {/* { is_notificaation && (
-                                        <LocalStateDynamicButton
-                                            onClick={() => {}}
-                                            message={
-                                                "Espera por tu turno..."
-                                            }
-                                            disabled={true}
-                                            darkText={true}
-                                            buttonImgSrc="/assets/buttons/ButtonSecondary.png"
-                                        />
-                                    )} */}
-
-                                    {/* Dices view */}
-                                    {/* Turn Stage Dices */}
-                                    {!turnStage_isTurnOrderStageOver &&
-                                        turnStage_hasPlayerRolledDices &&
-                                        turnStage_dicesResult && (
-                                            <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                                {turnStage_dicesResult?.map(
-                                                    (dice: number) => (
-                                                        // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
-                                                        <img
-                                                            key={dice}
-                                                            src={`/assets/dices/${dice}.png`}
-                                                            alt={`dice${dice}`}
-                                                            className="size-[50px] object-contain"
+                                                ) {
+                                                    return (
+                                                        <LocalPlayerCard
+                                                            key={turnPlayer.playerId}
+                                                            player={
+                                                                localPlayerDynamicInfo
+                                                            }
+                                                            localPlayerProjects={localPlayerProjectsData}
+                                                            csvLoadedProjects={loadedProjects}
                                                         />
-                                                    )
-                                                )}
-                                            </div>
-                                        )}
-
-                                    {/* New Turn Stage Dices */}
-                                    {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
-                                        (
-                                            <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
-                                                {newTurn_advancedDays?.dices.map(
-                                                    (dice: number) => (
-                                                        // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
-                                                        <img
-                                                            key={dice}
-                                                            src={`/assets/dices/${dice}.png`}
-                                                            alt={`dice${dice}`}
-                                                            className="size-[50px] object-contain"
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <PlayerCard
+                                                            key={turnPlayer.playerId}
+                                                            player={turnPlayer}
                                                         />
-                                                    )
-                                                )}
-                                            </div>
-                                        )}
-
-                                    {
-                                        preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
-                                        newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
-                                        !newTurn_localPlayerStoredData.is_ready_to_face_event &&
-                                        (
-                                            <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/actionPlan?sessionCode=${sessionCode}&playerId=${playerId}`)}>
-                                                {/* <span className="text-sm text-zinc font-dogica-bold px-5">
-                                                {
-                                                    "¡Es hora de planificar!"
+                                                    );
                                                 }
-                                            </span> */}
+                                            }
+                                        )}
+                                    </div>
+                                </section>
+
+                                <section className="flex flex-col gap-2">
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {gameControlButtons?.map((button) => (
+                                            <WhiteContainer
+                                                key={button.control}
+                                                onClick={() =>
+                                                    navigate(`/game/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
+                                                }
+                                                className="cursor-pointer animate-fade animate-once hover:scale-105 transform transition-transform duration-300"
+                                            >
                                                 <div className="flex gap-2">
-                                                    <figure className="size-12">
+                                                    <figure className="w-16 min-w-16">
                                                         <img
-                                                            src={'/assets/icons/action-plan.png'}
+                                                            src={button.icon}
                                                             alt="Icon"
-                                                            className="object-contain aspect-square h-full w-full size-12"
+                                                            className="object-contain aspect-square !w-16"
                                                         />
                                                     </figure>
-                                                    <div className="grow max-w-64">
+                                                    <div className="grow">
                                                         <h4 className="text-sm font-easvhs">
-                                                            Plan de acción
+                                                            {button.title}
                                                         </h4>
-                                                        <p className="text-xs font-rajdhani font-semibold">
-                                                            ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
+                                                        <p className="text-[12px] font-rajdhani font-semibold">
+                                                            {button.description}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </WhiteContainer>
-                                        )
-                                    }
-                                    {
-                                        (preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays || submitPlan_isReadyToFaceEvent) &&
-                                        hasPlayerSubmittedPlan &&
-                                        !newTurn_localPlayerStoredData.time_manager.is_weekend &&
-                                        (
+                                        ))}
+                                    </div>
+
+                                    {/* WS actions */}
+                                    <div className="flex gap-4 justify-center">
+                                    {(is_start_game_stage || turnStage_isTurnOrderStage) && !turnStage_isTurnOrderStageOver && (
+                                        <ActionButtonManager
+                                            method={genericGameState.method as keyof typeof gameStateHandlers}
+                                            wsActionTriggerer={triggerTurnOrderWithSound}
+                                            message={currentPlayerTurnId === localPlayer?.id ? "Lanza los dados" : "Esperar..."}
+                                            disabled={currentPlayerTurnId !== localPlayer?.id}
+                                        />
+                                    )}
+
+                                        {/* ready to start regular turns */}
+                                        {turnStage_isTurnOrderStage && turnStage_isTurnOrderStageOver && (
                                             <>
-                                                <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
-                                                    {/* <span className="text-sm text-zinc font-dogica-bold px-5">
-                                                    {
-                                                        "¡Es hora de planificar!"
-                                                    }
-                                                </span> */}
-                                                    <div className="flex gap-2">
-                                                        <figure className="size-12">
-                                                            <img
-                                                                src={'/assets/icons/evento.png'}
-                                                                alt="Icon"
-                                                                className="object-contain aspect-square size-12 min-w-12"
-                                                            />
-                                                        </figure>
-                                                        <div className="grow">
-                                                            <h4 className="text-sm font-easvhs">
-                                                                ¡Es hora de enfrentar el evento!
-                                                            </h4>
-                                                            <p className="text-xs font-rajdhani font-bold">
-                                                                ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
-                                                                Da CLICK en el botón para ver el resultado.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </WhiteContainer>
                                                 <ActionButtonManager
-                                                    method="turn_event_flow"
-                                                    wsActionTriggerer={triggerStartEventFlow}
+                                                    method="start_new_turn"
+                                                    wsActionTriggerer={triggerStartNewTurn}
                                                     message={
-                                                        currentPlayerTurnId ===
+                                                        currentPlayerTurnId || turnStage_playerToStartNewTurn ===
                                                             localPlayer?.id
-                                                            ? (navigation.state === "submitting" ? "Enviando..." : "Enfrentar evento")
-                                                            : "Esperar..."
+                                                            ? "Iniciar nuevo turno"
+                                                            : "Esperar"
                                                     }
                                                     disabled={
-                                                        (currentPlayerTurnId !==
-                                                            localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
+                                                        currentPlayerTurnId || turnStage_playerToStartNewTurn !==
+                                                        localPlayer?.id
                                                     }
                                                 />
-                                            </>
-                                        )
-                                    }
+                                                {/* <NotificationSound
+                                                    trigger={rollDiceTrigger}
+                                                    audioSrc="/assets/audios/sound-effects/dices-roll.mp3"
+                                                /> */}
 
-                                    {
-                                        (newTurn_localPlayerStoredData?.is_ready_to_face_event || submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent || preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays) &&
-                                        hasPlayerSubmittedPlan &&
-                                        newTurn_localPlayerStoredData.time_manager.is_weekend &&
-                                        (
-                                            <>
-                                                <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
+                                            </>
+                                        )}
+
+                                        {/* We've stored the advancedDays in the ws service before triggering the dice notification action */}
+                                        {newturn_isStartNewTurnStage && (
+                                            <LocalStateDynamicButton
+                                                onClick={triggerAdvanceDaysMessage}
+                                                message={
+                                                    currentPlayerTurnId ===
+                                                        localPlayer?.id
+                                                        ? "Lanzar dados y avanza"
+                                                        : "Esperar..."
+                                                }
+                                                disabled={
+                                                    currentPlayerTurnId !==
+                                                    localPlayer?.id
+                                                }
+                                                hoverImgSrc={"/assets/buttons/ButtonPurple-hover.png"}
+                                            />
+                                        )}
+
+                                        {/* {preNewTurnStage_isOver && (
+                                        <ActionButtonManager
+                                            method="days_advanced"
+                                            wsActionTriggerer={triggerAdvanceDaysMessage}
+                                            message={
+                                                currentPlayerTurnId || turnStage_playerToStartNewTurn  ===
+                                                localPlayer?.id
+                                                    ? "Avanzar dias"
+                                                    : "Esperar"
+                                            }
+                                            disabled={
+                                                currentPlayerTurnId || turnStage_playerToStartNewTurn  !==
+                                                localPlayer?.id
+                                            }
+                                        />
+                                    )}
+
+                                    
+
+                                    {turnStage_isTurnOrderStageOver &&
+                                        !preNewTurnStage_isOver &&
+                                        newTurnStage_isOver &&
+                                        newTurnStage_daysAdvanced && (
+                                            <LocalStateDynamicButton
+                                                onClick={handleLocallyRolledDices}
+                                                message={
+                                                    currentPlayerTurnId ===
+                                                    localPlayer?.id
+                                                        ? "Lanzar dados"
+                                                        : "Esperar"
+                                                }
+                                                disabled={
+                                                    currentPlayerTurnId !==
+                                                    localPlayer?.id
+                                                }
+                                            />
+                                        )} */}
+
+                                        {/* { is_notificaation && (
+                                            <LocalStateDynamicButton
+                                                onClick={() => {}}
+                                                message={
+                                                    "Espera por tu turno..."
+                                                }
+                                                disabled={true}
+                                                darkText={true}
+                                                buttonImgSrc="/assets/buttons/ButtonSecondary.png"
+                                            />
+                                        )} */}
+
+                                        {/* Dices view */}
+                                        {/* Turn Stage Dices */}
+                                        {!turnStage_isTurnOrderStageOver &&
+                                            turnStage_hasPlayerRolledDices &&
+                                            turnStage_dicesResult && (
+                                                <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
+                                                    {turnStage_dicesResult?.map(
+                                                        (dice: number) => (
+                                                            // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
+                                                            <img
+                                                                key={dice}
+                                                                src={`/assets/dices/${dice}.png`}
+                                                                alt={`dice${dice}`}
+                                                                className="size-[50px] object-contain"
+                                                            />
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
+
+                                        {/* New Turn Stage Dices */}
+                                        {preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
+                                            (
+                                                <div className="border-[3px] border-zinc-900 bg-[#6366F1] flex gap-2 items-center justify-center w-fit min-h-[60px] px-4 rounded-md">
+                                                    {newTurn_advancedDays?.dices.map(
+                                                        (dice: number) => (
+                                                            // <img key={dice} className="text-white font-easvhs text-lg">{dice}</img>
+                                                            <img
+                                                                key={dice}
+                                                                src={`/assets/dices/${dice}.png`}
+                                                                alt={`dice${dice}`}
+                                                                className="size-[50px] object-contain"
+                                                            />
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
+
+                                        {
+                                            preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays &&
+                                            newTurn_localPlayerStoredData.time_manager.is_first_turn_in_month &&
+                                            !newTurn_localPlayerStoredData.is_ready_to_face_event &&
+                                            (
+                                                <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out w-96 cursor-pointer max-w-md hover:scale-105 transform transition-transform" onClick={() => navigate(`/game/action-plan?sessionCode=${sessionCode}&playerId=${playerId}`)}>
                                                     {/* <span className="text-sm text-zinc font-dogica-bold px-5">
                                                     {
                                                         "¡Es hora de planificar!"
@@ -706,28 +639,131 @@ export default function _layout() {
                                                     <div className="flex gap-2">
                                                         <figure className="size-12">
                                                             <img
-                                                                src={'/assets/icons/weekend-rest.png'}
+                                                                src={'/assets/icons/action-plan.png'}
                                                                 alt="Icon"
-                                                                className="object-contain aspect-square size-12"
+                                                                className="object-contain aspect-square h-full w-full size-12"
                                                             />
                                                         </figure>
-                                                        <div className="grow">
+                                                        <div className="grow max-w-64">
                                                             <h4 className="text-sm font-easvhs">
-                                                                ¡Es fin de semana!
+                                                                Plan de acción
                                                             </h4>
-                                                            <p className="text-xs font-rajdhani font-bold">
-                                                                ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
+                                                            <p className="text-xs font-rajdhani font-semibold">
+                                                                ¡Ha comenzado un nuevo mes! COMPRA los productos, proyectos y/o recursos que te ayudarán a pasar los eventos.
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </WhiteContainer>
+                                            )
+                                        }
+                                        {
+                                            (preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays || submitPlan_isReadyToFaceEvent) &&
+                                            hasPlayerSubmittedPlan &&
+                                            !newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                            (
+                                                <>
+                                                    <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
+                                                        {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                                        {
+                                                            "¡Es hora de planificar!"
+                                                        }
+                                                    </span> */}
+                                                        <div className="flex gap-2">
+                                                            <figure className="size-12">
+                                                                <img
+                                                                    src={'/assets/icons/evento.png'}
+                                                                    alt="Icon"
+                                                                    className="object-contain aspect-square size-12 min-w-12"
+                                                                />
+                                                            </figure>
+                                                            <div className="grow">
+                                                                <h4 className="text-sm font-easvhs">
+                                                                    ¡Es hora de enfrentar el evento!
+                                                                </h4>
+                                                                <p className="text-xs font-rajdhani font-bold">
+                                                                    ¡Oh no! Veremos si tienes lo suficientemente fuertes tus eficiencias para pasar el evento.
+                                                                    Da CLICK en el botón para ver el resultado.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </WhiteContainer>
+                                                    <ActionButtonManager
+                                                        method="turn_event_flow"
+                                                        wsActionTriggerer={triggerStartEventFlow}
+                                                        message={
+                                                            currentPlayerTurnId ===
+                                                                localPlayer?.id
+                                                                ? (navigation.state === "submitting" ? "Enviando..." : "Enfrentar evento")
+                                                                : "Esperar..."
+                                                        }
+                                                        disabled={
+                                                            (currentPlayerTurnId !==
+                                                                localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
+                                                        }
+                                                    />
+                                                </>
+                                            )
+                                        }
+
+                                        {
+                                            (newTurn_localPlayerStoredData?.is_ready_to_face_event || submitPlan_isReadyToFaceEvent || newTurnStage_isReadyToFaceEvent || preNewTurn_hasLocalPlayerRolledDicesToAdvanceDays) &&
+                                            hasPlayerSubmittedPlan &&
+                                            newTurn_localPlayerStoredData.time_manager.is_weekend &&
+                                            (
+                                                <>
+                                                    <WhiteContainer className="animate-pulse animate-infinite animate-duration-[3000ms] animate-ease-in-out max-w-96">
+                                                        {/* <span className="text-sm text-zinc font-dogica-bold px-5">
+                                                        {
+                                                            "¡Es hora de planificar!"
+                                                        }
+                                                    </span> */}
+                                                        <div className="flex gap-2">
+                                                            <figure className="size-12">
+                                                                <img
+                                                                    src={'/assets/icons/weekend-rest.png'}
+                                                                    alt="Icon"
+                                                                    className="object-contain aspect-square size-12"
+                                                                />
+                                                            </figure>
+                                                            <div className="grow">
+                                                                <h4 className="text-sm font-easvhs">
+                                                                    ¡Es fin de semana!
+                                                                </h4>
+                                                                <p className="text-xs font-rajdhani font-bold">
+                                                                    ¡Te salvaste! Hoy no vas a enfrentar ningún evento, puedes pasar al siguiente turno.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </WhiteContainer>
+                                                    <ActionButtonManager
+                                                        method="next_turn"
+                                                        wsActionTriggerer={triggerSetNextTurn}
+                                                        message={
+                                                            currentPlayerTurnId ===
+                                                                localPlayer?.id
+                                                                ? "Pasar al siguiente turno"
+                                                                : "Esperar..."
+                                                        }
+                                                        disabled={
+                                                            currentPlayerTurnId !==
+                                                            localPlayer?.id
+                                                        }
+                                                    />
+                                                </>
+                                            )
+                                        }
+
+                                        {
+                                            nextTurn_currentTurn && nextTurn_method == "next_turn" &&
+                                            !eventFlow_hasNavigated &&
+                                            (
                                                 <ActionButtonManager
                                                     method="next_turn"
-                                                    wsActionTriggerer={triggerSetNextTurn}
+                                                    wsActionTriggerer={triggerStartNewTurn}
                                                     message={
                                                         currentPlayerTurnId ===
                                                             localPlayer?.id
-                                                            ? "Pasar al siguiente turno"
+                                                            ? "Es tu turno. Comenzar"
                                                             : "Esperar..."
                                                     }
                                                     disabled={
@@ -735,60 +771,41 @@ export default function _layout() {
                                                         localPlayer?.id
                                                     }
                                                 />
-                                            </>
-                                        )
-                                    }
+                                            )
+                                        }
 
-                                    {
-                                        nextTurn_currentTurn && nextTurn_method == "next_turn" &&
-                                        !eventFlow_hasNavigated &&
-                                        (
-                                            <ActionButtonManager
-                                                method="next_turn"
-                                                wsActionTriggerer={triggerStartNewTurn}
-                                                message={
-                                                    currentPlayerTurnId ===
-                                                        localPlayer?.id
-                                                        ? "Es tu turno. Comenzar"
-                                                        : "Esperar..."
-                                                }
-                                                disabled={
-                                                    currentPlayerTurnId !==
-                                                    localPlayer?.id
-                                                }
-                                            />
-                                        )
-                                    }
-
-                                    {
-                                        eventFlow_hasNavigated &&
-                                        nextTurn_currentTurn == localPlayer?.id &&
-                                        (
-                                            <ActionButtonManager
-                                                method="next_turn"
-                                                wsActionTriggerer={triggerSetNextTurn}
-                                                message={
-                                                    currentPlayerTurnId ===
-                                                        localPlayer?.id
-                                                        ? "Terminar tu turno."
-                                                        : "Esperar..."
-                                                }
-                                                disabled={
-                                                    (currentPlayerTurnId !==
-                                                        localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
-                                                }
-                                            />
-                                        )
-                                    }
+                                        {
+                                            eventFlow_hasNavigated &&
+                                            nextTurn_currentTurn == localPlayer?.id &&
+                                            (
+                                                <ActionButtonManager
+                                                    method="next_turn"
+                                                    wsActionTriggerer={triggerSetNextTurn}
+                                                    message={
+                                                        currentPlayerTurnId ===
+                                                            localPlayer?.id
+                                                            ? "Terminar tu turno."
+                                                            : "Esperar..."
+                                                    }
+                                                    disabled={
+                                                        (currentPlayerTurnId !==
+                                                            localPlayer?.id) || navigation.state === "loading" || navigation.state === "submitting"
+                                                    }
+                                                />
+                                            )
+                                        }
 
 
-                                </div>
-                            </section>
-                        </article>
-                        <Outlet></Outlet>
-                    </section>
-                </PageContainer>
-            </main>
+                                    </div>
+                                </section>
+                            </article>
+                        </section>
+                    </PageContainer>
+                </main>
+            </div>
+            <div id="react-ui-container" className="absolute left-0 top-0 h-full w-full pointer-events-none">
+                <Outlet />
+            </div>
         </div>
     );
 }
@@ -1055,7 +1072,7 @@ function PlayerCard({ player }: { player: TurnOrderPlayer | NextTurnPlayerOrderS
                                     </figure>
                                     <span className="font-easvhs text-sm">
                                         {icon.text}
-                                    </span>
+        </span>
                                 </div>
                             );
                         })}

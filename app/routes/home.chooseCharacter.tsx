@@ -16,6 +16,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { useSoundContext } from "~/components/custom/music/SoundContext";
+import { Header } from "~/components/custom/landing/Header";
+import { PageContainer } from "~/components/custom/PageContainer";
 
 //Form validation and configuration
 const schema = z.object({
@@ -124,9 +126,27 @@ function ChooseCharacter() {
 
 
     return (
-        <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10 py-4 px-8 flex flex-col gap-6"
-
+        <div
+            className="min-h-dvh grid grid-cols-1 relative"
+            style={{
+                backgroundImage: 'url(/assets/landing/img/gradiente.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+            }}
         >
+            <Header />
+            <main className="flex justify-center items-center">
+                <PageContainer className="z-0 bg-white flex justify-center items-center">
+                    <section className="w-[950px] aspect-[3/2] relative flex flex-col gap-8 items-center">
+                        <img
+                            className="-z-10 aspect-[3/2] object-cover absolute inset-0"
+                            src="/assets/backgrounds/LandingBackground.png"
+                            alt="Landing Background"
+                        />
+                        <div className="absolute h-96 inset-0 bg-gradient-to-b from-black/75 via-purple-transparent to-transparent -z-10"></div>
+                        
+                        <article className="h-full w-full backdrop-blur-[2px] bg-white/70 relative z-10 py-4 px-8 flex flex-col gap-6">
              <div className="absolute top-0 right-2">
             <MusicAndSoundControls />
         </div>
@@ -234,6 +254,10 @@ function ChooseCharacter() {
                 <img src="/assets/buttons/arrow-right.png" alt="" />
             </button>
         </article>
+                    </section>
+                </PageContainer>
+            </main>
+        </div>
     );
 }
 

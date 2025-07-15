@@ -69,6 +69,9 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload() {
+        // Reset path to be relative to the public folder
+        this.load.setPath(''); 
+        
         const playersAvatars = this.playerPositions.map(player => player.avatarId);
         playersAvatars.forEach((avatarId) => {
             const animJsonPath = `game/animations/character_${avatarId}/character_${avatarId}_anim.json`;

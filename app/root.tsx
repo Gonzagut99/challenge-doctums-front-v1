@@ -17,7 +17,17 @@ import GlobalMusic from "./components/custom/music/GlobalMusic";
 
 export const links: LinksFunction = () => [
     { rel: "stylesheet", href: styles },
-    { rel: "stylesheet", href: toastStyles }
+    { rel: "stylesheet", href: toastStyles },
+    { rel: "stylesheet", href: "/fonts/dogica/dogica.css" },
+    { rel: "stylesheet", href: "/fonts/easvhs/easvhs.css" },
+    {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap",
+    },
+    {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap",
+    },
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

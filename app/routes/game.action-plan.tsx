@@ -6,7 +6,7 @@ import Modal from "~/components/custom/Modal";
 
 import { WhiteContainer } from "~/components/custom/WhiteContainer";
 import { Button2 } from "~/components/custom/Button2";
-import { GameControlButton } from "../../_layout";
+import type { GameControlButton } from "~/routes/game";
 import { initializedDataLoader } from "~/utils/dataLoader";
 import { PlanActions } from "~/types/methods_jsons";
 import { WebSocketService, getWebSocketService } from "~/services/ws";
@@ -140,7 +140,7 @@ export default function ActionPlan() {
                                     <WhiteContainer
                                         key={button.control}
                                         onClick={() =>
-                                            navigate(`/game/actionPlan/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
+                                            navigate(`/game/action-plan/${button.control}?sessionCode=${sessionCode}&playerId=${playerId}`)
                                         }
                                         className="max-w-80 cursor-pointer hover:scale-105 transform transition-transform duration-300"
                                     >
@@ -267,55 +267,17 @@ export default function ActionPlan() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="absolute top-20 right-0 max-w-72 w-72 flex flex-col gap-2 items-end">
-                                <div className="flex gap-2 w-fit">
-                                        <span className="font-easvhs text-xl">
-                                            Presupuesto restante:
-                                        </span>
-                                        <div className="flex items-center gap-2 border-2 border-zinc-900 bg-zinc-300 px-2">
-                                            <figure
-                                                className={
-                                                    "px-1 h-full flex items-center w-fit"
-                                                }
-                                            >
-                                                <img
-                                                    src="/assets/icons/cashIcon.png"
-                                                    alt="Icon"
-                                                    className="size-8 min-w-8 object-contain"
-                                                />
-                                            </figure>
-                                            <span className="font-easvhs text-lg">
-                                                {potentialRemainingBudget}
-                                            </span>
-                                        </div>
-                                </div>
-                                <div className="flex gap-2 w-fit">
-                                    <span className="font-easvhs text-2xl">
-                                        Total:
-                                    </span>
-                                    <div
-                                    className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2"
-                                    >
-                                        <figure
-                                            className={
-                                                "px-1 h-full flex items-center w-fit"
-                                            }
-                                        >
-                                            <img
-                                                src="/assets/icons/cashIcon.png"
-                                                alt="Icon"
-                                                className="size-8"
-                                            />
-                                        </figure>
-                                        <span className="font-easvhs text-xl">
-                                            {originalTotalPrice}
-                                        </span>
+                                <div className="border-l-[3px] border-zinc-900 px-4 flex flex-col items-center justify-between">
+                                    <div className="text-center">
+                                        <h5 className="font-easvhs text-md">
+                                            Presupuesto restante
+                                        </h5>
+                                        <p className="font-easvhs text-2xl text-green-500">
+                                            {potentialRemainingBudget}
+                                        </p>
                                     </div>
+                                    <Button2 onClick={handleSubmit}>Guardar</Button2>
                                 </div>
-                                <Button2 className="btn btn-primary w-full font-easvhs text-zinc-50 text-xl disabled:opacity-50" onClick={handleSubmit} disabled={submitPlan_localPlayerPlan.products.length === 0 && submitPlan_localPlayerPlan.projects.length === 0 && submitPlan_localPlayerPlan.resources.length === 0}>
-                                    Enviar Plan
-                                </Button2>
                             </div>
                         </div>
                     </div>
@@ -325,65 +287,25 @@ export default function ActionPlan() {
     );
 }
 
-const actionPlanButtons: GameControlButton[] = [
+//Temporal Data
+const actionPlanButtons = [
     {
-        icon: "/assets/icons/productsIcon.png",
         title: "Comprar Productos",
+        icon: "/assets/icons/productsIcon.png",
         description:
-            "Objetos o mejoras que, una vez adquiridos te ayudarán a ganar más puntos en futuras etapa.",
-        control: "buyProducts",
+            "Objetos o mejoras que, una vez adquiridos te ayudarán a ganar más puntos en futuras etapas.",
+        control: "buy-products",
     },
     {
-        icon: "/assets/icons/resourcesIcon.png",
         title: "Comprar Recursos",
-        description:
-            "Herramienta, tiempo y equipo humano necesarios para ejecutar tus proyectos.",
-        control: "buyResources",
+        icon: "/assets/icons/resourcesIcon.png",
+        description: "Contrata recursos humanos que te ayuden a desarrollan productos.",
+        control: "buy-resources",
     },
     {
+        title: "Poner proyectos en ejecución",
         icon: "/assets/icons/projectsIcon.png",
-        title: "Comprar Proyectos",
-        description:
-            "Misiones o tareas que, al completarse, te otorgan productos.",
-        control: "buyProjects",
+        description: "Misiones o tareas que al pasar tres meses te otorgan productos.",
+        control: "buy-projects",
     },
-];
-
-// const modifiersCheckout: ModifiersCheckout = {
-//     products: [
-//         {
-//             id: "46",
-//             title: "Product 1",
-//             icon: "/assets/modifiersIcons/products/46.png",
-//         },
-//         {
-//             id: "30",
-//             title: "Product 2",
-//             icon: "/assets/modifiersIcons/products/30.png",
-//         },
-//     ],
-//     resources: [
-//         {
-//             id: "1",
-//             title: "Resource 1",
-//             icon: "/assets/icons/resourcesIcon.png",
-//         },
-//         {
-//             id: "2",
-//             title: "Resource 2",
-//             icon: "/assets/icons/resourcesIcon.png",
-//         },
-//     ],
-//     projects: [
-//         {
-//             id: "1",
-//             title: "Project 1",
-//             icon: "/assets/icons/projectsIcon.png",
-//         },
-//         {
-//             id: "2",
-//             title: "Project 2",
-//             icon: "/assets/icons/projectsIcon.png",
-//         },
-//     ],
-// };
+]; 

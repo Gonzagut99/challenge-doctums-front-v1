@@ -1,23 +1,32 @@
-# Use the official Node.js image with an Alpine base for a lightweight setup
-FROM node:21-alpine
+# Stage 1: Build the application
+FROM node:21-alpine AS build
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Install necessary tools for development (bash, etc.)
-RUN apk add --no-cache bash git
-
-# Copy the package.json and package-lock.json files first to leverage Docker caching
+# Copy package files and install dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Expose the Remix development server port (default is 3000)
-EXPOSE 8085
+# Build the application for production
+RUN npm run build
 
-# Command to run Remix in dev mode
-CMD ["npm", "run", "dev"]
+# Stage 2: Create the production image
+FROM node:21-alpine
+
+WORKDIR /app
+
+# Copy only necessary files from the build stage
+COPY --from=build /app/build/ ./build
+COPY --from=build /app/public/ ./public
+COPY --from=build /app/app/data/ ./app/data/
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/node_modules/ ./node_modules
+
+# Expose the port the app runs on
+EXPOSE 8080
+
+# Command to run the production server
+CMD [ "npm", "run", "start"] 

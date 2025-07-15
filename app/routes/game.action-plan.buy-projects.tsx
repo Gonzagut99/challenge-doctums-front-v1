@@ -249,68 +249,47 @@ export default function BuyProjects() {
                                         <span className="font-easvhs text-lg">
                                             Total de projectos:
                                         </span>
-                                        <span
-                                            className={twMerge(
-                                                "font-easvhs text-xl",
-                                                surpassMaxProjects
-                                                    ? "text-red-500"
-                                                    : "text-green-500"
-                                            )}
-                                        >
-                                            {selectedProjects.length}/ max(
-                                            {maxProjectsPerMonth})
+                                        <span className="font-easvhs text-lg text-red-500">
+                                            {selectedProjects.length}
                                         </span>
                                     </div>
                                     <div className="flex gap-2 w-fit">
-                                        <span className="font-easvhs text-xl">
+                                        <span className="font-easvhs text-lg">
                                             Presupuesto restante:
                                         </span>
-                                        <div className="flex items-center gap-2 border-2 border-zinc-900 bg-zinc-300 px-2">
-                                            <figure
-                                                className={
-                                                    "px-1 h-full flex items-center w-fit"
-                                                }
-                                            >
-                                                <img
-                                                    src="/assets/icons/cashIcon.png"
-                                                    alt="Icon"
-                                                    className="size-6"
-                                                />
-                                            </figure>
-                                            <span className="font-easvhs text-lg">
-                                                {potentialRemainingBudgetState}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2 w-fit">
-                                        <span className="font-easvhs text-2xl">
-                                            Total:
+                                        <span
+                                            className={twMerge(
+                                                "font-easvhs text-lg",
+                                                surpassBudget &&
+                                                    "text-red-500"
+                                            )}
+                                        >
+                                            {potentialRemainingBudgetState}
                                         </span>
-                                        <div className="flex items-center gap-2 border-2 border-zinc-900 bg-[#99C579] px-2">
-                                            <figure
-                                                className={
-                                                    "px-1 h-full flex items-center w-fit"
-                                                }
-                                            >
-                                                <img
-                                                    src="/assets/icons/cashIcon.png"
-                                                    alt="Icon"
-                                                    className="size-8"
-                                                />
-                                            </figure>
-                                            <span className="font-easvhs text-xl">
-                                                {totalCost}
-                                            </span>
-                                        </div>
                                     </div>
+                                    <p
+                                        className={twMerge(
+                                            "font-rajdhani font-semibold text-sm text-red-500",
+                                            !surpassMaxProjects && "hidden"
+                                        )}
+                                    >
+                                        {`Solo puedes comprar ${maxProjectsPerMonth} proyecto por mes`}
+                                    </p>
+                                    <p
+                                        className={twMerge(
+                                            "font-rajdhani font-semibold text-sm text-red-500",
+                                            !surpassBudget && "hidden"
+                                        )}
+                                    >
+                                        {`Tu presupuesto no es suficiente`}
+                                    </p>
                                     <Button2
-                                        className="btn btn-primary font-easvhs text-zinc-50 text-xl w-80 disabled:opacity-50 max-w-80 !max-h-14"
                                         onClick={handleSubmit}
                                         disabled={
-                                            surpassBudget || surpassMaxProjects
+                                            surpassMaxProjects || surpassBudget
                                         }
                                     >
-                                        Enviar
+                                        Guardar
                                     </Button2>
                                 </div>
                             </div>
@@ -320,4 +299,4 @@ export default function BuyProjects() {
             )}
         </AnimatePresence>
     );
-}
+} 

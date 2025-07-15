@@ -11,6 +11,9 @@ import {  getWebSocketService, instancesManager } from "~/services/ws";
 import { useLiveLoader } from "~/utils/use-live-loader";
 import MusicAndSoundControls from "~/components/custom/music/ControlMusic";
 import { useSoundContext } from "~/components/custom/music/SoundContext";
+import { Header } from "~/components/custom/landing/Header";
+import { PageContainer } from "~/components/custom/PageContainer";
+import { Outlet, useLocation } from "@remix-run/react";
 // import { CharacterData } from '~/types/character';
 // import { ConnectedPlayer } from '~/types/connectedPlayer'
 
@@ -50,6 +53,10 @@ function Index() {
     const connectedPlayers = loaderData.connectedPlayers;
     const currentUserId = loaderData.player?.id;
     const gameCode = loaderData.sessionCode;
+    const location = useLocation();
+    
+    // Check if we're on the stream route
+    const isStreamRoute = location.pathname.includes('/stream');
     // const currentUserId = loaderData.player.id;
     // const connectedPlayers = loaderData.connectedPlayers;
 
@@ -107,7 +114,31 @@ function Index() {
         }
     };
 
+    // If we're on the stream route, render the nested route content
+    if (isStreamRoute) {
+        return <Outlet />;
+    }
+
+    // Otherwise, render the game hall content
     return (
+        <div
+            className="min-h-dvh grid grid-cols-1 h-full"
+            style={{
+                backgroundImage: 'url(/assets/landing/img/gradiente.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+            }}
+        >
+            <Header />
+            <main className="min-h-dvh grid grid-cols-1">
+                <PageContainer className="z-0 bg-transparent flex justify-center items-center">
+                    <section className="w-[950px] aspect-[3/2] relative flex flex-col gap-8 justify-center items-center">
+                        <img
+                            className="-z-10 aspect-[3/2] object-fill absolute inset-0"
+                            src="/assets/backgrounds/waitingHallBg.png"
+                            alt="Landing Background"
+                        />
         <article className="h-full w-full relative z-10 py-4 px-8 flex flex-col gap-6">
             <div className="absolute top-0 right-2">
             <MusicAndSoundControls />
@@ -222,6 +253,10 @@ function Index() {
                 )}
             </section>
         </article>
+                    </section>
+                </PageContainer>
+            </main>
+        </div>
     );
 }
 
